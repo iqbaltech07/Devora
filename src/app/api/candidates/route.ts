@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redis } from "@/lib/redis";
 import { headers } from "next/headers";
-import { SkillItem } from "@/store/types";
+import { SkillItem, CandidatePartner } from "@/store/types";
 
 function deriveTagsAndStack(title?: string | null, tags?: string[], primaryStack?: string[]) {
   const t = (title || "").toLowerCase();
@@ -129,7 +129,9 @@ export async function GET() {
           select: {
             id: true,
             title: true,
+            description: true,
             stage: true,
+            tags: true,
           },
           take: 1,
         },
@@ -160,7 +162,6 @@ export async function GET() {
         id: user.id,
         name: user.name || "Developer",
         avatarUrl,
-        image: avatarUrl,
         title: user.title || "Fullstack Engineer & Builder",
         bio:
           user.bio ||
@@ -194,7 +195,14 @@ export async function GET() {
           commitment: `${user.availabilityHrs || 10} jam/mgg (${user.workStyle || "Async-First"})`,
           projectTypes: ["SaaS", "Open Source", "MVP"],
         },
-        buildingProject: user.projects?.[0] || undefined,
+        buildingProject: user.projects?.[0]
+          ? {
+              title: user.projects[0].title,
+              description: user.projects[0].description || "Building an exciting product on Devora",
+              stage: (user.projects[0].stage as any) || "MVP",
+              tech: user.projects[0].tags || primaryStack,
+            }
+          : undefined,
       });
     });
 

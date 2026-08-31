@@ -35,7 +35,7 @@ interface ProjectState {
   isLoading: boolean;
   error: string | null;
   fetchProjects: () => Promise<void>;
-  createProjectAsync: (project: Omit<Project, "id" | "createdAt">) => Promise<void>;
+  createProjectAsync: (project: Omit<Project, "id" | "createdAt">) => Promise<Project>;
   addProject: (project: Omit<Project, "id" | "createdAt">) => void;
   selectProject: (id: string | null) => void;
   updateDraft: (draft: Partial<Project>) => void;
@@ -110,7 +110,7 @@ const INITIAL_MILESTONES: ProjectMilestone[] = [
 export const INITIAL_PROJECTS: Project[] = [];
 export const INITIAL_JOIN_REQUESTS: JoinRequest[] = [];
 
-export const useProjectStore = create<ProjectState>((set) => ({
+export const useProjectStore = create<ProjectState>((set, get) => ({
   projects: INITIAL_PROJECTS,
   selectedProjectId: null,
   draftProject: {

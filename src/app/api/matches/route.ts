@@ -120,7 +120,7 @@ export async function GET() {
             availabilityHrs: true,
             workStyle: true,
             projects: {
-              select: { id: true, title: true, stage: true },
+              select: { id: true, title: true, description: true, stage: true, tags: true },
               take: 1,
             },
           },
@@ -141,7 +141,7 @@ export async function GET() {
             availabilityHrs: true,
             workStyle: true,
             projects: {
-              select: { id: true, title: true, stage: true },
+              select: { id: true, title: true, description: true, stage: true, tags: true },
               take: 1,
             },
           },
@@ -173,7 +173,6 @@ export async function GET() {
         id: partner.id,
         name: partner.name || "Developer",
         avatarUrl,
-        image: avatarUrl,
         title: partner.title || "Fullstack Engineer & Partner",
         bio: partner.bio || `Halo! Senang bisa ngoding bareng kamu di Devora.`,
         location: partner.location || "Indonesia (WIB)",
@@ -205,7 +204,14 @@ export async function GET() {
           commitment: `${partner.availabilityHrs || 10} jam/mgg (${partner.workStyle || "Async-First"})`,
           projectTypes: ["SaaS", "Open Source", "MVP"],
         },
-        buildingProject: partner.projects?.[0] || undefined,
+        buildingProject: partner.projects?.[0]
+          ? {
+              title: partner.projects[0].title,
+              description: partner.projects[0].description || "Building an exciting product on Devora",
+              stage: (partner.projects[0].stage as any) || "MVP",
+              tech: partner.projects[0].tags || primaryStack,
+            }
+          : undefined,
       });
     });
 
