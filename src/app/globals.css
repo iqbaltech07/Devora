@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Devora Core Color System (design.md Section 04) */
+    --color-ink: #141817;
+    --color-ink-soft: #2A302D;
+
+    --color-background: #FCFBF8;
+    --color-surface: #F5F2EA;
+    --color-surface-strong: #EBE7DD;
+
+    --color-brand: #E85D3F;
+    --color-brand-dark: #C94A30;
+    --color-brand-soft: #F7D8D0;
+
+    --color-border: #D9D5CB;
+    --color-border-strong: #BDB8AC;
+
+    --color-muted: #77766F;
+    --color-muted-strong: #555650;
+
+    --color-success: #3E7A5A;
+    --color-warning: #B87824;
+    --color-danger: #B94A43;
+
+    /* Shadcn Semantic Mapping */
+    --background: var(--color-background);
+    --foreground: var(--color-ink);
+
+    --card: var(--color-surface);
+    --card-foreground: var(--color-ink);
+
+    --popover: var(--color-surface);
+    --popover-foreground: var(--color-ink);
+
+    --primary: var(--color-brand);
+    --primary-foreground: #FFFFFF;
+
+    --secondary: var(--color-surface-strong);
+    --secondary-foreground: var(--color-ink);
+
+    --muted: var(--color-surface-strong);
+    --muted-foreground: var(--color-muted);
+
+    --accent: var(--color-brand-soft);
+    --accent-foreground: var(--color-brand-dark);
+
+    --destructive: var(--color-danger);
+    --destructive-foreground: #FFFFFF;
+
+    --border: var(--color-border);
+    --input: var(--color-border);
+    --ring: var(--color-brand);
+
+    --radius: 8px;
+
+    /* Piardify Theme Interop */
+    --piardify-bg: #FCFBF8;
+    --piardify-surface: #F5F2EA;
+    --piardify-border: #D9D5CB;
+    --piardify-primary: #E85D3F;
+    --piardify-text: #141817;
+    --piardify-text-muted: #77766F;
+  }
+
+  .dark {
+    --color-ink: #F2F0EB;
+    --color-ink-soft: #CCC8BE;
+
+    --color-background: #141817;
+    --color-surface: #1C2220;
+    --color-surface-strong: #272F2C;
+
+    --color-brand: #FA7052;
+    --color-brand-dark: #E85D3F;
+    --color-brand-soft: #3E241E;
+
+    --color-border: #2D3633;
+    --color-border-strong: #404D48;
+
+    --color-muted: #8E9692;
+    --color-muted-strong: #B3BBB7;
+
+    --color-success: #529E75;
+    --color-warning: #D9933B;
+    --color-danger: #D96057;
+
+    /* Shadcn Semantic Mapping */
+    --background: var(--color-background);
+    --foreground: var(--color-ink);
+
+    --card: var(--color-surface);
+    --card-foreground: var(--color-ink);
+
+    --popover: var(--color-surface);
+    --popover-foreground: var(--color-ink);
+
+    --primary: var(--color-brand);
+    --primary-foreground: #FFFFFF;
+
+    --secondary: var(--color-surface-strong);
+    --secondary-foreground: var(--color-ink);
+
+    --muted: var(--color-surface-strong);
+    --muted-foreground: var(--color-muted);
+
+    --accent: var(--color-brand-soft);
+    --accent-foreground: var(--color-brand-dark);
+
+    --destructive: var(--color-danger);
+    --destructive-foreground: #FFFFFF;
+
+    --border: var(--color-border);
+    --input: var(--color-border);
+    --ring: var(--color-brand);
+
+    /* Piardify Theme Interop */
+    --piardify-bg: #0F172A;
+    --piardify-surface: #1E293B;
+    --piardify-border: #334155;
+    --piardify-primary: #FA7052;
+    --piardify-text: #F3F4F6;
+    --piardify-text-muted: #9CA3AF;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-ink);
+    font-family: var(--font-sans), 'Plus Jakarta Sans', 'Outfit', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Anti-Slop Utility Classes */
+.bg-devora-bg { background-color: var(--color-background); }
+.bg-devora-surface { background-color: var(--color-surface); }
+.bg-devora-surface-strong { background-color: var(--color-surface-strong); }
+.border-devora { border-color: var(--color-border); }
+.border-devora-strong { border-color: var(--color-border-strong); }
+.text-devora-ink { color: var(--color-ink); }
+.text-devora-ink-soft { color: var(--color-ink-soft); }
+.text-devora-brand { color: var(--color-brand); }
+.text-devora-muted { color: var(--color-muted); }
+
+/* Compatibility with Piardify Helpers */
+.bg-piardify-dark { background-color: var(--color-background); }
+.bg-piardify-surface { background-color: var(--color-surface); }
+.bg-piardify-elevated { background-color: var(--color-surface-strong); }
+.border-piardify-subtle { border-color: var(--color-border); }
+.text-piardify-primary { color: var(--color-ink); }
+.text-piardify-muted { color: var(--color-muted); }
+
+/* Scrollbar suppression utilities */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

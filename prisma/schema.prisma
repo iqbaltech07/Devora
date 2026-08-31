@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ----------------------------------------------------------------------------
+// Better Auth Core Tables
+// ----------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String
+  emailVerified Boolean   @map("email_verified")
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+
+  // Devora Extended Profile Fields
+  title           String?   // Headline (e.g. "Senior Fullstack Engineer")
+  bio             String?
+  location        String?
+  timezone        String?
+  githubUrl       String?
+  githubUsername  String?
+  onboarded       Boolean   @default(false)
+  tags            String[]  // Array of tags (e.g. "UI/UX", "Frontend")
+  primaryStack    String[]  // Main tools
+  availabilityHrs Int?      // 5, 8, 12, 20
+  workStyle       String?   // "Async-First", etc.
+  projectGoal     String?   // Project goals (supports comma-separated / multiple)
+
+  // Relations
+  sessions    Session[]
+  accounts    Account[]
+  
+  projects    Project[] @relation("AuthoredProjects")
+  
+  swipesMade  Swipe[]   @relation("SwipesMade")
+  swipesRcvd  Swipe[]   @relation("SwipesReceived")
+  
+  matches1    Match[]   @relation("User1Matches")
+  matches2    Match[]   @relation("User2Matches")
+
+  joinRequests JoinRequest[] @relation("UserJoinRequests")
+  sentMessages Message[]     @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  issuer                String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+// ----------------------------------------------------------------------------
+// Devora App Data Models
+// ----------------------------------------------------------------------------
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  tags        String[]
+  lookingFor  String[]
+  stage       String   @default("Ideation")
+  repoUrl     String?
+  
+  authorId    String
+  author      User     @relation("AuthoredProjects", fields: [authorId], references: [id], onDelete: Cascade)
+  
+  roles         ProjectRole[]
+  roadmap       ProjectMilestone[]
+  joinRequests  JoinRequest[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("project")
+}
+
+model ProjectRole {
+  id                  String   @id @default(cuid())
+  projectId           String
+  roleTitle           String
+  requiredSkills      String[]
+  hoursPerWeek        Int
+  responsibilityLevel String   // e.g., "LEAD", "CORE_BUILDER"
+  urgency             String   // e.g., "IMMEDIATE", "NEXT_SPRINT"
+  description         String?
+
+  project             Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("project_role")
+}
+
+model ProjectMilestone {
+  id            String   @id @default(cuid())
+  projectId     String
+  title         String
+  description   String?
+  targetQuarter String
+  status        String   // "UPCOMING", "IN_PROGRESS", "COMPLETED"
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("project_milestone")
+}
+
+model JoinRequest {
+  id            String   @id @default(cuid())
+  projectId     String
+  applicantId   String
+  roleTitle     String
+  pitchNote     String?
+  status        String   @default("PENDING") // "PENDING", "ACCEPTED", "REJECTED"
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  applicant     User     @relation("UserJoinRequests", fields: [applicantId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("join_request")
+}
+
+model Message {
+  id            String   @id @default(cuid())
+  senderId      String
+  receiverId    String
+  content       String
+  read          Boolean  @default(false)
+  
+  sender        User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver      User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("message")
+}
+
+model Swipe {
+  id          String   @id @default(cuid())
+  swiperId    String
+  swipedId    String
+  direction   String   // "RIGHT" or "LEFT"
+  
+  createdAt   DateTime @default(now())
+  
+  swiper      User     @relation("SwipesMade", fields: [swiperId], references: [id], onDelete: Cascade)
+  swiped      User     @relation("SwipesReceived", fields: [swipedId], references: [id], onDelete: Cascade)
+
+  @@unique([swiperId, swipedId]) // Prevent duplicate swipes
+  @@map("swipe")
+}
+
+model Match {
+  id          String   @id @default(cuid())
+  user1Id     String
+  user2Id     String
+  
+  createdAt   DateTime @default(now())
+
+  user1       User     @relation("User1Matches", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2       User     @relation("User2Matches", fields: [user2Id], references: [id], onDelete: Cascade)
+
+  @@unique([user1Id, user2Id])
+  @@map("match")
+}

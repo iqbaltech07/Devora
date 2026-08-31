@@ -1,0 +1,502 @@
+import { create } from "zustand";
+import { Project, ProjectRole, ProjectMilestone, ProjectStage, JoinRequest } from "./types";
+
+interface ProjectFilterState {
+  searchQuery: string;
+  stage: ProjectStage | null;
+  selectedSkills: string[];
+  minHoursPerWeek: number | null;
+  selectedGoal: string | null;
+}
+
+export const DEFAULT_FILTERS: ProjectFilterState = {
+  searchQuery: "",
+  stage: null,
+  selectedSkills: [],
+  minHoursPerWeek: null,
+  selectedGoal: null,
+};
+
+export interface ExpressedInterest {
+  projectId: string;
+  roleTitle: string;
+  pitchNote?: string;
+  sentAt: string;
+}
+
+interface ProjectState {
+  projects: Project[];
+  selectedProjectId: string | null;
+  draftProject: Partial<Project>;
+  filters: ProjectFilterState;
+  bookmarkedProjectIds: string[];
+  expressedInterests: ExpressedInterest[];
+  joinRequests: JoinRequest[];
+  isLoading: boolean;
+  error: string | null;
+  fetchProjects: () => Promise<void>;
+  createProjectAsync: (project: Omit<Project, "id" | "createdAt">) => Promise<void>;
+  addProject: (project: Omit<Project, "id" | "createdAt">) => void;
+  selectProject: (id: string | null) => void;
+  updateDraft: (draft: Partial<Project>) => void;
+  resetDraft: () => void;
+  setFilters: (filters: Partial<ProjectFilterState>) => void;
+  toggleSkillFilter: (skill: string) => void;
+  clearFilters: () => void;
+  toggleBookmarkProject: (projectId: string) => void;
+  expressInterest: (projectId: string, roleTitle: string, pitchNote?: string) => Promise<void>;
+  acceptJoinRequest: (requestId: string) => Promise<void>;
+  rejectJoinRequest: (requestId: string) => Promise<void>;
+  addRoleToDraft: (role: Omit<ProjectRole, "id">) => void;
+  removeRoleFromDraft: (roleId: string) => void;
+  addStackToDraftRole: (roleId: string, stackTag: string) => void;
+  removeStackFromDraftRole: (roleId: string, stackTag: string) => void;
+  updateRoleCommitment: (roleId: string, hours: number) => void;
+  updateRoleResponsibility: (
+    roleId: string,
+    responsibilityLevel: ProjectRole["responsibilityLevel"]
+  ) => void;
+  updateRoleUrgency: (roleId: string, urgency: ProjectRole["urgency"]) => void;
+  addMilestoneToDraft: (milestone: Omit<ProjectMilestone, "id">) => void;
+  removeMilestoneFromDraft: (milestoneId: string) => void;
+  cycleMilestoneStatus: (milestoneId: string) => void;
+}
+
+const INITIAL_ROLES_DEVORA: ProjectRole[] = [
+  {
+    id: "role-1",
+    roleTitle: "Backend Architect",
+    requiredSkills: ["Node.js", "PostgreSQL", "Prisma", "Redis"],
+    hoursPerWeek: 8,
+    responsibilityLevel: "LEAD",
+    urgency: "IMMEDIATE",
+    description: "Design relational data schemas and matching scoring algorithm execution engine.",
+  },
+  {
+    id: "role-2",
+    roleTitle: "AI Integration Engineer",
+    requiredSkills: ["TypeScript", "LLM APIs", "Context Caching"],
+    hoursPerWeek: 6,
+    responsibilityLevel: "CORE_BUILDER",
+    urgency: "NEXT_SPRINT",
+    description: "Build semantic resume and github profile parsing pipeline.",
+  },
+];
+
+const INITIAL_MILESTONES: ProjectMilestone[] = [
+  {
+    id: "m-1",
+    title: "System Blueprint & Token Engine",
+    description: "Design system setup, 5-store Zustand suite, and database schema specification.",
+    targetQuarter: "Q3 2026",
+    status: "COMPLETED",
+  },
+  {
+    id: "m-2",
+    title: "Partner Matching Algorithm Engine",
+    description: "Multi-dimensional scoring logic (Stack overlap + Availability overlap + Goal affinity).",
+    targetQuarter: "Q3 2026",
+    status: "IN_PROGRESS",
+  },
+  {
+    id: "m-3",
+    title: "Async Collaboration Sandbox & Beta Release",
+    description: "Direct messaging, invite workflow, and public beta onboarding.",
+    targetQuarter: "Q4 2026",
+    status: "UPCOMING",
+  },
+];
+
+export const INITIAL_PROJECTS: Project[] = [];
+export const INITIAL_JOIN_REQUESTS: JoinRequest[] = [];
+
+export const useProjectStore = create<ProjectState>((set) => ({
+  projects: INITIAL_PROJECTS,
+  selectedProjectId: null,
+  draftProject: {
+    title: "",
+    description: "",
+    stage: "MVP",
+    roles: INITIAL_ROLES_DEVORA,
+    roadmap: INITIAL_MILESTONES,
+    tags: ["Developer Tooling", "SaaS"],
+  },
+  filters: {
+    searchQuery: "",
+    stage: null,
+    selectedSkills: [],
+    minHoursPerWeek: null,
+    selectedGoal: null,
+  },
+  bookmarkedProjectIds: [],
+  expressedInterests: [],
+  joinRequests: INITIAL_JOIN_REQUESTS,
+  isLoading: false,
+  error: null,
+
+  fetchProjects: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const [projRes, reqRes] = await Promise.all([
+        fetch(`/api/projects?t=${Date.now()}`),
+        fetch(`/api/projects/requests?t=${Date.now()}`),
+      ]);
+
+      if (!projRes.ok) throw new Error("Failed to fetch projects");
+      const projectsData = await projRes.json();
+
+      let requestsData: JoinRequest[] = [];
+      if (reqRes.ok) {
+        requestsData = await reqRes.json();
+      }
+
+      const uniqueProjects = Array.from(
+        new Map((Array.isArray(projectsData) ? projectsData : []).map((p: any) => [p.id, p])).values()
+      );
+      const uniqueRequests = Array.from(
+        new Map((Array.isArray(requestsData) ? requestsData : []).map((r: any) => [r.id, r])).values()
+      );
+
+      set({
+        projects: uniqueProjects,
+        joinRequests: uniqueRequests,
+        isLoading: false,
+      });
+    } catch (err: any) {
+      set({ error: err.message, isLoading: false });
+    }
+  },
+
+  createProjectAsync: async (projectData) => {
+    const tempId = `temp-proj-${Date.now()}`;
+    const optimisticProject: Project = {
+      ...projectData,
+      id: tempId,
+      createdAt: new Date().toISOString(),
+    };
+
+    // 1. OPTIMISTIC UPDATE: Instantly show new project in UI (0ms delay)
+    set((state) => ({
+      projects: [optimisticProject, ...state.projects.filter((p) => p.id !== tempId)],
+      isLoading: false,
+      error: null,
+    }));
+
+    try {
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(projectData),
+      });
+      if (!res.ok) {
+        const errorBody = await res.json().catch(() => ({}));
+        throw new Error(errorBody.error || "Failed to create project");
+      }
+      const data: Project = await res.json();
+      
+      // Replace optimistic project with server persistent project (ensuring unique ID)
+      set((state) => {
+        const cleaned = state.projects.filter((p) => p.id !== tempId && p.id !== data.id);
+        return {
+          projects: [data, ...cleaned],
+        };
+      });
+      return data;
+    } catch (err: any) {
+      // Rollback optimistic project on error
+      set((state) => ({
+        projects: state.projects.filter((p) => p.id !== tempId),
+        error: err.message,
+      }));
+      throw err;
+    }
+  },
+  addProject: (newProj) =>
+    set((state) => ({
+      projects: [
+        {
+          ...newProj,
+          id: `proj-${Date.now()}`,
+          createdAt: new Date().toISOString(),
+        },
+        ...state.projects,
+      ],
+    })),
+  selectProject: (id) => set({ selectedProjectId: id }),
+  updateDraft: (draft) =>
+    set((state) => ({
+      draftProject: { ...state.draftProject, ...draft },
+    })),
+  resetDraft: () =>
+    set({
+      draftProject: {
+        title: "",
+        description: "",
+        stage: "MVP",
+        roles: INITIAL_ROLES_DEVORA,
+        roadmap: INITIAL_MILESTONES,
+        tags: ["Developer Tooling", "SaaS"],
+      },
+    }),
+  setFilters: (filters) =>
+    set((state) => ({
+      filters: { ...state.filters, ...filters },
+    })),
+  toggleSkillFilter: (skill) =>
+    set((state) => {
+      const exists = state.filters.selectedSkills.includes(skill);
+      const updated = exists
+        ? state.filters.selectedSkills.filter((s) => s !== skill)
+        : [...state.filters.selectedSkills, skill];
+      return {
+        filters: { ...state.filters, selectedSkills: updated },
+      };
+    }),
+  clearFilters: () => set({ filters: DEFAULT_FILTERS }),
+  toggleBookmarkProject: (projectId) =>
+    set((state) => {
+      const isBookmarked = state.bookmarkedProjectIds.includes(projectId);
+      return {
+        bookmarkedProjectIds: isBookmarked
+          ? state.bookmarkedProjectIds.filter((id) => id !== projectId)
+          : [...state.bookmarkedProjectIds, projectId],
+      };
+    }),
+  expressInterest: async (projectId, roleTitle, pitchNote) => {
+    const tempId = `temp-req-${Date.now()}`;
+    const optimisticReq: JoinRequest = {
+      id: tempId,
+      projectId,
+      projectTitle: "Project Opportunity",
+      applicantId: "me",
+      applicantName: "Developer",
+      applicantTitle: "Software Engineer",
+      roleTitle,
+      skills: [],
+      hoursPerWeek: 5,
+      pitchNote: pitchNote || "",
+      status: "PENDING",
+      createdAt: new Date().toISOString(),
+    };
+
+    // 1. OPTIMISTIC UPDATE (0ms latency feedback)
+    set((state) => ({
+      joinRequests: [optimisticReq, ...state.joinRequests],
+      expressedInterests: [
+        ...state.expressedInterests,
+        { projectId, roleTitle, pitchNote, sentAt: new Date().toISOString() },
+      ],
+    }));
+
+    try {
+      const res = await fetch("/api/projects/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "APPLY", projectId, roleTitle, pitchNote }),
+      });
+      if (!res.ok) throw new Error("Failed to apply");
+      const realReq: JoinRequest = await res.json();
+
+      set((state) => ({
+        joinRequests: state.joinRequests.map((r) => (r.id === tempId ? realReq : r)),
+      }));
+    } catch (error) {
+      console.error("expressInterest error, rolling back:", error);
+      // Rollback
+      set((state) => ({
+        joinRequests: state.joinRequests.filter((r) => r.id !== tempId),
+        expressedInterests: state.expressedInterests.filter(
+          (ei) => !(ei.projectId === projectId && ei.roleTitle === roleTitle)
+        ),
+      }));
+    }
+  },
+  acceptJoinRequest: async (requestId) => {
+    // 1. OPTIMISTIC UPDATE: Instantly change status to ACCEPTED
+    const prevRequests = get().joinRequests;
+    set((state) => ({
+      joinRequests: state.joinRequests.map((req) =>
+        req.id === requestId ? { ...req, status: "ACCEPTED" } : req
+      ),
+    }));
+
+    try {
+      const res = await fetch("/api/projects/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "RESPOND", requestId, status: "ACCEPTED" }),
+      });
+      if (!res.ok) throw new Error("Failed to accept request");
+    } catch (error) {
+      console.error("acceptJoinRequest error, rolling back:", error);
+      // Rollback to previous state
+      set({ joinRequests: prevRequests });
+    }
+  },
+  rejectJoinRequest: async (requestId) => {
+    // 1. OPTIMISTIC UPDATE: Instantly change status to REJECTED
+    const prevRequests = get().joinRequests;
+    set((state) => ({
+      joinRequests: state.joinRequests.map((req) =>
+        req.id === requestId ? { ...req, status: "REJECTED" } : req
+      ),
+    }));
+
+    try {
+      const res = await fetch("/api/projects/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "RESPOND", requestId, status: "REJECTED" }),
+      });
+      if (!res.ok) throw new Error("Failed to reject request");
+    } catch (error) {
+      console.error("rejectJoinRequest error, rolling back:", error);
+      set({ joinRequests: prevRequests });
+    }
+  },
+  addRoleToDraft: (role) =>
+    set((state) => {
+      const currentRoles = state.draftProject.roles || [];
+      const newRole: ProjectRole = {
+        ...role,
+        id: `role-${Date.now()}`,
+        responsibilityLevel: role.responsibilityLevel || "CORE_BUILDER",
+        urgency: role.urgency || "IMMEDIATE",
+      };
+      return {
+        draftProject: {
+          ...state.draftProject,
+          roles: [...currentRoles, newRole],
+        },
+      };
+    }),
+  removeRoleFromDraft: (roleId) =>
+    set((state) => {
+      const currentRoles = state.draftProject.roles || [];
+      return {
+        draftProject: {
+          ...state.draftProject,
+          roles: currentRoles.filter((r) => r.id !== roleId),
+        },
+      };
+    }),
+  addStackToDraftRole: (roleId, stackTag) =>
+    set((state) => {
+      const currentRoles = state.draftProject.roles || [];
+      const updated = currentRoles.map((role) => {
+        if (role.id === roleId && !role.requiredSkills.includes(stackTag)) {
+          return {
+            ...role,
+            requiredSkills: [...role.requiredSkills, stackTag],
+          };
+        }
+        return role;
+      });
+      return {
+        draftProject: {
+          ...state.draftProject,
+          roles: updated,
+        },
+      };
+    }),
+  removeStackFromDraftRole: (roleId, stackTag) =>
+    set((state) => {
+      const currentRoles = state.draftProject.roles || [];
+      const updated = currentRoles.map((role) => {
+        if (role.id === roleId) {
+          return {
+            ...role,
+            requiredSkills: role.requiredSkills.filter((s) => s !== stackTag),
+          };
+        }
+        return role;
+      });
+      return {
+        draftProject: {
+          ...state.draftProject,
+          roles: updated,
+        },
+      };
+    }),
+  updateRoleCommitment: (roleId, hours) =>
+    set((state) => {
+      const currentRoles = state.draftProject.roles || [];
+      const updated = currentRoles.map((r) =>
+        r.id === roleId ? { ...r, hoursPerWeek: hours } : r
+      );
+      return {
+        draftProject: {
+          ...state.draftProject,
+          roles: updated,
+        },
+      };
+    }),
+  updateRoleResponsibility: (roleId, responsibilityLevel) =>
+    set((state) => {
+      const currentRoles = state.draftProject.roles || [];
+      const updated = currentRoles.map((r) =>
+        r.id === roleId ? { ...r, responsibilityLevel } : r
+      );
+      return {
+        draftProject: {
+          ...state.draftProject,
+          roles: updated,
+        },
+      };
+    }),
+  updateRoleUrgency: (roleId, urgency) =>
+    set((state) => {
+      const currentRoles = state.draftProject.roles || [];
+      const updated = currentRoles.map((r) =>
+        r.id === roleId ? { ...r, urgency } : r
+      );
+      return {
+        draftProject: {
+          ...state.draftProject,
+          roles: updated,
+        },
+      };
+    }),
+  addMilestoneToDraft: (milestone) =>
+    set((state) => {
+      const currentRoadmap = state.draftProject.roadmap || [];
+      const newMilestone: ProjectMilestone = {
+        ...milestone,
+        id: `milestone-${Date.now()}`,
+      };
+      return {
+        draftProject: {
+          ...state.draftProject,
+          roadmap: [...currentRoadmap, newMilestone],
+        },
+      };
+    }),
+  removeMilestoneFromDraft: (milestoneId) =>
+    set((state) => {
+      const currentRoadmap = state.draftProject.roadmap || [];
+      return {
+        draftProject: {
+          ...state.draftProject,
+          roadmap: currentRoadmap.filter((m) => m.id !== milestoneId),
+        },
+      };
+    }),
+  cycleMilestoneStatus: (milestoneId) =>
+    set((state) => {
+      const currentRoadmap = state.draftProject.roadmap || [];
+      const cycleMap: Record<ProjectMilestone["status"], ProjectMilestone["status"]> = {
+        UPCOMING: "IN_PROGRESS",
+        IN_PROGRESS: "COMPLETED",
+        COMPLETED: "UPCOMING",
+      };
+      const updated = currentRoadmap.map((m) =>
+        m.id === milestoneId ? { ...m, status: cycleMap[m.status] } : m
+      );
+      return {
+        draftProject: {
+          ...state.draftProject,
+          roadmap: updated,
+        },
+      };
+    }),
+}));
