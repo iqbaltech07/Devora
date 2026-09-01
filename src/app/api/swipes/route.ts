@@ -11,7 +11,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { swipedId, direction } = await request.json();
+    const body = await request.json();
+    const swipedId = body.swipedId || body.targetUserId;
+    const direction = body.direction;
     const swiperId = session.user.id;
 
     if (!swipedId || !direction) {
@@ -32,25 +34,45 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         isMatch: true,
+        matched: true,
         alreadyMatched: true,
         message: "Pengguna ini sudah menjadi partner cocok kamu.",
       });
     }
 
-    // 2. Create the Swipe record
+    // 2. Create or update the Swipe record
     try {
-      await prisma.swipe.create({
-        data: {
+      await prisma.swipe.upsert({
+        where: {
+          swiperId_swipedId: {
+            swiperId,
+            swipedId,
+          },
+        },
+        create: {
           swiperId,
           swipedId,
           direction,
         },
+        update: {
+          direction,
+        },
       });
     } catch (swipeCreateError: any) {
-      if (swipeCreateError.code !== 'P2002') {
-        throw swipeCreateError;
+      console.warn("Swipe upsert error, attempting fallback create:", swipeCreateError);
+      try {
+        await prisma.swipe.create({
+          data: {
+            swiperId,
+            swipedId,
+            direction,
+          },
+        });
+      } catch (fallbackError: any) {
+        if (fallbackError.code !== "P2002") {
+          throw fallbackError;
+        }
       }
-      // Already swiped previously, proceed to match check safely
     }
 
     let isMatch = false;
@@ -77,12 +99,16 @@ export async function POST(request: Request) {
         });
 
         if (!doubleCheck) {
-          await prisma.match.create({
-            data: {
-              user1Id: swiperId,
-              user2Id: swipedId,
-            },
-          });
+          try {
+            await prisma.match.create({
+              data: {
+                user1Id: swiperId,
+                user2Id: swipedId,
+              },
+            });
+          } catch (matchCreateErr) {
+            console.warn("Prisma match create warning:", matchCreateErr);
+          }
         }
         isMatch = true;
 
@@ -108,7 +134,7 @@ export async function POST(request: Request) {
       console.warn("Redis DEL candidates error:", cacheDelErr);
     }
 
-    return NextResponse.json({ success: true, isMatch });
+    return NextResponse.json({ success: true, isMatch, matched: isMatch });
   } catch (error: any) {
     console.error("POST /api/swipes error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

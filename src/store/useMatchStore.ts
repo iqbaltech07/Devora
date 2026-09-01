@@ -60,7 +60,11 @@ export const useMatchStore = create<MatchState>((set, get) => ({
       await fetch("/api/swipes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetUserId: candidateId, direction: "LEFT" }),
+        body: JSON.stringify({
+          swipedId: candidateId,
+          targetUserId: candidateId,
+          direction: "LEFT",
+        }),
       });
     } catch (err) {
       console.error("swipeLeft error:", err);
@@ -68,7 +72,9 @@ export const useMatchStore = create<MatchState>((set, get) => ({
   },
 
   swipeRight: async (candidateId) => {
-    const candidate = get().candidates.find((c) => c.id === candidateId);
+    const candidate =
+      get().candidates.find((c) => c.id === candidateId) ||
+      get().inspectingCandidate;
     
     // 1. Instant 0ms Optimistic UI
     set((state) => ({
@@ -81,20 +87,28 @@ export const useMatchStore = create<MatchState>((set, get) => ({
       const res = await fetch("/api/swipes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetUserId: candidateId, direction: "RIGHT" }),
+        body: JSON.stringify({
+          swipedId: candidateId,
+          targetUserId: candidateId,
+          direction: "RIGHT",
+        }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        if (data.matched) {
+        if (data.isMatch || data.matched || data.alreadyMatched) {
           // It's a mutual match!
           if (candidate) {
             set((state) => ({
-              matchedCandidates: [...state.matchedCandidates, candidate],
+              matchedCandidates: state.matchedCandidates.some((c) => c.id === candidate.id)
+                ? state.matchedCandidates
+                : [...state.matchedCandidates, candidate],
               latestMatchedCandidate: candidate,
               showMatchCelebration: true,
             }));
           }
+          // Refresh matches list from server
+          get().fetchMatches(true);
         }
       }
     } catch (err) {
@@ -120,12 +134,19 @@ export const useMatchStore = create<MatchState>((set, get) => ({
       };
     }),
 
-  resetDeck: () =>
+  resetDeck: async () => {
     set({
       swipedIds: [],
       passedIds: [],
       lastAction: null,
-    }),
+    });
+    try {
+      await fetch("/api/swipes", { method: "DELETE" });
+      await get().fetchCandidates(true);
+    } catch (err) {
+      console.error("resetDeck error:", err);
+    }
+  },
 
   setInspectingCandidate: (candidate) =>
     set({ inspectingCandidate: candidate }),
