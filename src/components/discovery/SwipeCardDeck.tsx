@@ -1115,24 +1115,51 @@ export function SwipeCardDeck() {
                     {inspectingCandidate.certificates.map((cert) => (
                       <div
                         key={cert.id}
-                        className="p-2.5 bg-devora-background border border-devora-border rounded-button flex items-start justify-between gap-2"
+                        className="p-2.5 bg-devora-background border border-devora-border rounded-button flex items-center justify-between gap-2"
                       >
-                        <div className="space-y-0.5 min-w-0">
-                          <p className="text-xs font-bold text-devora-ink truncate">{cert.title}</p>
-                          <p className="text-[10px] text-devora-muted">
-                            {cert.issuer} {cert.issueDate && `• ${cert.issueDate}`}
-                          </p>
+                        <div className="flex items-center gap-2 min-w-0">
+                          {cert.fileUrl ? (
+                            <img
+                              src={cert.fileUrl}
+                              alt={cert.title}
+                              className="w-8 h-8 rounded object-cover border border-devora-border shrink-0"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                              <Award className="w-4 h-4" />
+                            </div>
+                          )}
+                          <div className="space-y-0.5 min-w-0">
+                            <p className="text-xs font-bold text-devora-ink truncate">{cert.title}</p>
+                            <p className="text-[10px] text-devora-muted truncate">
+                              {cert.issuer} {cert.issueDate && `• ${cert.issueDate}`}
+                            </p>
+                          </div>
                         </div>
-                        {cert.credentialUrl && (
-                          <a
-                            href={cert.credentialUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-1 text-devora-brand hover:underline shrink-0"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        )}
+                        <div className="flex items-center gap-1 shrink-0">
+                          {cert.fileUrl && (
+                            <a
+                              href={cert.fileUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-1 text-amber-600 hover:text-amber-700 font-bold"
+                              title="Lihat Sertifikat"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </a>
+                          )}
+                          {cert.credentialUrl && (
+                            <a
+                              href={cert.credentialUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-1 text-devora-brand hover:underline"
+                              title="Buka Kredensial Online"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </a>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

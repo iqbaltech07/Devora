@@ -54,6 +54,10 @@ import {
   Share2,
   Trash2,
   Copy,
+  Upload,
+  FileText,
+  Maximize2,
+  FileCheck,
 } from "lucide-react";
 import { ProfilePageSkeleton } from "@/components/ui/ProfileSkeleton";
 import { COMPLETE_INDONESIA_REGIONS, GeoLocationGroup } from "@/lib/geo-data";
@@ -246,13 +250,18 @@ export default function ProfilePage() {
   );
   const [customSkillInput, setCustomSkillInput] = useState("");
 
-  // Certificates State
+  // Certificates State with Gallery & PC Upload
   const [isAddingCert, setIsAddingCert] = useState(false);
   const [certTitle, setCertTitle] = useState("");
   const [certIssuer, setCertIssuer] = useState("");
   const [certIssueDate, setCertIssueDate] = useState("");
   const [certCredentialUrl, setCertCredentialUrl] = useState("");
+  const [certFile, setCertFile] = useState<File | null>(null);
+  const [certFilePreview, setCertFilePreview] = useState<string | null>(null);
+  const [certFileName, setCertFileName] = useState<string>("");
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [isSubmittingCert, setIsSubmittingCert] = useState(false);
+  const [previewCertModal, setPreviewCertModal] = useState<{ title: string; fileUrl: string; issuer?: string } | null>(null);
 
   // Portfolio Project Showcase State
   const [isAddingProj, setIsAddingProj] = useState(false);
@@ -525,6 +534,40 @@ export default function ProfilePage() {
     });
   };
 
+  // Certificate File Upload Handlers (Phone Gallery & PC)
+  const handleCertFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      addToast({
+        title: "Ukuran File Terlalu Besar",
+        description: "Maksimal ukuran file sertifikat adalah 10 MB.",
+        type: "error",
+      });
+      return;
+    }
+
+    setCertFile(file);
+    setCertFileName(file.name);
+
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setCertFilePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setCertFilePreview(null);
+    }
+  };
+
+  const handleClearCertFile = () => {
+    setCertFile(null);
+    setCertFilePreview(null);
+    setCertFileName("");
+  };
+
   const handleCreateCert = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!certTitle.trim() || !certIssuer.trim()) {
@@ -537,11 +580,41 @@ export default function ProfilePage() {
     }
 
     setIsSubmittingCert(true);
+    let uploadedFileUrl: string | undefined = undefined;
+
+    // 1. Upload File if selected
+    if (certFile) {
+      setIsUploadingFile(true);
+      try {
+        const formData = new FormData();
+        formData.append("file", certFile);
+        const upRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (upRes.ok) {
+          const upData = await upRes.json();
+          uploadedFileUrl = upData.url;
+        } else if (certFilePreview) {
+          // Fallback to base64 preview
+          uploadedFileUrl = certFilePreview;
+        }
+      } catch (err) {
+        console.warn("Upload error, using fallback preview:", err);
+        if (certFilePreview) uploadedFileUrl = certFilePreview;
+      } finally {
+        setIsUploadingFile(false);
+      }
+    }
+
+    // 2. Persist Certificate to DB
     const created = await addCertificate({
       title: certTitle.trim(),
       issuer: certIssuer.trim(),
       issueDate: certIssueDate.trim() || undefined,
       credentialUrl: certCredentialUrl.trim() || undefined,
+      fileUrl: uploadedFileUrl,
     });
     setIsSubmittingCert(false);
 
@@ -550,10 +623,11 @@ export default function ProfilePage() {
       setCertIssuer("");
       setCertIssueDate("");
       setCertCredentialUrl("");
+      handleClearCertFile();
       setIsAddingCert(false);
       addToast({
-        title: "Sertifikat Ditambahkan",
-        description: `Sertifikat "${created.title}" berhasil disimpan di profilmu.`,
+        title: "Sertifikat Berhasil Ditambahkan 🎉",
+        description: `Sertifikat "${created.title}" berhasil disimpan di profil kamu.`,
         type: "success",
       });
     } else {
@@ -666,7 +740,7 @@ export default function ProfilePage() {
 
   return (
     <Shell>
-      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 pb-20 sm:pb-12 px-1 sm:px-0">
+      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 pb-24 sm:pb-12 px-1 sm:px-0">
         {/* ─── 1. PAGE HEADER & MODE CONTROLS ─── */}
         <div className="space-y-3 border-b border-devora-border pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -681,7 +755,7 @@ export default function ProfilePage() {
                 Profil Profesional Developer
               </h1>
               <p className="text-xs sm:text-sm text-devora-muted leading-relaxed">
-                Lengkapi identitas, jam terbang, dan portofolio kamu agar algoritma matching dapat mencocokkan partner yang paling tepat.
+                Lengkapi identitas, jam terbang, sertifikat, dan portofolio kamu agar calon partner melihat keahlian aslimu.
               </p>
             </div>
 
@@ -1030,7 +1104,7 @@ export default function ProfilePage() {
                 )}
               </div>
 
-              {/* Showcase Sertifikasi Terverifikasi */}
+              {/* Showcase Sertifikasi Terverifikasi (with Image Thumbnail & Modal) */}
               {currentUser.certificates && currentUser.certificates.length > 0 && (
                 <div className="space-y-3 pt-3 border-t border-slate-100">
                   <div className="flex items-center gap-2">
@@ -1039,29 +1113,64 @@ export default function ProfilePage() {
                       Sertifikasi Terverifikasi ({currentUser.certificates.length})
                     </h3>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {currentUser.certificates.map((cert) => (
                       <div
                         key={cert.id}
-                        className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-start justify-between gap-2"
+                        className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex items-start gap-3 group hover:border-amber-500/50 transition-all"
                       >
-                        <div className="space-y-0.5 min-w-0">
-                          <h4 className="text-xs font-bold text-slate-800 truncate">{cert.title}</h4>
+                        {/* Thumbnail / Icon */}
+                        {cert.fileUrl ? (
+                          <div
+                            onClick={() => setPreviewCertModal({ title: cert.title, fileUrl: cert.fileUrl!, issuer: cert.issuer })}
+                            className="w-14 h-14 rounded-lg bg-slate-200 border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative group/thumb"
+                            title="Klik untuk melihat sertifikat"
+                          >
+                            <img
+                              src={cert.fileUrl}
+                              alt={cert.title}
+                              className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform"
+                            />
+                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center transition-opacity text-white">
+                              <Maximize2 className="w-4 h-4" />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-11 h-11 rounded-lg bg-amber-100/80 text-amber-600 flex items-center justify-center shrink-0">
+                            <Award className="w-5 h-5" />
+                          </div>
+                        )}
+
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <h4 className="text-xs font-bold text-slate-900 line-clamp-1">{cert.title}</h4>
                           <p className="text-[11px] text-slate-500">
                             {cert.issuer} {cert.issueDate && `• ${cert.issueDate}`}
                           </p>
+
+                          <div className="flex items-center gap-2 pt-0.5">
+                            {cert.fileUrl && (
+                              <button
+                                type="button"
+                                onClick={() => setPreviewCertModal({ title: cert.title, fileUrl: cert.fileUrl!, issuer: cert.issuer })}
+                                className="text-[11px] font-bold text-amber-600 hover:text-amber-700 inline-flex items-center gap-1"
+                              >
+                                <Eye className="w-3 h-3" />
+                                <span>Lihat File</span>
+                              </button>
+                            )}
+                            {cert.credentialUrl && (
+                              <a
+                                href={cert.credentialUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-[11px] font-bold text-devora-brand hover:underline inline-flex items-center gap-1"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                                <span>Verifikasi</span>
+                              </a>
+                            )}
+                          </div>
                         </div>
-                        {cert.credentialUrl && (
-                          <a
-                            href={cert.credentialUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-xs font-bold text-devora-brand hover:underline shrink-0 inline-flex items-center gap-1 p-1"
-                            title="Buka Kredensial"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </a>
-                        )}
                       </div>
                     ))}
                   </div>
@@ -1859,7 +1968,7 @@ export default function ProfilePage() {
             </Card>
 
             {/* -------------------------------------------------------------
-                SECTION 6: MANAJEMEN & UPLOAD SERTIFIKAT
+                SECTION 6: MANAJEMEN & UPLOAD SERTIFIKAT (HP & PC UPLOAD)
                 ------------------------------------------------------------- */}
             <Card className="p-4 sm:p-6 bg-white border border-devora-border rounded-2xl sm:rounded-[24px] space-y-4 shadow-xs">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 pb-3">
@@ -1873,7 +1982,7 @@ export default function ProfilePage() {
                       <span>Sertifikasi & Lisensi Developer</span>
                     </h2>
                     <p className="text-[11px] text-devora-muted">
-                      Bukti sertifikat kursus, bootcamp, atau cloud
+                      Upload foto sertifikat dari Galeri HP / PC untuk memvalidasi keahlianmu.
                     </p>
                   </div>
                 </div>
@@ -1886,19 +1995,84 @@ export default function ProfilePage() {
                   className="text-xs font-bold gap-1.5 w-full sm:w-auto border-slate-200 hover:border-amber-500 rounded-xl py-2"
                 >
                   {isAddingCert ? <X className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 text-amber-500" />}
-                  <span>{isAddingCert ? "Batal" : "+ Tambah Sertifikat"}</span>
+                  <span>{isAddingCert ? "Batal" : "+ Upload Sertifikat"}</span>
                 </Button>
               </div>
 
-              {/* Form Tambah Sertifikat */}
+              {/* Form Tambah & Upload Sertifikat */}
               {isAddingCert && (
-                <div className="p-3.5 sm:p-4 bg-amber-50/40 rounded-xl sm:rounded-2xl border-2 border-amber-500/30 space-y-3 animate-in fade-in duration-200">
-                  <h3 className="text-xs font-extrabold uppercase font-mono text-amber-700 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Form Tambah Sertifikat Baru</span>
-                  </h3>
+                <div className="p-3.5 sm:p-5 bg-amber-50/40 rounded-xl sm:rounded-2xl border-2 border-amber-500/30 space-y-4 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-extrabold uppercase font-mono text-amber-700 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Upload Sertifikat Baru</span>
+                    </h3>
+                    <span className="text-[10px] font-mono text-amber-700 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">
+                      Galeri HP & PC Didukung
+                    </span>
+                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {/* Upload File Zone */}
+                    <div className="sm:col-span-2 space-y-1.5">
+                      <label className="text-[11px] font-mono font-bold text-slate-700 flex items-center gap-1.5">
+                        <Upload className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Pilih Foto Sertifikat dari Galeri HP / Komputer</span>
+                        <span className="text-[10px] text-slate-400 font-normal">(PNG, JPG, WEBP, PDF maks 10MB)</span>
+                      </label>
+
+                      {!certFile ? (
+                        <label className="flex flex-col items-center justify-center p-5 sm:p-6 border-2 border-dashed border-amber-300 hover:border-amber-500 rounded-2xl bg-white cursor-pointer transition-all hover:bg-amber-50/50 group shadow-2xs">
+                          <div className="w-12 h-12 rounded-2xl bg-amber-100/80 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
+                            <Upload className="w-6 h-6" />
+                          </div>
+                          <span className="text-xs sm:text-sm font-extrabold text-slate-800 mt-2.5">
+                            Sentuh untuk Buka Galeri HP atau Pilih File PC
+                          </span>
+                          <span className="text-[11px] text-slate-500 mt-0.5 text-center">
+                            Dukungan format gambar (JPG/PNG) & Dokumen PDF
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/*,application/pdf"
+                            onChange={handleCertFileSelect}
+                            className="hidden"
+                          />
+                        </label>
+                      ) : (
+                        <div className="p-3.5 bg-white border border-amber-300 rounded-2xl flex items-center justify-between gap-3 shadow-2xs">
+                          <div className="flex items-center gap-3 min-w-0">
+                            {certFilePreview ? (
+                              <img
+                                src={certFilePreview}
+                                alt="Preview"
+                                className="w-14 h-14 object-cover rounded-xl border border-slate-200 shrink-0"
+                              />
+                            ) : (
+                              <div className="w-14 h-14 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                                <FileText className="w-7 h-7" />
+                              </div>
+                            )}
+                            <div className="space-y-0.5 min-w-0">
+                              <p className="text-xs font-extrabold text-slate-900 truncate">{certFileName}</p>
+                              <span className="text-[10px] text-emerald-600 font-bold inline-flex items-center gap-1">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                                <span>File Siap Diupload ({(certFile.size / 1024).toFixed(0)} KB)</span>
+                              </span>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={handleClearCertFile}
+                            className="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors shrink-0"
+                          >
+                            Ganti File
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="space-y-1">
                       <label className="text-[11px] font-mono font-bold text-slate-700">
                         Nama Sertifikat <span className="text-devora-brand">*</span>
@@ -1908,7 +2082,7 @@ export default function ProfilePage() {
                         placeholder="Contoh: Belajar Membuat Aplikasi Web dengan React"
                         value={certTitle}
                         onChange={(e) => setCertTitle(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink font-bold focus:outline-none focus:border-amber-500"
+                        className="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink font-bold focus:outline-none focus:border-amber-500"
                         required
                       />
                     </div>
@@ -1922,7 +2096,7 @@ export default function ProfilePage() {
                         placeholder="Contoh: Dicoding, Coursera, AWS, FreeCodeCamp"
                         value={certIssuer}
                         onChange={(e) => setCertIssuer(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink font-bold focus:outline-none focus:border-amber-500"
+                        className="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink font-bold focus:outline-none focus:border-amber-500"
                         required
                       />
                     </div>
@@ -1936,20 +2110,20 @@ export default function ProfilePage() {
                         placeholder="Contoh: Jan 2025"
                         value={certIssueDate}
                         onChange={(e) => setCertIssueDate(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink focus:outline-none focus:border-amber-500"
+                        className="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink focus:outline-none focus:border-amber-500"
                       />
                     </div>
 
                     <div className="space-y-1">
                       <label className="text-[11px] font-mono font-bold text-slate-700">
-                        Link Verifikasi / Kredensial
+                        Link Verifikasi / URL Kredensial (Opsional)
                       </label>
                       <input
                         type="url"
                         placeholder="https://dicoding.com/certificates/..."
                         value={certCredentialUrl}
                         onChange={(e) => setCertCredentialUrl(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink focus:outline-none focus:border-amber-500"
+                        className="w-full px-3.5 py-2.5 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink focus:outline-none focus:border-amber-500"
                       />
                     </div>
                   </div>
@@ -1968,11 +2142,11 @@ export default function ProfilePage() {
                       type="button"
                       size="sm"
                       onClick={handleCreateCert}
-                      disabled={isSubmittingCert}
-                      className="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold gap-1 rounded-xl shadow-xs"
+                      disabled={isSubmittingCert || isUploadingFile}
+                      className="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold gap-1.5 rounded-xl shadow-xs py-2 px-4"
                     >
                       <Save className="w-3.5 h-3.5" />
-                      <span>{isSubmittingCert ? "Menyimpan..." : "Simpan Sertifikat"}</span>
+                      <span>{isSubmittingCert || isUploadingFile ? "Mengunggah..." : "Simpan & Upload Sertifikat"}</span>
                     </Button>
                   </div>
                 </div>
@@ -1984,22 +2158,57 @@ export default function ProfilePage() {
                   {currentUser.certificates.map((cert) => (
                     <div
                       key={cert.id}
-                      className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-start justify-between gap-2 group hover:border-amber-500/50 transition-colors"
+                      className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-3 group hover:border-amber-500/50 transition-colors"
                     >
-                      <div className="space-y-0.5 min-w-0">
-                        <h4 className="text-xs font-bold text-devora-ink truncate">{cert.title}</h4>
-                        <p className="text-[11px] text-slate-500">
-                          {cert.issuer} {cert.issueDate && `• ${cert.issueDate}`}
-                        </p>
+                      {/* Thumbnail Image if fileUrl exists */}
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {cert.fileUrl ? (
+                          <div
+                            onClick={() => setPreviewCertModal({ title: cert.title, fileUrl: cert.fileUrl!, issuer: cert.issuer })}
+                            className="w-12 h-12 rounded-lg bg-slate-200 border border-slate-300 overflow-hidden shrink-0 cursor-pointer relative group/thumb"
+                            title="Klik untuk melihat sertifikat"
+                          >
+                            <img
+                              src={cert.fileUrl}
+                              alt={cert.title}
+                              className="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform"
+                            />
+                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center transition-opacity text-white">
+                              <Maximize2 className="w-3.5 h-3.5" />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                            <Award className="w-5 h-5" />
+                          </div>
+                        )}
+
+                        <div className="space-y-0.5 min-w-0">
+                          <h4 className="text-xs font-bold text-devora-ink truncate">{cert.title}</h4>
+                          <p className="text-[11px] text-slate-500 truncate">
+                            {cert.issuer} {cert.issueDate && `• ${cert.issueDate}`}
+                          </p>
+                        </div>
                       </div>
+
                       <div className="flex items-center gap-1 shrink-0">
+                        {cert.fileUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setPreviewCertModal({ title: cert.title, fileUrl: cert.fileUrl!, issuer: cert.issuer })}
+                            className="p-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-100/60 rounded-lg transition-colors"
+                            title="Lihat Sertifikat"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                         {cert.credentialUrl && (
                           <a
                             href={cert.credentialUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="p-1 text-devora-brand hover:text-devora-brand-dark rounded"
-                            title="Buka Kredensial"
+                            className="p-1.5 text-devora-brand hover:text-devora-brand-dark hover:bg-devora-brand/10 rounded-lg transition-colors"
+                            title="Buka Kredensial Online"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
                           </a>
@@ -2007,7 +2216,7 @@ export default function ProfilePage() {
                         <button
                           type="button"
                           onClick={() => handleDeleteCert(cert.id, cert.title)}
-                          className="p-1 text-slate-400 hover:text-red-500 rounded transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                           title="Hapus Sertifikat"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -2021,7 +2230,7 @@ export default function ProfilePage() {
                   <Award className="w-6 h-6 text-slate-400 mx-auto" />
                   <p className="text-xs font-bold text-slate-700">Belum ada sertifikat ditambahkan</p>
                   <p className="text-[11px] text-slate-400">
-                    Tambahkan sertifikat bootcamp atau kursus untuk meningkatkan daya tarik profil kamu.
+                    Upload sertifikat dari HP atau PC kamu untuk membuktikan jam terbang dan kredibilitas.
                   </p>
                 </div>
               )}
@@ -2301,7 +2510,7 @@ export default function ProfilePage() {
                 <Button
                   type="submit"
                   size="sm"
-                  disabled={isSaving}
+                  disabled={isSaving || isSubmittingCert || isUploadingFile}
                   className="gap-2 bg-devora-brand hover:bg-devora-brand-dark text-white font-extrabold text-xs shadow-md rounded-xl py-2 px-4 flex-1 sm:flex-initial justify-center"
                 >
                   <Save className="w-4 h-4" />
@@ -2310,6 +2519,92 @@ export default function ProfilePage() {
               </div>
             </div>
           </form>
+        )}
+
+        {/* ─── LIGHTBOX MODAL PREVIEW SERTIFIKAT ─── */}
+        {previewCertModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+            <div
+              className="bg-white border border-slate-200 rounded-2xl sm:rounded-[28px] max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 font-bold">
+                    <Award className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 truncate">
+                      {previewCertModal.title}
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      {previewCertModal.issuer || "Sertifikat Developer"}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setPreviewCertModal(null)}
+                  className="p-1.5 text-slate-400 hover:text-slate-800 rounded-xl hover:bg-slate-200/60 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Body / Image View */}
+              <div className="p-4 sm:p-6 overflow-y-auto max-h-[65vh] flex items-center justify-center bg-slate-950/5">
+                {previewCertModal.fileUrl.startsWith("data:application/pdf") || previewCertModal.fileUrl.endsWith(".pdf") ? (
+                  <div className="text-center space-y-3 p-8 bg-white rounded-2xl border border-slate-200 shadow-sm max-w-md mx-auto">
+                    <FileText className="w-16 h-16 text-amber-500 mx-auto" />
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-800">Dokumen Sertifikat (PDF)</h4>
+                      <p className="text-xs text-slate-500 mt-1">Dokumen sertifikat tersimpan dalam format PDF.</p>
+                    </div>
+                    <a
+                      href={previewCertModal.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-devora-brand text-white text-xs font-bold hover:bg-devora-brand-dark transition-colors shadow-xs"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      <span>Buka File PDF Lengkap</span>
+                    </a>
+                  </div>
+                ) : (
+                  <img
+                    src={previewCertModal.fileUrl}
+                    alt={previewCertModal.title}
+                    className="max-h-[60vh] w-auto max-w-full rounded-xl object-contain shadow-md border border-slate-200"
+                  />
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-3 sm:p-4 border-t border-slate-100 bg-white flex items-center justify-between gap-3">
+                <a
+                  href={previewCertModal.fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  download
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-devora-brand hover:underline"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Buka di Tab Baru / Unduh</span>
+                </a>
+
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setPreviewCertModal(null)}
+                  className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl"
+                >
+                  Tutup
+                </Button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </Shell>
