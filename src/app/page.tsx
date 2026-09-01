@@ -49,7 +49,7 @@ import {
 export default function LandingPage() {
   const router = useRouter();
   const { currentUser, isAuthenticated, fetchProfile } = useUserStore();
-  const { fetchCandidates, fetchMatches } = useMatchStore();
+  const { fetchCandidates, fetchMatches, fetchIncomingLikes } = useMatchStore();
   const { fetchProjects } = useProjectStore();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
@@ -58,8 +58,9 @@ export default function LandingPage() {
     fetchProfile();
     fetchCandidates();
     fetchMatches();
+    fetchIncomingLikes();
     fetchProjects();
-  }, [fetchProfile, fetchCandidates, fetchMatches, fetchProjects]);
+  }, [fetchProfile, fetchCandidates, fetchMatches, fetchIncomingLikes, fetchProjects]);
 
   return (
     <div className="min-h-screen bg-[#FAF9F5] text-[#0F172A] selection:bg-[#FF5733] selection:text-white flex flex-col font-sans antialiased overflow-x-hidden">

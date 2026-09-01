@@ -3,8 +3,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redis } from "@/lib/redis";
 import { headers } from "next/headers";
-import { SkillItem, CandidatePartner } from "@/store/types";
-import { candidatesLimiter, checkRateLimit } from "@/lib/ratelimit";
+import { CandidatePartner, SkillItem } from "@/store/types";
+import { likesReceivedLimiter, checkRateLimit } from "@/lib/ratelimit";
 
 function deriveTagsAndStack(title?: string | null, tags?: string[], primaryStack?: string[]) {
   const t = (title || "").toLowerCase();
@@ -73,22 +73,22 @@ function buildSkillItems(tags: string[], primaryStack: string[]): SkillItem[] {
   });
 }
 
+// GET /api/likes/received: Fetch users who swiped RIGHT on current user but haven't been matched/swiped back yet
 export async function GET() {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
-    
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const currentUserId = session.user.id;
 
-    // Rate Limiting: max 30 candidate fetches / minute per user
-    const rateLimit = await checkRateLimit(candidatesLimiter, currentUserId);
+    // Rate Limiting: max 30 incoming likes requests / minute per user
+    const rateLimit = await checkRateLimit(likesReceivedLimiter, currentUserId);
     if (!rateLimit.success) {
       return NextResponse.json(
         {
-          error: "Terlalu banyak permintaan rekomendasi kandidat. Harap tunggu sebentar.",
+          error: "Terlalu banyak permintaan data peminat. Harap tunggu sebentar.",
           retryAfter: Math.ceil((rateLimit.reset - Date.now()) / 1000),
         },
         {
@@ -102,7 +102,7 @@ export async function GET() {
       );
     }
 
-    const cacheKey = `candidates:${currentUserId}`;
+    const cacheKey = `likes:received:${currentUserId}`;
 
     // 1. Check Redis Cache
     try {
@@ -113,11 +113,11 @@ export async function GET() {
         );
       }
     } catch (cacheErr) {
-      console.warn("Redis GET candidates error:", cacheErr);
+      console.warn("Redis GET likes:received error:", cacheErr);
     }
 
-    // 2. Fetch Swiped IDs & Already Matched IDs for current user
-    const [swiped, matches] = await Promise.all([
+    // 2. Query users who swiped RIGHT on current user
+    const [alreadySwipedByMe, existingMatches, incomingSwipes] = await Promise.all([
       prisma.swipe.findMany({
         where: { swiperId: currentUserId },
         select: { swipedId: true },
@@ -131,68 +131,64 @@ export async function GET() {
         },
         select: { user1Id: true, user2Id: true },
       }),
-    ]);
-    
-    const swipedIds = swiped.map((s) => s.swipedId);
-    const matchedUserIds = matches.map((m) => (m.user1Id === currentUserId ? m.user2Id : m.user1Id));
-    const excludedUserIds = Array.from(new Set([currentUserId, ...swipedIds, ...matchedUserIds]));
-
-    // 2. Fetch Candidates (Not self, not already swiped, not already matched)
-    const rawCandidates = await prisma.user.findMany({
-      where: {
-        id: {
-          notIn: excludedUserIds,
+      prisma.swipe.findMany({
+        where: {
+          swipedId: currentUserId,
+          direction: "RIGHT",
         },
-      },
-      select: {
-        id: true,
-        name: true,
-        image: true,
-        title: true,
-        bio: true,
-        location: true,
-        timezone: true,
-        githubUsername: true,
-        githubUrl: true,
-        tags: true,
-        primaryStack: true,
-        availabilityHrs: true,
-        workStyle: true,
-        projectGoal: true,
-        experienceYears: true,
-        experienceLevel: true,
-        workPreference: true,
-        flexibleHours: true,
-        availableDays: true,
-        portfolioUrl: true,
-        linkedinUrl: true,
-        websiteUrl: true,
-        projects: {
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            stage: true,
-            tags: true,
+        include: {
+          swiper: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              title: true,
+              bio: true,
+              location: true,
+              timezone: true,
+              githubUsername: true,
+              githubUrl: true,
+              tags: true,
+              primaryStack: true,
+              availabilityHrs: true,
+              workStyle: true,
+              projectGoal: true,
+              projects: {
+                select: {
+                  id: true,
+                  title: true,
+                  description: true,
+                  stage: true,
+                  tags: true,
+                },
+                take: 1,
+              },
+            },
           },
-          take: 1,
         },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 50,
-    });
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+    ]);
 
-    // 3. Format & Enrich candidates to match CandidatePartner schema (Strict deduplication by user.id)
-    const candidateMap = new Map<string, CandidatePartner>();
+    const excludedIds = new Set([
+      currentUserId,
+      ...alreadySwipedByMe.map((s) => s.swipedId),
+      ...existingMatches.map((m) => (m.user1Id === currentUserId ? m.user2Id : m.user1Id)),
+    ]);
 
-    rawCandidates.forEach((user, index) => {
-      if (!user.id || candidateMap.has(user.id)) return;
+    const likesMap = new Map<string, CandidatePartner & { likedAt?: string }>();
+
+    incomingSwipes.forEach((swipe, index) => {
+      const user = swipe.swiper;
+      if (!user || !user.id || excludedIds.has(user.id) || likesMap.has(user.id)) {
+        return;
+      }
 
       const { tags, primaryStack } = deriveTagsAndStack(user.title, user.tags, user.primaryStack);
       const skills = buildSkillItems(tags, primaryStack);
-      const score = 90 + ((index * 3) % 9); // Consistent high match score (90-98%)
+      const score = 94 + ((index * 2) % 6); // 94-99% strong match
 
       const avatarUrl =
         user.image ||
@@ -200,39 +196,31 @@ export async function GET() {
           ? `https://github.com/${user.githubUsername}.png`
           : undefined);
 
-      candidateMap.set(user.id, {
+      likesMap.set(user.id, {
         id: user.id,
         name: user.name || "Developer",
         avatarUrl,
-        title: user.title || "Fullstack Engineer & Builder",
+        title: user.title || "Fullstack Engineer & Partner",
         bio:
           user.bio ||
-          `Halo! Saya developer yang fokus di ${tags.slice(0, 2).join(" & ")}. Senang berkolaborasi membangun produk inovatif bareng kamu!`,
+          `Halo! Saya tertarik mengajak kamu berkolaborasi membangun produk inovatif bersama di Devora.`,
         location: user.location || "Indonesia (WIB)",
         timezone: user.timezone || "Asia/Jakarta (UTC+7)",
         availabilityHrs: user.availabilityHrs || 10,
         workStyle: user.workStyle || "Async-First & Weekend Sprint",
         githubUsername: user.githubUsername || undefined,
         githubUrl: user.githubUrl || (user.githubUsername ? `https://github.com/${user.githubUsername}` : undefined),
-        experienceYears: user.experienceYears !== null && user.experienceYears !== undefined ? Number(user.experienceYears) : undefined,
-        experienceLevel: (user.experienceLevel as any) || undefined,
-        workPreference: (user.workPreference as any) || undefined,
-        flexibleHours: user.flexibleHours ?? true,
-        availableDays: user.availableDays || [],
-        portfolioUrl: user.portfolioUrl || undefined,
-        linkedinUrl: user.linkedinUrl || undefined,
-        websiteUrl: user.websiteUrl || undefined,
         matchScore: score,
-        matchTier: score >= 95 ? ("EXCELLENT" as const) : ("STRONG" as const),
+        matchTier: "EXCELLENT" as const,
         matchReasons: [
           {
-            title: "Spesialisasi Saling Melengkapi",
-            description: `${user.name} memiliki keahlian ${tags.slice(0, 3).join(", ")} yang saling mengisi roadmap proyek.`,
+            title: "Menyukai Profil Kamu",
+            description: `${user.name} sudah memberikan love ke profilmu dan siap ngoding bareng!`,
             type: "role" as const,
           },
           {
-            title: "Waktu Luang Selaras",
-            description: `Ketersediaan ${user.availabilityHrs || 10} jam/minggu dengan gaya kolaborasi ${user.workStyle || "Async-First"}.`,
+            title: "Ketersediaan Waktu",
+            description: `Siap alokasi ${user.availabilityHrs || 10} jam/minggu (${user.workStyle || "Async-First"}).`,
             type: "availability" as const,
           },
         ],
@@ -253,21 +241,26 @@ export async function GET() {
               tech: user.projects[0].tags || primaryStack,
             }
           : undefined,
+        likedAt: swipe.createdAt.toISOString(),
       });
     });
 
-    const formattedCandidates = Array.from(candidateMap.values());
+    const incomingLikes = Array.from(likesMap.values());
+    const responsePayload = {
+      likes: incomingLikes,
+      count: incomingLikes.length,
+    };
 
-    // 4. Cache candidates for 5 minutes (300 seconds)
+    // 3. Cache for 3 minutes (180 seconds)
     try {
-      await redis.setex(cacheKey, 300, formattedCandidates);
+      await redis.setex(cacheKey, 180, responsePayload);
     } catch (cacheSetErr) {
-      console.warn("Redis SETEX candidates error:", cacheSetErr);
+      console.warn("Redis SETEX likes:received error:", cacheSetErr);
     }
 
-    return NextResponse.json(formattedCandidates);
+    return NextResponse.json(responsePayload);
   } catch (error) {
-    console.error("GET /api/candidates error:", error);
+    console.error("GET /api/likes/received error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
