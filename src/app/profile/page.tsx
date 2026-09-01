@@ -163,7 +163,15 @@ const WORK_PREFERENCES: {
   },
 ];
 
-const DAYS_LIST = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
+const DAYS_LIST = [
+  { full: "Senin", short: "Sen" },
+  { full: "Selasa", short: "Sel" },
+  { full: "Rabu", short: "Rab" },
+  { full: "Kamis", short: "Kam" },
+  { full: "Jumat", short: "Jum" },
+  { full: "Sabtu", short: "Sab" },
+  { full: "Minggu", short: "Min" },
+];
 
 const WORK_STYLES = [
   "Async-First (Santai lewat GitHub PR & Discord/Slack)",
@@ -173,8 +181,8 @@ const WORK_STYLES = [
 ];
 
 const EXPERIENCE_YEAR_PRESETS = [
-  { label: "Baru Mulai (0 thn)", value: 0 },
-  { label: "6 Bulan (0.5 thn)", value: 0.5 },
+  { label: "0 thn (Baru)", value: 0 },
+  { label: "0.5 thn (6 bln)", value: 0.5 },
   { label: "1 Tahun", value: 1 },
   { label: "2 Tahun", value: 2 },
   { label: "3 Tahun", value: 3 },
@@ -658,45 +666,50 @@ export default function ProfilePage() {
 
   return (
     <Shell>
-      <div className="max-w-3xl mx-auto space-y-6">
-        {/* Page Header with Mode Switcher */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-devora-border pb-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-devora-brand" />
-              <span className="text-xs font-mono font-semibold uppercase tracking-wider text-devora-muted">
-                Pengaturan Profil Developer
-              </span>
+      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 pb-20 sm:pb-12 px-1 sm:px-0">
+        {/* ─── 1. PAGE HEADER & MODE CONTROLS ─── */}
+        <div className="space-y-3 border-b border-devora-border pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-devora-brand/10 border border-devora-brand/20">
+                <span className="w-2 h-2 rounded-full bg-devora-brand animate-pulse" />
+                <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-devora-brand-dark">
+                  Pengaturan Profil Developer
+                </span>
+              </div>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-devora-ink tracking-tight">
+                Profil Profesional Developer
+              </h1>
+              <p className="text-xs sm:text-sm text-devora-muted leading-relaxed">
+                Lengkapi identitas, jam terbang, dan portofolio kamu agar algoritma matching dapat mencocokkan partner yang paling tepat.
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-devora-ink tracking-tight">
-              Profil Profesional Developer
-            </h1>
-            <p className="text-xs sm:text-sm text-devora-muted">
-              Lengkapi informasi pengalaman, keahlian, dan ketersediaan waktu kamu agar matching partner berjalan akurat.
-            </p>
+
+            {/* Top Share Profile Button (Desktop) */}
+            <div className="hidden sm:flex items-center gap-2 shrink-0">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleCopyProfileLink}
+                className="gap-1.5 text-xs font-bold bg-white border-devora-border hover:border-devora-brand hover:text-devora-brand shadow-xs"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>Salin Link Profil</span>
+              </Button>
+            </div>
           </div>
 
-          {/* Action Buttons: Mode Switcher & Share Profile */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={handleCopyProfileLink}
-              className="gap-1.5 text-xs font-bold bg-devora-surface border-devora-border hover:border-devora-brand hover:text-devora-brand"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-              <span>Salin Link Profil</span>
-            </Button>
-
-            <div className="flex items-center p-1 bg-devora-surface border border-devora-border rounded-button">
+          {/* Tab Navigation: Edit vs Preview (Full-width on Mobile) */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-1">
+            <div className="grid grid-cols-2 p-1 bg-devora-surface-strong/80 border border-devora-border rounded-xl w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setActiveTab("EDIT")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-button text-xs font-bold transition-all",
+                  "flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-xs font-bold transition-all select-none",
                   activeTab === "EDIT"
-                    ? "bg-devora-ink text-white shadow-xs"
+                    ? "bg-devora-ink text-white shadow-sm"
                     : "text-devora-muted hover:text-devora-ink"
                 )}
               >
@@ -707,9 +720,9 @@ export default function ProfilePage() {
                 type="button"
                 onClick={() => setActiveTab("PREVIEW")}
                 className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-button text-xs font-bold transition-all",
+                  "flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-xs font-bold transition-all select-none",
                   activeTab === "PREVIEW"
-                    ? "bg-devora-ink text-white shadow-xs"
+                    ? "bg-devora-ink text-white shadow-sm"
                     : "text-devora-muted hover:text-devora-ink"
                 )}
               >
@@ -717,17 +730,30 @@ export default function ProfilePage() {
                 <span>Pratinjau Publik</span>
               </button>
             </div>
+
+            {/* Mobile Share Button */}
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={handleCopyProfileLink}
+              className="sm:hidden w-full gap-2 text-xs font-bold bg-white border-devora-border hover:border-devora-brand hover:text-devora-brand py-2 shadow-xs"
+            >
+              <Share2 className="w-3.5 h-3.5 text-devora-brand" />
+              <span>Salin Link Profil Publik</span>
+            </Button>
           </div>
         </div>
 
-        {/* PROFILE COMPLETENESS WIDGET (Always visible) */}
-        <Card className="p-4 sm:p-5 bg-devora-surface border-2 border-devora-border shadow-xs space-y-3.5">
+        {/* ─── 2. PROFILE COMPLETENESS WIDGET ─── */}
+        <Card className="p-4 sm:p-5 bg-white border border-devora-border rounded-2xl sm:rounded-[24px] shadow-xs space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
-                <svg className="w-12 h-12 -rotate-90" viewBox="0 0 36 36">
+            <div className="flex items-center gap-3.5">
+              {/* Radial Progress Ring */}
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
+                <svg className="w-12 h-12 sm:w-14 sm:h-14 -rotate-90" viewBox="0 0 36 36">
                   <path
-                    className="text-devora-surface-strong stroke-current"
+                    className="text-slate-100 stroke-current"
                     strokeWidth="3.5"
                     fill="none"
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
@@ -748,30 +774,30 @@ export default function ProfilePage() {
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   />
                 </svg>
-                <span className="absolute text-xs font-bold text-devora-ink">
+                <span className="absolute text-xs sm:text-sm font-extrabold text-devora-ink font-mono">
                   {completeness.score}%
                 </span>
               </div>
 
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-devora-ink">
+              <div className="space-y-0.5 min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-sm font-extrabold text-devora-ink">
                     Kelengkapan Profil
                   </h3>
                   {completeness.isMatchReady ? (
-                    <Badge variant="default" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] font-bold gap-1 py-0.5">
-                      <CheckCircle2 className="w-3 h-3" />
-                      <span>Siap Matching</span>
+                    <Badge variant="default" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-bold gap-1 py-0.5">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                      <span>Siap Matching 🚀</span>
                     </Badge>
                   ) : (
-                    <Badge variant="default" className="bg-amber-500/10 text-amber-600 border-amber-500/20 text-[10px] font-bold gap-1 py-0.5">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>Belum Lengkap</span>
+                    <Badge variant="default" className="bg-amber-50 text-amber-700 border-amber-200 text-[10px] font-bold gap-1 py-0.5">
+                      <AlertCircle className="w-3 h-3 text-amber-600" />
+                      <span>Perlu Dilengkapi</span>
                     </Badge>
                   )}
                 </div>
                 <p className="text-xs text-devora-muted">
-                  {completeness.completedCount} dari {completeness.totalCount} item profil telah terisi.
+                  <strong className="text-devora-ink font-semibold">{completeness.completedCount}</strong> dari {completeness.totalCount} data profil telah terisi.
                 </p>
               </div>
             </div>
@@ -779,55 +805,55 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => setShowChecklistDetails(!showChecklistDetails)}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-devora-brand hover:text-devora-brand-dark self-start sm:self-center"
+              className="inline-flex items-center justify-between sm:justify-start gap-1.5 text-xs font-bold text-devora-brand hover:text-devora-brand-dark p-2 sm:p-0 rounded-lg hover:bg-devora-brand/5 sm:hover:bg-transparent transition-colors"
             >
-              <span>{showChecklistDetails ? "Sembunyikan Checklist" : "Lihat Checklist Lengkap"}</span>
-              {showChecklistDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              <span>{showChecklistDetails ? "Sembunyikan Rincian" : "Lihat Checklist Lengkap"}</span>
+              {showChecklistDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
           </div>
 
           {/* Next Suggested Action Hint */}
           {completeness.nextSuggestedAction && (
-            <div className="p-2.5 bg-devora-surface-strong/80 rounded-button border border-devora-border flex items-start gap-2 text-xs text-devora-ink">
-              <Zap className="w-3.5 h-3.5 text-devora-brand shrink-0 mt-0.5" />
-              <span>{completeness.nextSuggestedAction}</span>
+            <div className="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-start gap-2.5 text-xs text-devora-ink">
+              <Zap className="w-4 h-4 text-devora-brand shrink-0 mt-0.5" />
+              <span className="leading-relaxed">{completeness.nextSuggestedAction}</span>
             </div>
           )}
 
           {/* Expandable Checklist Details */}
           {showChecklistDetails && (
-            <div className="pt-3 border-t border-devora-border/70 space-y-3 animate-in fade-in duration-200">
+            <div className="pt-3 border-t border-slate-100 space-y-2.5 animate-in fade-in duration-200">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {completeness.items.map((item) => (
                   <div
                     key={item.key}
                     className={cn(
-                      "p-2 rounded-button border text-xs flex items-start gap-2",
+                      "p-2.5 rounded-xl border text-xs flex items-start gap-2.5 transition-colors",
                       item.isCompleted
-                        ? "bg-emerald-500/5 border-emerald-500/20 text-devora-ink"
+                        ? "bg-emerald-50/50 border-emerald-200/60 text-slate-700"
                         : item.category === "REQUIRED"
-                        ? "bg-amber-500/5 border-amber-500/30 text-devora-ink"
-                        : "bg-devora-surface border-devora-border text-devora-muted"
+                        ? "bg-amber-50/60 border-amber-200 text-slate-800"
+                        : "bg-slate-50 border-slate-200 text-slate-500"
                     )}
                   >
                     <div className="shrink-0 mt-0.5">
                       {item.isCompleted ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                       ) : (
-                        <div className="w-3.5 h-3.5 rounded-full border border-devora-muted/60" />
+                        <div className="w-4 h-4 rounded-full border-2 border-slate-300" />
                       )}
                     </div>
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className={cn("font-bold text-[11px] truncate", item.isCompleted && "line-through text-devora-muted")}>
+                    <div className="space-y-0.5 min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className={cn("font-bold text-xs truncate", item.isCompleted && "line-through text-slate-400")}>
                           {item.label}
                         </span>
-                        <span className="text-[9px] font-mono px-1 rounded bg-devora-surface-strong text-devora-muted shrink-0">
+                        <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-white border border-slate-200 text-slate-600 shrink-0">
                           {item.category === "REQUIRED" ? "Wajib" : item.category === "RECOMMENDED" ? "Dianjurkan" : "Opsional"}
                         </span>
                       </div>
                       {!item.isCompleted && (
-                        <p className="text-[10px] text-devora-muted leading-tight line-clamp-1">
+                        <p className="text-[11px] text-slate-500 leading-tight">
                           {item.hint}
                         </p>
                       )}
@@ -843,72 +869,70 @@ export default function ProfilePage() {
           <ProfilePageSkeleton />
         ) : activeTab === "PREVIEW" ? (
           /* ================================================================
-             VIEW MODE: LIVE PUBLIC PROFILE PREVIEW
+             VIEW MODE: LIVE PUBLIC PROFILE PREVIEW (MOBILE-FIRST POLISHED)
              ================================================================ */
-          <div className="space-y-5 animate-in fade-in duration-200">
-            <div className="p-3 bg-devora-surface-strong/60 rounded-button border border-devora-border flex items-center justify-between text-xs text-devora-muted">
-              <span>Ini adalah pratinjau kartu profilmu yang akan dilihat calon partner.</span>
-              <Button size="sm" variant="secondary" onClick={() => setActiveTab("EDIT")} className="text-xs gap-1">
-                <Edit3 className="w-3 h-3" />
-                <span>Ubah Data</span>
+          <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-200">
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-600">
+              <span className="leading-relaxed">👁️ Ini adalah tampilan kartu profilmu yang dilihat calon partner saat mencari kolaborator.</span>
+              <Button size="sm" variant="secondary" onClick={() => setActiveTab("EDIT")} className="text-xs font-bold gap-1.5 self-start sm:self-auto shrink-0">
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Ubah Data Profil</span>
               </Button>
             </div>
 
             {/* Profile Hero Card */}
-            <Card className="p-6 bg-devora-surface border-2 border-devora-border rounded-container shadow-md space-y-5">
+            <Card className="p-4 sm:p-7 bg-white border border-devora-border rounded-2xl sm:rounded-[28px] shadow-sm space-y-5">
               {/* Header: Avatar, Name, Title, Experience Badge */}
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-devora-border pb-5">
-                <div className="flex items-start gap-4">
-                  <Avatar
-                    src={avatarUrlInput || undefined}
-                    fallback={(name || "DV").slice(0, 2).toUpperCase()}
-                    size="lg"
-                    className="border-2 border-devora-brand shadow-sm shrink-0"
-                  />
-                  <div className="space-y-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-xl font-bold text-devora-ink">
-                        {name || "Nama Belum Diisi"}
-                      </h2>
-                      {experienceLevel && (
-                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-devora-brand/10 text-devora-brand-dark border border-devora-brand/20">
-                          {formatExperienceLabel(
-                            experienceYears !== "" ? Number(experienceYears) : null,
-                            experienceLevel
-                          )}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm font-semibold text-devora-brand-dark">
-                      {title || "Web Developer & Builder"}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-devora-muted pt-0.5 font-medium">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-devora-brand" />
-                        {location || "Indonesia"}
+              <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 border-b border-slate-100 pb-5">
+                <Avatar
+                  src={avatarUrlInput || undefined}
+                  fallback={(name || "DV").slice(0, 2).toUpperCase()}
+                  size="lg"
+                  className="w-20 h-20 sm:w-24 sm:h-24 border-2 border-devora-brand shadow-sm shrink-0"
+                />
+                <div className="space-y-1.5 flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                    <h2 className="text-lg sm:text-2xl font-extrabold text-devora-ink">
+                      {name || "Nama Belum Diisi"}
+                    </h2>
+                    {experienceLevel && (
+                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-devora-brand/10 text-devora-brand-dark border border-devora-brand/20">
+                        {formatExperienceLabel(
+                          experienceYears !== "" ? Number(experienceYears) : null,
+                          experienceLevel
+                        )}
                       </span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-devora-brand" />
-                        {availabilityHrs} jam/minggu ({flexibleHours ? "Fleksibel" : "Jadwal Tetap"})
-                      </span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <Globe className="w-3.5 h-3.5 text-devora-brand" />
-                        {formatWorkPreferenceLabel(workPreference)}
-                      </span>
-                    </div>
+                    )}
+                  </div>
+                  <p className="text-xs sm:text-sm font-bold text-devora-brand">
+                    {title || "Web Developer & Builder"}
+                  </p>
+                  
+                  {/* Meta Chips */}
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 sm:gap-2 pt-1 text-[11px] text-slate-600 font-medium">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+                      <MapPin className="w-3.5 h-3.5 text-devora-brand" />
+                      <span>{location || "Indonesia"}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+                      <Clock className="w-3.5 h-3.5 text-devora-brand" />
+                      <span>{availabilityHrs} jam/mgg ({flexibleHours ? "Fleksibel" : "Tetap"})</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+                      <Globe className="w-3.5 h-3.5 text-devora-brand" />
+                      <span>{formatWorkPreferenceLabel(workPreference)}</span>
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Bio */}
               {bio && (
-                <div className="space-y-1">
-                  <span className="text-[10px] font-mono uppercase font-bold text-devora-muted">
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-mono uppercase font-bold text-slate-400 block tracking-wider">
                     Tentang Saya:
                   </span>
-                  <p className="text-xs sm:text-sm text-devora-ink leading-relaxed italic bg-devora-background/60 p-3 rounded-button border border-devora-border/60">
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed italic bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
                     &ldquo;{bio}&rdquo;
                   </p>
                 </div>
@@ -916,57 +940,56 @@ export default function ProfilePage() {
 
               {/* Tech Stack */}
               <div className="space-y-2">
-                <span className="text-[10px] font-mono uppercase font-bold text-devora-muted block">
+                <span className="text-[10px] font-mono uppercase font-bold text-slate-400 block tracking-wider">
                   Tech Stack & Keahlian Utama:
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {techStack.map((tech) => (
-                    <Badge
+                    <span
                       key={tech}
-                      variant="default"
-                      className="text-xs py-1 px-2.5 bg-devora-surface-strong text-devora-ink font-semibold border border-devora-border"
+                      className="text-xs py-1 px-2.5 rounded-lg bg-slate-100 text-slate-800 font-bold border border-slate-200"
                     >
                       {tech}
-                    </Badge>
+                    </span>
                   ))}
                 </div>
               </div>
 
               {/* Availability & Days */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
-                <div className="p-3 bg-devora-background border border-devora-border rounded-button space-y-1">
-                  <span className="text-[10px] font-mono uppercase font-bold text-devora-muted">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+                  <span className="text-[10px] font-mono uppercase font-bold text-slate-400 block">
                     Gaya & Jadwal Kerja:
                   </span>
-                  <p className="font-bold text-devora-ink">{workStyle}</p>
-                  <p className="text-devora-muted text-[11px]">
+                  <p className="text-xs sm:text-sm font-bold text-slate-800">{workStyle}</p>
+                  <p className="text-slate-500 text-[11px]">
                     Hari aktif: {availableDays.length > 0 ? availableDays.join(", ") : "Fleksibel"}
                   </p>
                 </div>
 
-                <div className="p-3 bg-devora-background border border-devora-border rounded-button space-y-1">
-                  <span className="text-[10px] font-mono uppercase font-bold text-devora-muted">
-                    Zona Waktu:
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+                  <span className="text-[10px] font-mono uppercase font-bold text-slate-400 block">
+                    Zona Waktu & Preferensi:
                   </span>
-                  <p className="font-bold text-devora-ink">{timezone || "Asia/Jakarta (UTC+7)"}</p>
-                  <p className="text-devora-muted text-[11px]">
-                    Preferensi: {formatWorkPreferenceLabel(workPreference)}
+                  <p className="text-xs sm:text-sm font-bold text-slate-800">{timezone || "Asia/Jakarta (UTC+7)"}</p>
+                  <p className="text-slate-500 text-[11px]">
+                    Model Kerja: {formatWorkPreferenceLabel(workPreference)}
                   </p>
                 </div>
               </div>
 
-              {/* Links */}
-              <div className="pt-3 border-t border-devora-border flex flex-wrap items-center gap-3">
+              {/* Links & Socials */}
+              <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
                 {portfolioUrl && (
                   <a
                     href={portfolioUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-devora-brand hover:underline"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-devora-brand/10 text-devora-brand-dark text-xs font-bold border border-devora-brand/20 hover:bg-devora-brand/20 transition-colors"
                   >
                     <LinkIcon className="w-3.5 h-3.5" />
                     <span>Portofolio</span>
-                    <ExternalLink className="w-2.5 h-2.5" />
+                    <ExternalLink className="w-3 h-3" />
                   </a>
                 )}
                 {currentUser.githubUsername && (
@@ -974,11 +997,11 @@ export default function ProfilePage() {
                     href={currentUser.githubUrl || `https://github.com/${currentUser.githubUsername}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-devora-ink hover:text-devora-brand"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200 hover:bg-slate-200 transition-colors"
                   >
                     <GitBranch className="w-3.5 h-3.5" />
                     <span>GitHub (@{currentUser.githubUsername})</span>
-                    <ExternalLink className="w-2.5 h-2.5" />
+                    <ExternalLink className="w-3 h-3" />
                   </a>
                 )}
                 {linkedinUrl && (
@@ -986,11 +1009,11 @@ export default function ProfilePage() {
                     href={linkedinUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:underline"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200 hover:bg-blue-100 transition-colors"
                   >
                     <Globe className="w-3.5 h-3.5" />
                     <span>LinkedIn</span>
-                    <ExternalLink className="w-2.5 h-2.5" />
+                    <ExternalLink className="w-3 h-3" />
                   </a>
                 )}
                 {websiteUrl && (
@@ -998,21 +1021,21 @@ export default function ProfilePage() {
                     href={websiteUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-devora-muted hover:text-devora-ink"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200 hover:bg-slate-200 transition-colors"
                   >
                     <Globe className="w-3.5 h-3.5" />
                     <span>Website</span>
-                    <ExternalLink className="w-2.5 h-2.5" />
+                    <ExternalLink className="w-3 h-3" />
                   </a>
                 )}
               </div>
 
               {/* Showcase Sertifikasi Terverifikasi */}
               {currentUser.certificates && currentUser.certificates.length > 0 && (
-                <div className="space-y-3 pt-3 border-t border-devora-border">
+                <div className="space-y-3 pt-3 border-t border-slate-100">
                   <div className="flex items-center gap-2">
                     <Award className="w-4 h-4 text-amber-500" />
-                    <h3 className="text-xs font-mono uppercase font-bold text-devora-ink tracking-wider">
+                    <h3 className="text-xs font-mono uppercase font-bold text-slate-800 tracking-wider">
                       Sertifikasi Terverifikasi ({currentUser.certificates.length})
                     </h3>
                   </div>
@@ -1020,11 +1043,11 @@ export default function ProfilePage() {
                     {currentUser.certificates.map((cert) => (
                       <div
                         key={cert.id}
-                        className="p-3 bg-devora-background border border-devora-border rounded-button flex items-start justify-between gap-2"
+                        className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-start justify-between gap-2"
                       >
-                        <div className="space-y-0.5">
-                          <h4 className="text-xs font-bold text-devora-ink line-clamp-1">{cert.title}</h4>
-                          <p className="text-[11px] text-devora-muted">
+                        <div className="space-y-0.5 min-w-0">
+                          <h4 className="text-xs font-bold text-slate-800 truncate">{cert.title}</h4>
+                          <p className="text-[11px] text-slate-500">
                             {cert.issuer} {cert.issueDate && `• ${cert.issueDate}`}
                           </p>
                         </div>
@@ -1034,7 +1057,7 @@ export default function ProfilePage() {
                             target="_blank"
                             rel="noreferrer"
                             className="text-xs font-bold text-devora-brand hover:underline shrink-0 inline-flex items-center gap-1 p-1"
-                            title="Lihat Kredensial"
+                            title="Buka Kredensial"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
                           </a>
@@ -1047,10 +1070,10 @@ export default function ProfilePage() {
 
               {/* Showcase Portofolio Proyek yang Pernah Dibuat */}
               {currentUser.portfolios && currentUser.portfolios.length > 0 && (
-                <div className="space-y-3 pt-3 border-t border-devora-border">
+                <div className="space-y-3 pt-3 border-t border-slate-100">
                   <div className="flex items-center gap-2">
                     <FolderGit2 className="w-4 h-4 text-devora-brand" />
-                    <h3 className="text-xs font-mono uppercase font-bold text-devora-ink tracking-wider">
+                    <h3 className="text-xs font-mono uppercase font-bold text-slate-800 tracking-wider">
                       Portofolio Proyek Live ({currentUser.portfolios.length})
                     </h3>
                   </div>
@@ -1058,39 +1081,38 @@ export default function ProfilePage() {
                     {currentUser.portfolios.map((proj) => (
                       <div
                         key={proj.id}
-                        className="p-3.5 bg-devora-background border border-devora-border rounded-container space-y-2 flex flex-col justify-between"
+                        className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5 flex flex-col justify-between"
                       >
                         <div className="space-y-1">
-                          <h4 className="text-sm font-bold text-devora-ink">{proj.title}</h4>
+                          <h4 className="text-sm font-bold text-slate-900">{proj.title}</h4>
                           {proj.description && (
-                            <p className="text-xs text-devora-muted line-clamp-2 leading-relaxed">
+                            <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
                               {proj.description}
                             </p>
                           )}
                           {proj.tags && proj.tags.length > 0 && (
                             <div className="flex flex-wrap gap-1 pt-1">
                               {proj.tags.map((t) => (
-                                <Badge
+                                <span
                                   key={t}
-                                  variant="default"
-                                  className="text-[10px] py-0.5 px-1.5 bg-devora-surface-strong text-devora-ink font-semibold"
+                                  className="text-[10px] py-0.5 px-2 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold"
                                 >
                                   {t}
-                                </Badge>
+                                </span>
                               ))}
                             </div>
                           )}
                         </div>
 
-                        <div className="flex items-center gap-2 pt-2 border-t border-devora-border/60">
+                        <div className="flex items-center gap-3 pt-2 border-t border-slate-200/80">
                           {proj.liveUrl && (
                             <a
                               href={proj.liveUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1 text-[11px] font-bold text-devora-brand hover:underline"
+                              className="inline-flex items-center gap-1 text-xs font-bold text-devora-brand hover:underline"
                             >
-                              <ExternalLink className="w-3 h-3" />
+                              <ExternalLink className="w-3.5 h-3.5" />
                               <span>Live Demo</span>
                             </a>
                           )}
@@ -1099,9 +1121,9 @@ export default function ProfilePage() {
                               href={proj.repoUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1 text-[11px] font-bold text-devora-ink hover:text-devora-brand"
+                              className="inline-flex items-center gap-1 text-xs font-bold text-slate-800 hover:text-devora-brand"
                             >
-                              <GitBranch className="w-3 h-3" />
+                              <GitBranch className="w-3.5 h-3.5" />
                               <span>GitHub</span>
                             </a>
                           )}
@@ -1115,35 +1137,42 @@ export default function ProfilePage() {
           </div>
         ) : (
           /* ================================================================
-             EDIT MODE: FULL PROFESSIONAL DEVELOPER FORM
+             EDIT MODE: FULL PROFESSIONAL DEVELOPER FORM (MOBILE-FIRST OPTIMIZED)
              ================================================================ */
-          <form onSubmit={handleSaveProfile} className="space-y-6 animate-in fade-in duration-200">
+          <form onSubmit={handleSaveProfile} className="space-y-4 sm:space-y-6 animate-in fade-in duration-200">
             {/* -------------------------------------------------------------
                 SECTION 1: IDENTITAS (Identity)
                 ------------------------------------------------------------- */}
-            <Card className="p-5 sm:p-6 bg-devora-surface border-devora-border space-y-4">
-              <div className="flex items-center justify-between border-b border-devora-border pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-devora-brand/10 text-devora-brand flex items-center justify-center font-bold text-xs">
+            <Card className="p-4 sm:p-6 bg-white border border-devora-border rounded-2xl sm:rounded-[24px] space-y-4 shadow-xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-devora-brand/10 text-devora-brand flex items-center justify-center font-extrabold text-xs">
                     1
                   </div>
-                  <h2 className="text-base font-bold text-devora-ink">
-                    Identitas Profil Developer
-                  </h2>
+                  <div>
+                    <h2 className="text-sm sm:text-base font-extrabold text-devora-ink">
+                      Identitas Profil Developer
+                    </h2>
+                    <p className="text-[11px] text-devora-muted">
+                      Informasi dasar & foto tampilan publik
+                    </p>
+                  </div>
                 </div>
-                <span className="text-[11px] text-devora-muted font-mono">Bagian Wajib & Foto</span>
+                <Badge variant="brand" className="text-[10px] font-bold px-2 py-0.5">
+                  Wajib
+                </Badge>
               </div>
 
               {/* Avatar Preview & URL Input */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-3.5 bg-devora-surface-strong/60 rounded-container border border-devora-border">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-3.5 sm:p-4 bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-200">
                 <Avatar
                   src={avatarUrlInput || undefined}
                   fallback={(name || "DV").slice(0, 2).toUpperCase()}
                   size="lg"
-                  className="border-2 border-devora-border shadow-xs shrink-0 mx-auto sm:mx-0"
+                  className="w-16 h-16 sm:w-20 sm:h-20 border-2 border-devora-brand shadow-xs shrink-0"
                 />
-                <div className="flex-1 space-y-1.5 min-w-0">
-                  <label className="text-xs font-mono uppercase font-semibold text-devora-muted block">
+                <div className="flex-1 space-y-2 w-full min-w-0">
+                  <label className="text-[11px] font-mono uppercase font-bold text-slate-600 block">
                     URL Foto Profil / Avatar
                   </label>
                   <input
@@ -1151,14 +1180,15 @@ export default function ProfilePage() {
                     placeholder="https://images.unsplash.com/... atau https://github.com/username.png"
                     value={avatarUrlInput}
                     onChange={(e) => setAvatarUrlInput(e.target.value)}
-                    className="w-full px-3 py-2 bg-devora-background border border-devora-border rounded-button text-xs text-devora-ink placeholder:text-devora-muted focus:outline-none focus:border-devora-brand"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-devora-ink placeholder:text-slate-400 focus:outline-none focus:border-devora-brand"
                   />
                   {currentUser.githubUsername && (
                     <button
                       type="button"
                       onClick={() => setAvatarUrlInput(`https://github.com/${currentUser.githubUsername}.png`)}
-                      className="text-[11px] text-devora-brand font-semibold hover:underline inline-flex items-center gap-1"
+                      className="text-[11px] text-devora-brand font-bold hover:underline inline-flex items-center gap-1"
                     >
+                      <GitBranch className="w-3.5 h-3.5" />
                       <span>Gunakan foto GitHub (@{currentUser.githubUsername})</span>
                     </button>
                   )}
@@ -1168,17 +1198,17 @@ export default function ProfilePage() {
               {/* Name */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-mono uppercase font-semibold text-devora-muted">
+                  <label className="text-[11px] font-mono uppercase font-bold text-slate-700">
                     Nama Lengkap <span className="text-devora-brand">*</span>
                   </label>
-                  <span className="text-[10px] text-devora-muted">Wajib diisi</span>
+                  <span className="text-[10px] text-slate-400 font-mono">Wajib diisi</span>
                 </div>
                 <input
                   type="text"
                   placeholder="Contoh: Acelino Kurniawan"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-devora-background border border-devora-border rounded-button text-sm text-devora-ink font-semibold focus:outline-none focus:border-devora-brand"
+                  className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-xs sm:text-sm text-devora-ink font-bold focus:bg-white focus:outline-none focus:border-devora-brand transition-colors"
                   required
                 />
               </div>
@@ -1186,11 +1216,11 @@ export default function ProfilePage() {
               {/* Headline / Title */}
               <div className="space-y-2">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                  <label className="text-xs font-mono uppercase font-bold text-devora-ink flex items-center gap-1.5">
+                  <label className="text-[11px] font-mono uppercase font-bold text-slate-700 flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-devora-brand" />
                     <span>Headline / Posisi Andalan</span>
                   </label>
-                  <span className="text-[11px] text-devora-muted font-medium">
+                  <span className="text-[10px] text-slate-400">
                     Pilih preset atau ketik manual
                   </span>
                 </div>
@@ -1200,9 +1230,10 @@ export default function ProfilePage() {
                   placeholder="Contoh: Senior Frontend Engineer & Design Systems"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-devora-background border border-devora-border rounded-button text-sm text-devora-ink font-bold focus:outline-none focus:border-devora-brand shadow-xs"
+                  className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-xs sm:text-sm text-devora-ink font-bold focus:bg-white focus:outline-none focus:border-devora-brand transition-colors"
                 />
 
+                {/* Specialty Presets Chips */}
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {SPECIALTY_PRESETS.map((preset) => {
                     const Icon = preset.icon;
@@ -1213,10 +1244,10 @@ export default function ProfilePage() {
                         key={preset.label}
                         onClick={() => setTitle(preset.title)}
                         className={cn(
-                          "px-2.5 py-1 rounded-button text-xs font-semibold flex items-center gap-1.5 border transition-all",
+                          "px-2.5 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1.5 border transition-all active:scale-95",
                           isSelected
                             ? "bg-devora-brand text-white border-devora-brand shadow-xs"
-                            : "bg-devora-surface text-devora-ink border-devora-border hover:border-devora-brand hover:text-devora-brand"
+                            : "bg-slate-50 text-slate-700 border-slate-200 hover:border-devora-brand hover:text-devora-brand"
                         )}
                       >
                         <Icon className={cn("w-3.5 h-3.5", isSelected ? "text-white" : "text-devora-brand")} />
@@ -1229,42 +1260,42 @@ export default function ProfilePage() {
 
               {/* Bio */}
               <div className="space-y-1.5">
-                <label className="text-xs font-mono uppercase font-semibold text-devora-muted">
+                <label className="text-[11px] font-mono uppercase font-bold text-slate-700">
                   Bio Singkat
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="Ceritakan sedikit tentang dirimu, proyek impian yang ingin kamu bangun, atau teknologi yang sedang kamu tekuni..."
+                  placeholder="Ceritakan sedikit tentang dirimu, visi proyek, atau teknologi yang sedang kamu tekuni..."
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-devora-background border border-devora-border rounded-button text-xs sm:text-sm text-devora-ink focus:outline-none focus:border-devora-brand resize-none"
+                  className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-xs sm:text-sm text-devora-ink focus:bg-white focus:outline-none focus:border-devora-brand resize-none transition-colors"
                 />
               </div>
 
               {/* Location */}
               <div className="space-y-1.5 pt-1">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-mono uppercase font-semibold text-devora-muted">
+                  <label className="text-[11px] font-mono uppercase font-bold text-slate-700">
                     Domisili / Kota <span className="text-devora-brand">*</span>
                   </label>
-                  <span className="text-[10px] text-devora-muted">500+ Kota di Indonesia & Global</span>
+                  <span className="text-[10px] text-slate-400">500+ Kota di Indonesia</span>
                 </div>
 
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 text-devora-muted absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Ketik untuk filter kota cepat (misal: Jakarta, Surabaya, Canggu, Bandung)..."
+                    placeholder="Filter cepat kota (misal: Jakarta, Surabaya, Bali, Bandung)..."
                     value={citySearch}
                     onChange={(e) => setCitySearch(e.target.value)}
-                    className="w-full pl-8 pr-3 py-1.5 text-xs bg-devora-background border border-devora-border rounded-button text-devora-ink placeholder:text-devora-muted focus:outline-none focus:border-devora-brand mb-1.5"
+                    className="w-full pl-8 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl text-devora-ink placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-devora-brand mb-1.5"
                   />
                 </div>
 
                 <select
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-devora-background border border-devora-border rounded-button text-xs sm:text-sm text-devora-ink font-semibold focus:outline-none focus:border-devora-brand cursor-pointer"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-devora-ink font-bold focus:bg-white focus:outline-none focus:border-devora-brand cursor-pointer"
                   required
                 >
                   <option value="" disabled>
@@ -1297,51 +1328,51 @@ export default function ProfilePage() {
             {/* -------------------------------------------------------------
                 SECTION 2: PENGALAMAN WEB DEVELOPER & KEAHLIAN
                 ------------------------------------------------------------- */}
-            <Card className="p-5 sm:p-6 bg-devora-surface border-devora-border space-y-5">
-              <div className="flex items-center justify-between border-b border-devora-border pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-devora-brand/10 text-devora-brand flex items-center justify-center font-bold text-xs">
+            <Card className="p-4 sm:p-6 bg-white border border-devora-border rounded-2xl sm:rounded-[24px] space-y-4 shadow-xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-devora-brand/10 text-devora-brand flex items-center justify-center font-extrabold text-xs">
                     2
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-devora-ink">
-                      Pengalaman & Spesialisasi Web Developer
+                    <h2 className="text-sm sm:text-base font-extrabold text-devora-ink">
+                      Pengalaman & Spesialisasi Web Dev
                     </h2>
-                    <p className="text-xs text-devora-muted">
-                      Field wajib untuk menentukan level kecocokan partner.
+                    <p className="text-[11px] text-devora-muted">
+                      Wajib untuk menentukan kecocokan partner
                     </p>
                   </div>
                 </div>
-                <Badge variant="brand" className="text-xs font-bold px-2 py-0.5">
-                  Wajib untuk Matching
+                <Badge variant="brand" className="text-[10px] font-bold px-2 py-0.5">
+                  Wajib
                 </Badge>
               </div>
 
-              {/* Experience Years (Explicit Web Developer Experience) */}
-              <div className="space-y-2.5 p-4 bg-devora-surface-strong/60 rounded-container border border-devora-border">
+              {/* Experience Years */}
+              <div className="space-y-3 p-3.5 sm:p-4 bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-200">
                 <div className="space-y-0.5">
-                  <label className="text-xs font-mono uppercase font-bold text-devora-ink flex items-center gap-1.5">
+                  <label className="text-[11px] font-mono uppercase font-bold text-slate-800 flex items-center gap-1.5">
                     <Briefcase className="w-3.5 h-3.5 text-devora-brand" />
-                    <span>Pengalaman sebagai Web Developer (dalam Tahun)</span>
+                    <span>Pengalaman sebagai Web Developer</span>
                     <span className="text-devora-brand">*</span>
                   </label>
-                  <p className="text-xs text-devora-muted leading-relaxed">
-                    Sudah berapa lama kamu aktif mengembangkan website atau aplikasi web? (Bisa gunakan desimal, misal 0.5 untuk 6 bulan).
+                  <p className="text-xs text-slate-500">
+                    Berapa lama kamu aktif membuat website atau aplikasi web?
                   </p>
                 </div>
 
-                {/* Quick Presets */}
-                <div className="flex flex-wrap gap-1.5">
+                {/* Quick Presets Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1.5">
                   {EXPERIENCE_YEAR_PRESETS.map((preset) => (
                     <button
                       type="button"
                       key={preset.label}
                       onClick={() => setExperienceYears(String(preset.value))}
                       className={cn(
-                        "px-2.5 py-1 rounded-button text-xs font-semibold border transition-all",
+                        "py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center active:scale-95",
                         experienceYears === String(preset.value)
-                          ? "bg-devora-brand text-white border-devora-brand shadow-xs font-bold"
-                          : "bg-devora-surface border-devora-border text-devora-ink hover:border-devora-brand"
+                          ? "bg-devora-brand text-white border-devora-brand shadow-xs"
+                          : "bg-white border-slate-200 text-slate-700 hover:border-devora-brand"
                       )}
                     >
                       {preset.label}
@@ -1350,36 +1381,36 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Number Input */}
-                <div className="flex items-center gap-2 max-w-xs pt-1">
+                <div className="flex items-center gap-2 pt-1">
                   <input
                     type="number"
                     step="0.5"
                     min="0"
                     max="50"
-                    placeholder="Contoh: 1.5"
+                    placeholder="Misal: 1.5"
                     value={experienceYears}
                     onChange={(e) => setExperienceYears(e.target.value)}
-                    className="w-36 px-3 py-2 bg-devora-background border border-devora-border rounded-button text-sm text-devora-ink font-bold focus:outline-none focus:border-devora-brand"
+                    className="w-28 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-devora-ink font-extrabold focus:outline-none focus:border-devora-brand"
                     required
                   />
-                  <span className="text-xs font-mono font-bold text-devora-muted">Tahun Pengalaman</span>
+                  <span className="text-xs font-mono font-bold text-slate-500">Tahun Pengalaman</span>
                 </div>
               </div>
 
               {/* Experience Level Selector (4 Cards) */}
               <div className="space-y-2">
                 <div className="space-y-0.5">
-                  <label className="text-xs font-mono uppercase font-bold text-devora-ink flex items-center gap-1.5">
+                  <label className="text-[11px] font-mono uppercase font-bold text-slate-800 flex items-center gap-1.5">
                     <GraduationCap className="w-3.5 h-3.5 text-devora-brand" />
                     <span>Tingkat Level Pengalaman (Experience Level)</span>
                     <span className="text-devora-brand">*</span>
                   </label>
-                  <p className="text-xs text-devora-muted">
-                    Pilih kategori yang paling menggambarkan kemandirian ngoding kamu saat ini.
+                  <p className="text-xs text-slate-500">
+                    Pilih yang paling menggambarkan kemandirian ngoding kamu saat ini.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {EXPERIENCE_LEVELS.map((item) => {
                     const isSelected = experienceLevel === item.level;
                     return (
@@ -1387,23 +1418,23 @@ export default function ProfilePage() {
                         key={item.level}
                         onClick={() => setExperienceLevel(item.level)}
                         className={cn(
-                          "p-3.5 rounded-container border-2 cursor-pointer transition-all flex items-start gap-3 select-none",
+                          "p-3.5 rounded-xl sm:rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-3 select-none active:scale-[0.99]",
                           isSelected
-                            ? "border-devora-brand bg-devora-brand-soft/40 shadow-xs"
-                            : "border-devora-border bg-devora-background hover:border-devora-border-strong"
+                            ? "border-devora-brand bg-devora-brand-soft/30 shadow-xs"
+                            : "border-slate-200 bg-slate-50/50 hover:border-slate-300"
                         )}
                       >
                         <div className={cn(
                           "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors",
-                          isSelected ? "border-devora-brand bg-devora-brand text-white" : "border-devora-border"
+                          isSelected ? "border-devora-brand bg-devora-brand text-white" : "border-slate-300 bg-white"
                         )}>
                           {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                         </div>
-                        <div className="space-y-1 min-w-0">
-                          <span className="text-xs font-bold text-devora-ink block">
+                        <div className="space-y-0.5 min-w-0">
+                          <span className="text-xs font-extrabold text-devora-ink block">
                             {item.title}
                           </span>
-                          <p className="text-[11px] text-devora-muted leading-relaxed">
+                          <p className="text-[11px] text-slate-500 leading-relaxed">
                             {item.subtitle}
                           </p>
                         </div>
@@ -1414,21 +1445,21 @@ export default function ProfilePage() {
               </div>
 
               {/* Tech Stack & Skills */}
-              <div className="space-y-3 pt-2 border-t border-devora-border/70">
+              <div className="space-y-3 pt-2 border-t border-slate-100">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <Code2 className="w-4 h-4 text-devora-brand" />
-                    <label className="text-xs font-mono uppercase font-bold text-devora-ink">
+                    <label className="text-[11px] font-mono uppercase font-bold text-slate-800">
                       Tech Stack & Keahlian Utama <span className="text-devora-brand">*</span>
                     </label>
                   </div>
-                  <span className="text-xs font-mono text-devora-muted bg-devora-surface-strong px-2 py-0.5 rounded border border-devora-border">
+                  <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
                     {techStack.length} tools terpilih
                   </span>
                 </div>
 
                 {/* Selected Badges */}
-                <div className="flex flex-wrap gap-1.5 p-3 bg-devora-background border border-devora-border rounded-container min-h-[46px] items-center">
+                <div className="flex flex-wrap gap-1.5 p-3 bg-slate-50 border border-slate-200 rounded-xl min-h-[46px] items-center">
                   {techStack.length > 0 ? (
                     techStack.map((tech) => (
                       <span
@@ -1446,7 +1477,7 @@ export default function ProfilePage() {
                       </span>
                     ))
                   ) : (
-                    <span className="text-xs text-devora-muted italic">
+                    <span className="text-xs text-slate-400 italic">
                       Belum ada tech stack yang dipilih. Tambahkan di bawah.
                     </span>
                   )}
@@ -1456,7 +1487,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
-                    placeholder="Ketik tool baru (misal: SvelteKit, Bun, Prisma, GraphQL)..."
+                    placeholder="Ketik tool baru (misal: SvelteKit, Bun, Prisma)..."
                     value={customSkillInput}
                     onChange={(e) => setCustomSkillInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -1465,14 +1496,14 @@ export default function ProfilePage() {
                         handleAddCustomTech();
                       }
                     }}
-                    className="flex-1 px-3 py-2 bg-devora-background border border-devora-border rounded-button text-xs text-devora-ink focus:outline-none focus:border-devora-brand"
+                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-devora-ink focus:bg-white focus:outline-none focus:border-devora-brand"
                   />
                   <Button
                     type="button"
                     size="sm"
                     onClick={handleAddCustomTech}
                     disabled={!customSkillInput.trim()}
-                    className="gap-1 bg-devora-ink text-white hover:bg-devora-ink-soft text-xs font-bold shrink-0"
+                    className="gap-1 bg-devora-ink text-white hover:bg-devora-ink-soft text-xs font-bold shrink-0 rounded-xl"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Tambah</span>
@@ -1481,13 +1512,13 @@ export default function ProfilePage() {
 
                 {/* Categories */}
                 <div className="space-y-2.5 pt-1">
-                  <span className="text-[11px] font-mono text-devora-muted font-bold block uppercase tracking-wide">
+                  <span className="text-[11px] font-mono text-slate-600 font-bold block uppercase tracking-wide">
                     ⚡ Pilihan Cepat Stack Populer:
                   </span>
                   <div className="space-y-2">
                     {POPULAR_TECH_PRESETS.map((cat) => (
                       <div key={cat.category} className="space-y-1">
-                        <span className="text-[10px] font-mono text-devora-muted block">{cat.category}</span>
+                        <span className="text-[10px] font-mono text-slate-400 block font-semibold">{cat.category}</span>
                         <div className="flex flex-wrap gap-1">
                           {cat.items.map((item) => {
                             const isSelected = techStack.includes(item);
@@ -1497,10 +1528,10 @@ export default function ProfilePage() {
                                 key={item}
                                 onClick={() => handleToggleTech(item)}
                                 className={cn(
-                                  "px-2.5 py-0.5 rounded text-[11px] font-semibold border transition-all",
+                                  "px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all active:scale-95",
                                   isSelected
-                                    ? "bg-devora-brand text-white border-devora-brand font-bold"
-                                    : "bg-devora-background text-devora-ink border-devora-border hover:border-devora-brand"
+                                    ? "bg-devora-brand text-white border-devora-brand shadow-xs"
+                                    : "bg-slate-50 text-slate-700 border-slate-200 hover:border-devora-brand"
                                 )}
                               >
                                 {item} {isSelected && "✓"}
@@ -1516,20 +1547,20 @@ export default function ProfilePage() {
             </Card>
 
             {/* -------------------------------------------------------------
-                SECTION 3: KETERSEDIAAN WAKTU & GAYA KERJA
+                SECTION 3: KETERSEDIAAN WAKTU & JADWAL
                 ------------------------------------------------------------- */}
-            <Card className="p-5 sm:p-6 bg-devora-surface border-devora-border space-y-4">
-              <div className="flex items-center justify-between border-b border-devora-border pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-devora-brand/10 text-devora-brand flex items-center justify-center font-bold text-xs">
+            <Card className="p-4 sm:p-6 bg-white border border-devora-border rounded-2xl sm:rounded-[24px] space-y-4 shadow-xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-devora-brand/10 text-devora-brand flex items-center justify-center font-extrabold text-xs">
                     3
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-devora-ink">
-                      Ketersediaan Waktu & Jadwal Kolaborasi
+                    <h2 className="text-sm sm:text-base font-extrabold text-devora-ink">
+                      Ketersediaan Waktu & Jadwal
                     </h2>
-                    <p className="text-xs text-devora-muted">
-                      Memastikan partner memiliki overlap waktu yang sefrekuensi.
+                    <p className="text-[11px] text-devora-muted">
+                      Overlap waktu kolaborasi dengan partner
                     </p>
                   </div>
                 </div>
@@ -1538,77 +1569,79 @@ export default function ProfilePage() {
               {/* Hours per week */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-mono uppercase font-semibold text-devora-muted flex items-center gap-1.5">
+                  <label className="text-[11px] font-mono uppercase font-bold text-slate-700 flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-devora-brand" />
-                    <span>Ketersediaan Jam Kerja per Minggu</span>
+                    <span>Komitmen Jam Kerja per Minggu</span>
                   </label>
-                  <span className="text-sm font-bold text-devora-brand font-mono">
+                  <span className="text-xs sm:text-sm font-extrabold text-devora-brand font-mono">
                     {availabilityHrs} Jam / Minggu
                   </span>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
                   {[5, 8, 12, 20, 30].map((hrs) => (
                     <button
                       type="button"
                       key={hrs}
                       onClick={() => setAvailabilityHrs(hrs)}
                       className={cn(
-                        "px-3 py-1.5 rounded-button text-xs font-bold border transition-all",
+                        "py-2 px-2 rounded-xl text-xs font-bold border transition-all text-center active:scale-95",
                         availabilityHrs === hrs
                           ? "bg-devora-brand text-white border-devora-brand shadow-xs"
-                          : "bg-devora-background text-devora-ink border-devora-border hover:border-devora-brand"
+                          : "bg-slate-50 text-slate-700 border-slate-200 hover:border-devora-brand"
                       )}
                     >
-                      {hrs} Jam / Minggu
+                      {hrs} Jam
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Flexible Hours Toggle */}
-              <div className="p-3.5 bg-devora-surface-strong/50 rounded-container border border-devora-border flex items-center justify-between gap-3">
+              <div className="p-3.5 bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-200 flex items-center justify-between gap-3">
                 <div className="space-y-0.5">
-                  <span className="text-xs font-bold text-devora-ink block">
-                    Jam Kerja Fleksibel
+                  <span className="text-xs font-extrabold text-devora-ink block">
+                    Jadwal Kerja Fleksibel
                   </span>
-                  <p className="text-[11px] text-devora-muted">
-                    Jadwal ngoding saya fleksibel dan bisa menyesuaikan kesepakatan tim.
+                  <p className="text-[11px] text-slate-500">
+                    Jadwal ngoding saya fleksibel mengikuti ritme dan kesepakatan tim.
                   </p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
+                <label className="relative inline-flex items-center cursor-pointer shrink-0">
                   <input
                     type="checkbox"
                     checked={flexibleHours}
                     onChange={(e) => setFlexibleHours(e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-9 h-5 bg-devora-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-devora-brand"></div>
+                  <div className="w-10 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-devora-brand"></div>
                 </label>
               </div>
 
               {/* Available Days */}
               <div className="space-y-2">
-                <label className="text-xs font-mono uppercase font-semibold text-devora-muted flex items-center gap-1.5">
+                <label className="text-[11px] font-mono uppercase font-bold text-slate-700 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-devora-brand" />
                   <span>Hari Aktif Kolaborasi</span>
                 </label>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
                   {DAYS_LIST.map((day) => {
-                    const isSelected = availableDays.includes(day);
+                    const isSelected = availableDays.includes(day.full);
                     return (
                       <button
                         type="button"
-                        key={day}
-                        onClick={() => handleToggleDay(day)}
+                        key={day.full}
+                        onClick={() => handleToggleDay(day.full)}
                         className={cn(
-                          "px-3 py-1.5 rounded-button text-xs font-semibold border transition-all",
+                          "py-2 px-1 rounded-xl text-xs font-bold border transition-all text-center active:scale-95",
                           isSelected
-                            ? "bg-devora-ink text-white border-devora-ink font-bold shadow-xs"
-                            : "bg-devora-background text-devora-muted border-devora-border hover:text-devora-ink"
+                            ? "bg-devora-ink text-white border-devora-ink shadow-xs"
+                            : "bg-slate-50 text-slate-600 border-slate-200 hover:text-devora-ink"
                         )}
                       >
-                        {day} {isSelected && "✓"}
+                        <span className="hidden sm:inline">{day.full}</span>
+                        <span className="sm:hidden">{day.short}</span>
+                        {isSelected && " ✓"}
                       </button>
                     );
                   })}
@@ -1618,14 +1651,14 @@ export default function ProfilePage() {
               {/* Timezone */}
               <div className="space-y-1.5 pt-1">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-mono uppercase font-semibold text-devora-muted flex items-center gap-1.5">
+                  <label className="text-[11px] font-mono uppercase font-bold text-slate-700 flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-devora-brand" />
                     <span>Zona Waktu (Timezone)</span>
                   </label>
                   <button
                     type="button"
                     onClick={handleAutoDetectTimezone}
-                    className="text-[11px] font-semibold text-devora-brand hover:underline inline-flex items-center gap-1"
+                    className="text-[11px] font-bold text-devora-brand hover:underline inline-flex items-center gap-1"
                   >
                     <Compass className="w-3 h-3" />
                     <span>Deteksi Otomatis</span>
@@ -1635,7 +1668,7 @@ export default function ProfilePage() {
                 <select
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-devora-background border border-devora-border rounded-button text-xs sm:text-sm text-devora-ink font-semibold focus:outline-none focus:border-devora-brand cursor-pointer"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-devora-ink font-bold focus:bg-white focus:outline-none focus:border-devora-brand cursor-pointer"
                 >
                   <option value="" disabled>
                     Pilih zona waktu...
@@ -1655,7 +1688,7 @@ export default function ProfilePage() {
 
               {/* Working Rhythm */}
               <div className="space-y-1.5">
-                <label className="text-xs font-mono uppercase font-semibold text-devora-muted">
+                <label className="text-[11px] font-mono uppercase font-bold text-slate-700">
                   Gaya & Ritme Kolaborasi
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1665,10 +1698,10 @@ export default function ProfilePage() {
                       key={ws}
                       onClick={() => setWorkStyle(ws)}
                       className={cn(
-                        "p-2.5 rounded-button text-xs text-left font-semibold border transition-all",
+                        "p-3 rounded-xl text-xs text-left font-bold border transition-all active:scale-95",
                         workStyle === ws
-                          ? "bg-devora-brand/10 border-devora-brand text-devora-brand-dark font-bold"
-                          : "bg-devora-background border-devora-border text-devora-muted hover:text-devora-ink"
+                          ? "bg-devora-brand/10 border-devora-brand text-devora-brand-dark"
+                          : "bg-slate-50 border-slate-200 text-slate-600 hover:text-devora-ink"
                       )}
                     >
                       {ws}
@@ -1679,29 +1712,29 @@ export default function ProfilePage() {
             </Card>
 
             {/* -------------------------------------------------------------
-                SECTION 4: PREFERENSI KERJA (Work Preference)
+                SECTION 4: PREFERENSI CARA KERJA
                 ------------------------------------------------------------- */}
-            <Card className="p-5 sm:p-6 bg-devora-surface border-devora-border space-y-4">
-              <div className="flex items-center justify-between border-b border-devora-border pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-devora-brand/10 text-devora-brand flex items-center justify-center font-bold text-xs">
+            <Card className="p-4 sm:p-6 bg-white border border-devora-border rounded-2xl sm:rounded-[24px] space-y-4 shadow-xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-devora-brand/10 text-devora-brand flex items-center justify-center font-extrabold text-xs">
                     4
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-devora-ink">
+                    <h2 className="text-sm sm:text-base font-extrabold text-devora-ink">
                       Preferensi Cara Kerja
                     </h2>
-                    <p className="text-xs text-devora-muted">
-                      Apakah kamu lebih suka kerja remote, hybrid, atau on-site?
+                    <p className="text-[11px] text-devora-muted">
+                      Remote, hybrid, atau on-site
                     </p>
                   </div>
                 </div>
-                <Badge variant="brand" className="text-xs font-bold px-2 py-0.5">
+                <Badge variant="brand" className="text-[10px] font-bold px-2 py-0.5">
                   Wajib
                 </Badge>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 {WORK_PREFERENCES.map((item) => {
                   const Icon = item.icon;
                   const isSelected = workPreference === item.key;
@@ -1710,26 +1743,26 @@ export default function ProfilePage() {
                       key={item.key}
                       onClick={() => setWorkPreference(item.key)}
                       className={cn(
-                        "p-4 rounded-container border-2 cursor-pointer transition-all flex flex-col justify-between space-y-2 select-none",
+                        "p-3.5 rounded-xl sm:rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between space-y-2 select-none active:scale-[0.99]",
                         isSelected
-                          ? "border-devora-brand bg-devora-brand-soft/40 shadow-xs"
-                          : "border-devora-border bg-devora-background hover:border-devora-border-strong"
+                          ? "border-devora-brand bg-devora-brand-soft/30 shadow-xs"
+                          : "border-slate-200 bg-slate-50/50 hover:border-slate-300"
                       )}
                     >
                       <div className="flex items-center justify-between">
-                        <Icon className={cn("w-5 h-5", isSelected ? "text-devora-brand" : "text-devora-muted")} />
+                        <Icon className={cn("w-5 h-5", isSelected ? "text-devora-brand" : "text-slate-400")} />
                         <div className={cn(
                           "w-4 h-4 rounded-full border flex items-center justify-center",
-                          isSelected ? "border-devora-brand bg-devora-brand text-white" : "border-devora-border"
+                          isSelected ? "border-devora-brand bg-devora-brand text-white" : "border-slate-300 bg-white"
                         )}>
                           {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                         </div>
                       </div>
                       <div className="space-y-0.5">
-                        <span className="text-xs font-bold text-devora-ink block">
+                        <span className="text-xs font-extrabold text-devora-ink block">
                           {item.title}
                         </span>
-                        <p className="text-[11px] text-devora-muted leading-tight">
+                        <p className="text-[11px] text-slate-500 leading-tight">
                           {item.desc}
                         </p>
                       </div>
@@ -1740,20 +1773,20 @@ export default function ProfilePage() {
             </Card>
 
             {/* -------------------------------------------------------------
-                SECTION 5: LINK PORTOFOLIO & SOSIAL PROFESIONAL
+                SECTION 5: LINK PORTOFOLIO & SOSIAL
                 ------------------------------------------------------------- */}
-            <Card className="p-5 sm:p-6 bg-devora-surface border-devora-border space-y-4">
-              <div className="flex items-center justify-between border-b border-devora-border pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-devora-brand/10 text-devora-brand flex items-center justify-center font-bold text-xs">
+            <Card className="p-4 sm:p-6 bg-white border border-devora-border rounded-2xl sm:rounded-[24px] space-y-4 shadow-xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-devora-brand/10 text-devora-brand flex items-center justify-center font-extrabold text-xs">
                     5
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-devora-ink">
-                      Tautan Portofolio & Jejaring Profesional
+                    <h2 className="text-sm sm:text-base font-extrabold text-devora-ink">
+                      Tautan Portofolio & Jejaring
                     </h2>
-                    <p className="text-xs text-devora-muted">
-                      Tunjukkan karya terbaik dan profil profesional kamu kepada partner.
+                    <p className="text-[11px] text-devora-muted">
+                      Tunjukkan karya terbaik ke calon partner
                     </p>
                   </div>
                 </div>
@@ -1761,7 +1794,7 @@ export default function ProfilePage() {
 
               {/* Portfolio URL */}
               <div className="space-y-1.5">
-                <label className="text-xs font-mono uppercase font-semibold text-devora-muted flex items-center gap-1.5">
+                <label className="text-[11px] font-mono uppercase font-bold text-slate-700 flex items-center gap-1.5">
                   <LinkIcon className="w-3.5 h-3.5 text-devora-brand" />
                   <span>URL Portofolio Pribadi</span>
                 </label>
@@ -1770,24 +1803,24 @@ export default function ProfilePage() {
                   placeholder="https://portofolio-kamu.dev"
                   value={portfolioUrl}
                   onChange={(e) => setPortfolioUrl(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-devora-background border border-devora-border rounded-button text-xs sm:text-sm text-devora-ink focus:outline-none focus:border-devora-brand"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-devora-ink focus:bg-white focus:outline-none focus:border-devora-brand"
                 />
               </div>
 
               {/* GitHub */}
               <div className="space-y-1.5">
-                <label className="text-xs font-mono uppercase font-semibold text-devora-muted flex items-center gap-1.5">
+                <label className="text-[11px] font-mono uppercase font-bold text-slate-700 flex items-center gap-1.5">
                   <GitBranch className="w-3.5 h-3.5 text-devora-brand" />
                   <span>GitHub Profile</span>
                 </label>
-                <div className="flex items-center gap-2 p-2.5 bg-devora-surface-strong/60 rounded-button border border-devora-border text-xs text-devora-ink">
+                <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-devora-ink">
                   {currentUser.githubUsername ? (
                     <div className="flex items-center justify-between w-full">
-                      <span className="font-mono font-semibold">@{currentUser.githubUsername}</span>
+                      <span className="font-mono font-bold">@{currentUser.githubUsername}</span>
                       <span className="text-[11px] text-emerald-600 font-bold">Terhubung Otomatis</span>
                     </div>
                   ) : (
-                    <span className="text-devora-muted">
+                    <span className="text-slate-400">
                       Login dengan GitHub untuk sinkronisasi repositori otomatis.
                     </span>
                   )}
@@ -1796,7 +1829,7 @@ export default function ProfilePage() {
 
               {/* LinkedIn URL */}
               <div className="space-y-1.5">
-                <label className="text-xs font-mono uppercase font-semibold text-devora-muted flex items-center gap-1.5">
+                <label className="text-[11px] font-mono uppercase font-bold text-slate-700 flex items-center gap-1.5">
                   <Globe className="w-3.5 h-3.5 text-devora-brand" />
                   <span>URL Profil LinkedIn</span>
                 </label>
@@ -1805,13 +1838,13 @@ export default function ProfilePage() {
                   placeholder="https://linkedin.com/in/username"
                   value={linkedinUrl}
                   onChange={(e) => setLinkedinUrl(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-devora-background border border-devora-border rounded-button text-xs sm:text-sm text-devora-ink focus:outline-none focus:border-devora-brand"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-devora-ink focus:bg-white focus:outline-none focus:border-devora-brand"
                 />
               </div>
 
               {/* Personal Website */}
               <div className="space-y-1.5">
-                <label className="text-xs font-mono uppercase font-semibold text-devora-muted flex items-center gap-1.5">
+                <label className="text-[11px] font-mono uppercase font-bold text-slate-700 flex items-center gap-1.5">
                   <Globe className="w-3.5 h-3.5 text-devora-brand" />
                   <span>Website Pribadi / Blog</span>
                 </label>
@@ -1820,27 +1853,27 @@ export default function ProfilePage() {
                   placeholder="https://blog.kamu.com"
                   value={websiteUrl}
                   onChange={(e) => setWebsiteUrl(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-devora-background border border-devora-border rounded-button text-xs sm:text-sm text-devora-ink focus:outline-none focus:border-devora-brand"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-devora-ink focus:bg-white focus:outline-none focus:border-devora-brand"
                 />
               </div>
             </Card>
 
             {/* -------------------------------------------------------------
-                SECTION 6: MANAJEMEN & UPLOAD SERTIFIKAT (Certificates)
+                SECTION 6: MANAJEMEN & UPLOAD SERTIFIKAT
                 ------------------------------------------------------------- */}
-            <Card className="p-5 sm:p-6 bg-devora-surface border-devora-border space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-devora-border pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold text-xs">
+            <Card className="p-4 sm:p-6 bg-white border border-devora-border rounded-2xl sm:rounded-[24px] space-y-4 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center font-extrabold text-xs">
                     6
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-devora-ink flex items-center gap-1.5">
+                    <h2 className="text-sm sm:text-base font-extrabold text-devora-ink flex items-center gap-1.5">
                       <Award className="w-4 h-4 text-amber-500" />
                       <span>Sertifikasi & Lisensi Developer</span>
                     </h2>
-                    <p className="text-xs text-devora-muted">
-                      Upload bukti sertifikat kursus, bootcamp, atau sertifikasi cloud untuk meningkatkan reputasi kamu.
+                    <p className="text-[11px] text-devora-muted">
+                      Bukti sertifikat kursus, bootcamp, atau cloud
                     </p>
                   </div>
                 </div>
@@ -1850,7 +1883,7 @@ export default function ProfilePage() {
                   size="sm"
                   variant="secondary"
                   onClick={() => setIsAddingCert(!isAddingCert)}
-                  className="text-xs font-bold gap-1 self-start sm:self-auto border-devora-border hover:border-amber-500"
+                  className="text-xs font-bold gap-1.5 w-full sm:w-auto border-slate-200 hover:border-amber-500 rounded-xl py-2"
                 >
                   {isAddingCert ? <X className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 text-amber-500" />}
                   <span>{isAddingCert ? "Batal" : "+ Tambah Sertifikat"}</span>
@@ -1859,15 +1892,15 @@ export default function ProfilePage() {
 
               {/* Form Tambah Sertifikat */}
               {isAddingCert && (
-                <div className="p-4 bg-devora-background rounded-container border-2 border-amber-500/30 space-y-3 animate-in fade-in duration-200">
-                  <h3 className="text-xs font-bold uppercase font-mono text-amber-600 flex items-center gap-1.5">
+                <div className="p-3.5 sm:p-4 bg-amber-50/40 rounded-xl sm:rounded-2xl border-2 border-amber-500/30 space-y-3 animate-in fade-in duration-200">
+                  <h3 className="text-xs font-extrabold uppercase font-mono text-amber-700 flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Formulir Tambah Sertifikat Baru</span>
+                    <span>Form Tambah Sertifikat Baru</span>
                   </h3>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                      <label className="text-[11px] font-mono font-bold text-slate-700">
                         Nama Sertifikat <span className="text-devora-brand">*</span>
                       </label>
                       <input
@@ -1875,27 +1908,27 @@ export default function ProfilePage() {
                         placeholder="Contoh: Belajar Membuat Aplikasi Web dengan React"
                         value={certTitle}
                         onChange={(e) => setCertTitle(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink font-semibold focus:outline-none focus:border-amber-500"
+                        className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink font-bold focus:outline-none focus:border-amber-500"
                         required
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                      <label className="text-[11px] font-mono font-bold text-slate-700">
                         Lembaga / Platform Penerbit <span className="text-devora-brand">*</span>
                       </label>
                       <input
                         type="text"
-                        placeholder="Contoh: Dicoding, Coursera, AWS, Binar, FreeCodeCamp"
+                        placeholder="Contoh: Dicoding, Coursera, AWS, FreeCodeCamp"
                         value={certIssuer}
                         onChange={(e) => setCertIssuer(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink font-semibold focus:outline-none focus:border-amber-500"
+                        className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink font-bold focus:outline-none focus:border-amber-500"
                         required
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                      <label className="text-[11px] font-mono font-bold text-slate-700">
                         Bulan & Tahun Perolehan
                       </label>
                       <input
@@ -1903,12 +1936,12 @@ export default function ProfilePage() {
                         placeholder="Contoh: Jan 2025"
                         value={certIssueDate}
                         onChange={(e) => setCertIssueDate(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink focus:outline-none focus:border-amber-500"
+                        className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink focus:outline-none focus:border-amber-500"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                      <label className="text-[11px] font-mono font-bold text-slate-700">
                         Link Verifikasi / Kredensial
                       </label>
                       <input
@@ -1916,18 +1949,18 @@ export default function ProfilePage() {
                         placeholder="https://dicoding.com/certificates/..."
                         value={certCredentialUrl}
                         onChange={(e) => setCertCredentialUrl(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink focus:outline-none focus:border-amber-500"
+                        className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink focus:outline-none focus:border-amber-500"
                       />
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-2 pt-2">
+                  <div className="flex justify-end gap-2 pt-2 border-t border-amber-200/60">
                     <Button
                       type="button"
                       variant="secondary"
                       size="sm"
                       onClick={() => setIsAddingCert(false)}
-                      className="text-xs"
+                      className="text-xs rounded-xl"
                     >
                       Batal
                     </Button>
@@ -1936,9 +1969,9 @@ export default function ProfilePage() {
                       size="sm"
                       onClick={handleCreateCert}
                       disabled={isSubmittingCert}
-                      className="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold gap-1"
+                      className="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold gap-1 rounded-xl shadow-xs"
                     >
-                      <Save className="w-3 h-3" />
+                      <Save className="w-3.5 h-3.5" />
                       <span>{isSubmittingCert ? "Menyimpan..." : "Simpan Sertifikat"}</span>
                     </Button>
                   </div>
@@ -1951,11 +1984,11 @@ export default function ProfilePage() {
                   {currentUser.certificates.map((cert) => (
                     <div
                       key={cert.id}
-                      className="p-3 bg-devora-background border border-devora-border rounded-button flex items-start justify-between gap-2 group hover:border-amber-500/50 transition-colors"
+                      className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-start justify-between gap-2 group hover:border-amber-500/50 transition-colors"
                     >
                       <div className="space-y-0.5 min-w-0">
                         <h4 className="text-xs font-bold text-devora-ink truncate">{cert.title}</h4>
-                        <p className="text-[11px] text-devora-muted">
+                        <p className="text-[11px] text-slate-500">
                           {cert.issuer} {cert.issueDate && `• ${cert.issueDate}`}
                         </p>
                       </div>
@@ -1974,7 +2007,7 @@ export default function ProfilePage() {
                         <button
                           type="button"
                           onClick={() => handleDeleteCert(cert.id, cert.title)}
-                          className="p-1 text-devora-muted hover:text-red-500 rounded transition-colors"
+                          className="p-1 text-slate-400 hover:text-red-500 rounded transition-colors"
                           title="Hapus Sertifikat"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -1984,10 +2017,10 @@ export default function ProfilePage() {
                   ))}
                 </div>
               ) : (
-                <div className="p-4 bg-devora-background/60 rounded-button border border-dashed border-devora-border text-center space-y-1">
-                  <Award className="w-6 h-6 text-devora-muted mx-auto" />
-                  <p className="text-xs font-semibold text-devora-ink">Belum ada sertifikat ditambahkan</p>
-                  <p className="text-[11px] text-devora-muted">
+                <div className="p-4 bg-slate-50/60 rounded-xl border border-dashed border-slate-200 text-center space-y-1">
+                  <Award className="w-6 h-6 text-slate-400 mx-auto" />
+                  <p className="text-xs font-bold text-slate-700">Belum ada sertifikat ditambahkan</p>
+                  <p className="text-[11px] text-slate-400">
                     Tambahkan sertifikat bootcamp atau kursus untuk meningkatkan daya tarik profil kamu.
                   </p>
                 </div>
@@ -1995,21 +2028,21 @@ export default function ProfilePage() {
             </Card>
 
             {/* -------------------------------------------------------------
-                SECTION 7: SHOWCASE PORTOFOLIO PROYEK (Portfolio Projects)
+                SECTION 7: SHOWCASE PORTOFOLIO PROYEK
                 ------------------------------------------------------------- */}
-            <Card className="p-5 sm:p-6 bg-devora-surface border-devora-border space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-devora-border pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-devora-brand/10 text-devora-brand flex items-center justify-center font-bold text-xs">
+            <Card className="p-4 sm:p-6 bg-white border border-devora-border rounded-2xl sm:rounded-[24px] space-y-4 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-devora-brand/10 text-devora-brand flex items-center justify-center font-extrabold text-xs">
                     7
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-devora-ink flex items-center gap-1.5">
+                    <h2 className="text-sm sm:text-base font-extrabold text-devora-ink flex items-center gap-1.5">
                       <FolderGit2 className="w-4 h-4 text-devora-brand" />
-                      <span>Showcase Proyek yang Pernah Dibuat</span>
+                      <span>Showcase Portofolio Proyek</span>
                     </h2>
-                    <p className="text-xs text-devora-muted">
-                      Tampilkan website atau aplikasi yang pernah kamu buat lengkap dengan demo dan repository.
+                    <p className="text-[11px] text-devora-muted">
+                      Website & aplikasi yang pernah kamu bangun
                     </p>
                   </div>
                 </div>
@@ -2019,7 +2052,7 @@ export default function ProfilePage() {
                   size="sm"
                   variant="secondary"
                   onClick={() => setIsAddingProj(!isAddingProj)}
-                  className="text-xs font-bold gap-1 self-start sm:self-auto border-devora-border hover:border-devora-brand"
+                  className="text-xs font-bold gap-1.5 w-full sm:w-auto border-slate-200 hover:border-devora-brand rounded-xl py-2"
                 >
                   {isAddingProj ? <X className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 text-devora-brand" />}
                   <span>{isAddingProj ? "Batal" : "+ Tambah Proyek Portofolio"}</span>
@@ -2028,43 +2061,43 @@ export default function ProfilePage() {
 
               {/* Form Tambah Proyek Portofolio */}
               {isAddingProj && (
-                <div className="p-4 bg-devora-background rounded-container border-2 border-devora-brand/30 space-y-3 animate-in fade-in duration-200">
-                  <h3 className="text-xs font-bold uppercase font-mono text-devora-brand flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" />
+                <div className="p-3.5 sm:p-4 bg-devora-brand-soft/30 rounded-xl sm:rounded-2xl border-2 border-devora-brand/30 space-y-3 animate-in fade-in duration-200">
+                  <h3 className="text-xs font-extrabold uppercase font-mono text-devora-brand-dark flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-devora-brand" />
                     <span>Formulir Proyek Portofolio Baru</span>
                   </h3>
 
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                      <label className="text-[11px] font-mono font-bold text-slate-700">
                         Judul / Nama Proyek <span className="text-devora-brand">*</span>
                       </label>
                       <input
                         type="text"
-                        placeholder="Contoh: SaaS Platform Pengelola Inventaris & Kasir Toko"
+                        placeholder="Contoh: SaaS Platform Pengelola Inventaris Toko"
                         value={projTitle}
                         onChange={(e) => setProjTitle(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink font-semibold focus:outline-none focus:border-devora-brand"
+                        className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink font-bold focus:outline-none focus:border-devora-brand"
                         required
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                      <label className="text-[11px] font-mono font-bold text-slate-700">
                         Deskripsi Singkat Proyek
                       </label>
                       <textarea
                         rows={2}
-                        placeholder="Ceritakan fitur utama, tantangan teknis yang kamu selesaikan, atau metrik keberhasilan proyek..."
+                        placeholder="Ceritakan fitur utama atau teknologi yang kamu gunakan di proyek ini..."
                         value={projDesc}
                         onChange={(e) => setProjDesc(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink focus:outline-none focus:border-devora-brand resize-none"
+                        className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink focus:outline-none focus:border-devora-brand resize-none"
                       />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                        <label className="text-[11px] font-mono font-bold text-slate-700">
                           Link Live Demo (Website Aktif)
                         </label>
                         <input
@@ -2072,12 +2105,12 @@ export default function ProfilePage() {
                           placeholder="https://myproject.vercel.app"
                           value={projLiveUrl}
                           onChange={(e) => setProjLiveUrl(e.target.value)}
-                          className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink focus:outline-none focus:border-devora-brand"
+                          className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink focus:outline-none focus:border-devora-brand"
                         />
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                        <label className="text-[11px] font-mono font-bold text-slate-700">
                           Link GitHub Repository
                         </label>
                         <input
@@ -2085,28 +2118,28 @@ export default function ProfilePage() {
                           placeholder="https://github.com/username/repo-name"
                           value={projRepoUrl}
                           onChange={(e) => setProjRepoUrl(e.target.value)}
-                          className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink focus:outline-none focus:border-devora-brand"
+                          className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink focus:outline-none focus:border-devora-brand"
                         />
                       </div>
                     </div>
 
                     {/* Tech Stack Chips for Project */}
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
-                        Tech Stack yang Digunakan di Proyek Ini:
+                      <label className="text-[11px] font-mono font-bold text-slate-700">
+                        Tech Stack di Proyek Ini:
                       </label>
                       <div className="flex flex-wrap items-center gap-1.5">
                         {projTags.map((tag) => (
                           <Badge
                             key={tag}
                             variant="default"
-                            className="text-xs py-0.5 px-2 bg-devora-surface-strong text-devora-ink font-semibold gap-1"
+                            className="text-xs py-0.5 px-2 bg-white border border-slate-200 text-slate-800 font-bold gap-1 shadow-2xs"
                           >
                             <span>{tag}</span>
                             <button
                               type="button"
                               onClick={() => handleRemoveProjTag(tag)}
-                              className="text-devora-muted hover:text-red-500 font-bold"
+                              className="text-slate-400 hover:text-red-500 font-bold"
                             >
                               ×
                             </button>
@@ -2125,12 +2158,12 @@ export default function ProfilePage() {
                                 handleAddProjTag();
                               }
                             }}
-                            className="w-28 px-2 py-1 text-xs bg-devora-surface border border-devora-border rounded text-devora-ink focus:outline-none focus:border-devora-brand"
+                            className="w-28 px-2 py-1 text-xs bg-white border border-slate-200 rounded-lg text-devora-ink focus:outline-none focus:border-devora-brand"
                           />
                           <button
                             type="button"
                             onClick={handleAddProjTag}
-                            className="px-2 py-1 text-[11px] font-bold bg-devora-brand text-white rounded hover:bg-devora-brand-dark"
+                            className="px-2 py-1 text-[11px] font-bold bg-devora-brand text-white rounded-lg hover:bg-devora-brand-dark"
                           >
                             +
                           </button>
@@ -2139,13 +2172,13 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-2 pt-2">
+                  <div className="flex justify-end gap-2 pt-2 border-t border-devora-brand/20">
                     <Button
                       type="button"
                       variant="secondary"
                       size="sm"
                       onClick={() => setIsAddingProj(false)}
-                      className="text-xs"
+                      className="text-xs rounded-xl"
                     >
                       Batal
                     </Button>
@@ -2154,9 +2187,9 @@ export default function ProfilePage() {
                       size="sm"
                       onClick={handleCreateProj}
                       disabled={isSubmittingProj}
-                      className="text-xs bg-devora-brand hover:bg-devora-brand-dark text-white font-bold gap-1"
+                      className="text-xs bg-devora-brand hover:bg-devora-brand-dark text-white font-bold gap-1 rounded-xl shadow-xs"
                     >
-                      <Save className="w-3 h-3" />
+                      <Save className="w-3.5 h-3.5" />
                       <span>{isSubmittingProj ? "Menyimpan..." : "Simpan Proyek"}</span>
                     </Button>
                   </div>
@@ -2169,7 +2202,7 @@ export default function ProfilePage() {
                   {currentUser.portfolios.map((proj) => (
                     <div
                       key={proj.id}
-                      className="p-4 bg-devora-background border border-devora-border rounded-container space-y-2 flex flex-col justify-between group hover:border-devora-brand/50 transition-colors"
+                      className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 flex flex-col justify-between group hover:border-devora-brand/50 transition-colors"
                     >
                       <div className="space-y-1">
                         <div className="flex items-start justify-between gap-2">
@@ -2177,7 +2210,7 @@ export default function ProfilePage() {
                           <button
                             type="button"
                             onClick={() => handleDeleteProj(proj.id, proj.title)}
-                            className="p-1 text-devora-muted hover:text-red-500 rounded transition-colors"
+                            className="p-1 text-slate-400 hover:text-red-500 rounded transition-colors"
                             title="Hapus Proyek"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -2185,7 +2218,7 @@ export default function ProfilePage() {
                         </div>
 
                         {proj.description && (
-                          <p className="text-xs text-devora-muted line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
                             {proj.description}
                           </p>
                         )}
@@ -2193,27 +2226,26 @@ export default function ProfilePage() {
                         {proj.tags && proj.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1 pt-1">
                             {proj.tags.map((t) => (
-                              <Badge
+                              <span
                                 key={t}
-                                variant="default"
-                                className="text-[10px] py-0.5 px-1.5 bg-devora-surface-strong text-devora-ink font-semibold"
+                                className="text-[10px] py-0.5 px-2 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold"
                               >
                                 {t}
-                              </Badge>
+                              </span>
                             ))}
                           </div>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2 pt-2 border-t border-devora-border/60">
+                      <div className="flex items-center gap-3 pt-2 border-t border-slate-200/80">
                         {proj.liveUrl && (
                           <a
                             href={proj.liveUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-[11px] font-bold text-devora-brand hover:underline"
+                            className="inline-flex items-center gap-1 text-xs font-bold text-devora-brand hover:underline"
                           >
-                            <ExternalLink className="w-3 h-3" />
+                            <ExternalLink className="w-3.5 h-3.5" />
                             <span>Live Demo</span>
                           </a>
                         )}
@@ -2222,9 +2254,9 @@ export default function ProfilePage() {
                             href={proj.repoUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-[11px] font-bold text-devora-ink hover:text-devora-brand"
+                            className="inline-flex items-center gap-1 text-xs font-bold text-slate-800 hover:text-devora-brand"
                           >
-                            <GitBranch className="w-3 h-3" />
+                            <GitBranch className="w-3.5 h-3.5" />
                             <span>GitHub</span>
                           </a>
                         )}
@@ -2233,47 +2265,47 @@ export default function ProfilePage() {
                   ))}
                 </div>
               ) : (
-                <div className="p-4 bg-devora-background/60 rounded-button border border-dashed border-devora-border text-center space-y-1">
-                  <FolderGit2 className="w-6 h-6 text-devora-muted mx-auto" />
-                  <p className="text-xs font-semibold text-devora-ink">Belum ada portofolio proyek</p>
-                  <p className="text-[11px] text-devora-muted">
+                <div className="p-4 bg-slate-50/60 rounded-xl border border-dashed border-slate-200 text-center space-y-1">
+                  <FolderGit2 className="w-6 h-6 text-slate-400 mx-auto" />
+                  <p className="text-xs font-bold text-slate-700">Belum ada portofolio proyek</p>
+                  <p className="text-[11px] text-slate-400">
                     Showcase proyek yang pernah kamu buat agar calon partner yakin dengan keahlianmu.
                   </p>
                 </div>
               )}
             </Card>
 
-            {/* Bottom Actions Bar (Sticky on Mobile) */}
-            <div className="sticky bottom-4 z-20 flex items-center justify-between gap-3 p-4 bg-devora-surface/95 backdrop-blur-md border-2 border-devora-border rounded-container shadow-xl">
+            {/* ─── STICKY BOTTOM ACTIONS BAR (MOBILE-FIRST FLOATING DOCK) ─── */}
+            <div className="fixed sm:sticky bottom-0 sm:bottom-4 left-0 right-0 sm:left-auto sm:right-auto z-30 flex items-center justify-between gap-2 p-3 sm:p-4 bg-white/95 backdrop-blur-md border-t sm:border border-slate-200 sm:rounded-2xl shadow-xl">
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-500/10 rounded-button border border-transparent transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors shrink-0"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Keluar Akun</span>
+                <span className="hidden sm:inline">Keluar Akun</span>
               </button>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-1 sm:flex-initial justify-end">
                 <Button
                   type="button"
                   variant="secondary"
-                  size="md"
+                  size="sm"
                   onClick={() => setActiveTab("PREVIEW")}
-                  className="gap-1.5 text-xs font-bold"
+                  className="gap-1.5 text-xs font-bold rounded-xl py-2 px-3"
                 >
                   <Eye className="w-3.5 h-3.5" />
-                  <span>Lihat Pratinjau</span>
+                  <span className="hidden sm:inline">Pratinjau</span>
                 </Button>
 
                 <Button
                   type="submit"
-                  size="md"
+                  size="sm"
                   disabled={isSaving}
-                  className="gap-2 bg-devora-brand hover:bg-devora-brand-dark text-white font-bold text-xs shadow-md"
+                  className="gap-2 bg-devora-brand hover:bg-devora-brand-dark text-white font-extrabold text-xs shadow-md rounded-xl py-2 px-4 flex-1 sm:flex-initial justify-center"
                 >
                   <Save className="w-4 h-4" />
-                  <span>{isSaving ? "Menyimpan..." : "Simpan Profil Sekarang"}</span>
+                  <span>{isSaving ? "Menyimpan..." : "Simpan Profil"}</span>
                 </Button>
               </div>
             </div>
