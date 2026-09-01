@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <body
         className={`${plusJakartaSans.variable} ${outfit.variable} min-h-[100dvh] bg-devora-background font-sans text-devora-ink antialiased`}
       >

@@ -56,6 +56,15 @@ export const BLANK_USER: UserProfile = {
   avatarUrl: "",
   onboarded: false,
   gitAccounts: [],
+  experienceYears: undefined,
+  experienceLevel: undefined,
+  workPreference: undefined,
+  flexibleHours: true,
+  availableDays: [],
+  portfolioUrl: "",
+  linkedinUrl: "",
+  websiteUrl: "",
+  profileCompleteness: 0,
 };
 
 export const useUserStore = create<UserState>((set, get) => ({
@@ -76,6 +85,7 @@ export const useUserStore = create<UserState>((set, get) => ({
   logout: () =>
     set({
       isAuthenticated: false,
+      currentUser: BLANK_USER,
     }),
   fetchProfile: async (force = false) => {
     if (!force && get().isAuthenticated && get().currentUser?.id) {
@@ -103,7 +113,7 @@ export const useUserStore = create<UserState>((set, get) => ({
             githubUrl: data.githubUrl || (data.githubUsername ? `https://github.com/${data.githubUsername}` : ""),
             skills: data.tags || data.primaryStack || [],
             techStack: data.primaryStack || data.tags || [],
-            availabilityHrs: data.availabilityHrs || 0,
+            availabilityHrs: data.availabilityHrs ?? 0,
             workStyle: data.workStyle || "",
             goals: Array.isArray(data.goals) && data.goals.length > 0
               ? data.goals
@@ -112,13 +122,22 @@ export const useUserStore = create<UserState>((set, get) => ({
               : [],
             onboarded: data.onboarded ?? false,
             gitAccounts: data.gitAccounts || [],
+            experienceYears: data.experienceYears !== undefined && data.experienceYears !== null ? Number(data.experienceYears) : undefined,
+            experienceLevel: data.experienceLevel || undefined,
+            workPreference: data.workPreference || undefined,
+            flexibleHours: data.flexibleHours ?? true,
+            availableDays: Array.isArray(data.availableDays) ? data.availableDays : [],
+            portfolioUrl: data.portfolioUrl || "",
+            linkedinUrl: data.linkedinUrl || "",
+            websiteUrl: data.websiteUrl || "",
+            profileCompleteness: typeof data.profileCompleteness === "number" ? data.profileCompleteness : 0,
           },
         }));
       } else {
         set({ isAuthenticated: false, currentUser: BLANK_USER });
       }
     } catch (err) {
-      console.error(err);
+      console.error("fetchProfile error:", err);
       set({ isAuthenticated: false, currentUser: BLANK_USER });
     } finally {
       set({ isLoadingProfile: false });
@@ -144,7 +163,23 @@ export const useUserStore = create<UserState>((set, get) => ({
             ...state.currentUser,
             ...profileUpdates,
             id: data.id || state.currentUser.id,
+            name: data.name ?? state.currentUser.name,
+            title: data.title ?? state.currentUser.title,
+            bio: data.bio ?? state.currentUser.bio,
+            location: data.location ?? state.currentUser.location,
+            timezone: data.timezone ?? state.currentUser.timezone,
+            image: data.image ?? state.currentUser.image,
+            avatarUrl: data.image ?? state.currentUser.avatarUrl,
+            experienceYears: data.experienceYears !== undefined && data.experienceYears !== null ? Number(data.experienceYears) : state.currentUser.experienceYears,
+            experienceLevel: data.experienceLevel ?? state.currentUser.experienceLevel,
+            workPreference: data.workPreference ?? state.currentUser.workPreference,
+            flexibleHours: data.flexibleHours ?? state.currentUser.flexibleHours,
+            availableDays: data.availableDays ?? state.currentUser.availableDays,
+            portfolioUrl: data.portfolioUrl ?? state.currentUser.portfolioUrl,
+            linkedinUrl: data.linkedinUrl ?? state.currentUser.linkedinUrl,
+            websiteUrl: data.websiteUrl ?? state.currentUser.websiteUrl,
             onboarded: data.onboarded ?? state.currentUser.onboarded,
+            profileCompleteness: typeof data.profileCompleteness === "number" ? data.profileCompleteness : state.currentUser.profileCompleteness,
           },
         }));
         return true;

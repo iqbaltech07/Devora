@@ -4,22 +4,23 @@
  */
 
 export const COLOR_TOKENS = {
-  // Devora Core Palette (Section 04)
-  ink: "#141817",
-  inkSoft: "#2A302D",
-  background: "#FCFBF8",
-  surface: "#F5F2EA",
-  surfaceStrong: "#EBE7DD",
-  brand: "#E85D3F",
-  brandDark: "#C94A30",
-  brandSoft: "#F7D8D0",
-  border: "#D9D5CB",
-  borderStrong: "#BDB8AC",
-  muted: "#77766F",
-  mutedStrong: "#555650",
-  success: "#3E7A5A",
-  warning: "#B87824",
-  danger: "#B94A43",
+  // Devora Core Palette
+  ink: "#0D1110",
+  inkSoft: "#1E2422",
+  background: "#FAF8F5",
+  surface: "#FFFFFF",
+  surfaceSoft: "#F3EFEA",
+  surfaceStrong: "#F3EFEA",
+  brand: "#FF5733",
+  brandDark: "#D9411E",
+  brandSoft: "#FFF1EE",
+  border: "#E8E2D8",
+  borderStrong: "#D1C9BC",
+  muted: "#646A66",
+  mutedStrong: "#525854",
+  success: "#10B981",
+  warning: "#F59E0B",
+  danger: "#EF4444",
 
   // Dark / Obsidian Alternative
   dark: {

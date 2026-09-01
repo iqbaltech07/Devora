@@ -35,6 +35,16 @@ model User {
   workStyle       String?   // "Async-First", etc.
   projectGoal     String?   // Project goals (supports comma-separated / multiple)
 
+  // Professional Developer Profile Fields (Phase 1)
+  experienceYears Float?    // Pengalaman Web Developer dalam tahun (misal: 0.5, 1, 3, 5)
+  experienceLevel String?   // "BEGINNER" | "JUNIOR" | "INTERMEDIATE" | "SENIOR"
+  workPreference  String?   // "REMOTE" | "HYBRID" | "ONSITE"
+  flexibleHours   Boolean   @default(true)
+  availableDays   String[]  @default([]) // e.g. ["Senin", "Selasa", "Sabtu", "Minggu"]
+  portfolioUrl    String?   // URL portfolio utama
+  linkedinUrl     String?   // URL profil LinkedIn
+  websiteUrl      String?   // URL website personal/blog
+
   // Relations
   sessions    Session[]
   accounts    Account[]

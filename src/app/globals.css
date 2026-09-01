@@ -4,27 +4,28 @@
 
 @layer base {
   :root {
-    /* Devora Core Color System (design.md Section 04) */
-    --color-ink: #141817;
-    --color-ink-soft: #2A302D;
+    /* Devora Core Color System (Aligned with Landing Page) */
+    --color-ink: #0F172A;
+    --color-ink-soft: #1E293B;
 
-    --color-background: #FCFBF8;
-    --color-surface: #F5F2EA;
-    --color-surface-strong: #EBE7DD;
+    --color-background: #FAF9F5;
+    --color-surface: #FFFFFF;
+    --color-surface-soft: #F1F5F9;
+    --color-surface-strong: #E2E8F0;
 
-    --color-brand: #E85D3F;
-    --color-brand-dark: #C94A30;
-    --color-brand-soft: #F7D8D0;
+    --color-brand: #FF5733;
+    --color-brand-dark: #D9411E;
+    --color-brand-soft: #FFF1EE;
 
-    --color-border: #D9D5CB;
-    --color-border-strong: #BDB8AC;
+    --color-border: #E2E8F0;
+    --color-border-strong: #CBD5E1;
 
-    --color-muted: #77766F;
-    --color-muted-strong: #555650;
+    --color-muted: #64748B;
+    --color-muted-strong: #475569;
 
-    --color-success: #3E7A5A;
-    --color-warning: #B87824;
-    --color-danger: #B94A43;
+    --color-success: #10B981;
+    --color-warning: #F59E0B;
+    --color-danger: #EF4444;
 
     /* Shadcn Semantic Mapping */
     --background: var(--color-background);
@@ -55,22 +56,22 @@
     --input: var(--color-border);
     --ring: var(--color-brand);
 
-    --radius: 8px;
+    --radius: 12px;
 
     /* Piardify Theme Interop */
-    --piardify-bg: #FCFBF8;
-    --piardify-surface: #F5F2EA;
-    --piardify-border: #D9D5CB;
-    --piardify-primary: #E85D3F;
-    --piardify-text: #141817;
-    --piardify-text-muted: #77766F;
+    --piardify-bg: #FAF9F5;
+    --piardify-surface: #FFFFFF;
+    --piardify-border: #E2E8F0;
+    --piardify-primary: #FF5733;
+    --piardify-text: #0F172A;
+    --piardify-text-muted: #64748B;
   }
 
   .dark {
     --color-ink: #F2F0EB;
     --color-ink-soft: #CCC8BE;
 
-    --color-background: #141817;
+    --color-background: #0D1110;
     --color-surface: #1C2220;
     --color-surface-strong: #272F2C;
 
@@ -172,4 +173,19 @@
   100% {
     transform: translateX(100%);
   }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }

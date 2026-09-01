@@ -417,6 +417,61 @@ export function SwipeCardDeck() {
           <SwipeCardSkeleton />
         ) : currentCard ? (
           <>
+            {/* ─── Multi-Layer Stack Deck (Exact Match to Gambar 2 Reference) ─── */}
+            {/* Left Far Red Layer */}
+            <div
+              className="absolute inset-x-0 inset-y-2 rounded-[28px] pointer-events-none transition-transform duration-300 shadow-md bg-[#BE123C]"
+              style={{
+                transform: `translate3d(${-12 + dragOffset.x * 0.04}px, ${-4 + Math.abs(dragOffset.x) * 0.02}px, 0) rotate(${-4.5 + dragOffset.x * 0.02}deg) scale(0.96)`,
+                zIndex: 0,
+              }}
+            />
+
+            {/* Left Mid Cyan / Blue Layer */}
+            <div
+              className="absolute inset-x-0 inset-y-2 rounded-[28px] pointer-events-none transition-transform duration-300 shadow-md bg-[#0284C7]"
+              style={{
+                transform: `translate3d(${-8 + dragOffset.x * 0.03}px, ${-2 + Math.abs(dragOffset.x) * 0.015}px, 0) rotate(${-3.0 + dragOffset.x * 0.015}deg) scale(0.975)`,
+                zIndex: 0,
+              }}
+            />
+
+            {/* Left Near Emerald Green Layer */}
+            <div
+              className="absolute inset-x-0 inset-y-2 rounded-[28px] pointer-events-none transition-transform duration-300 shadow-md bg-[#059669]"
+              style={{
+                transform: `translate3d(${-4 + dragOffset.x * 0.02}px, 0px, 0) rotate(${-1.5 + dragOffset.x * 0.01}deg) scale(0.99)`,
+                zIndex: 0,
+              }}
+            />
+
+            {/* Right Far Royal Blue Layer */}
+            <div
+              className="absolute inset-x-0 inset-y-2 rounded-[28px] pointer-events-none transition-transform duration-300 shadow-md bg-[#1D4ED8]"
+              style={{
+                transform: `translate3d(${12 + dragOffset.x * 0.04}px, ${-4 + Math.abs(dragOffset.x) * 0.02}px, 0) rotate(${4.5 + dragOffset.x * 0.02}deg) scale(0.96)`,
+                zIndex: 0,
+              }}
+            />
+
+            {/* Right Mid Wine / Crimson Layer */}
+            <div
+              className="absolute inset-x-0 inset-y-2 rounded-[28px] pointer-events-none transition-transform duration-300 shadow-md bg-[#881337]"
+              style={{
+                transform: `translate3d(${8 + dragOffset.x * 0.03}px, ${-2 + Math.abs(dragOffset.x) * 0.015}px, 0) rotate(${3.0 + dragOffset.x * 0.015}deg) scale(0.975)`,
+                zIndex: 0,
+              }}
+            />
+
+            {/* Right Near Olive / Lime Green Layer */}
+            <div
+              className="absolute inset-x-0 inset-y-2 rounded-[28px] pointer-events-none transition-transform duration-300 shadow-md bg-[#65A30D]"
+              style={{
+                transform: `translate3d(${4 + dragOffset.x * 0.02}px, 0px, 0) rotate(${1.5 + dragOffset.x * 0.01}deg) scale(0.99)`,
+                zIndex: 0,
+              }}
+            />
+
             {/* 3rd Bottom Background Card in Stack */}
             {thirdCard && (
               <div
@@ -726,7 +781,7 @@ export function SwipeCardDeck() {
               <Button
                 variant="secondary"
                 size="sm"
-                className="gap-1.5 text-xs font-semibold"
+                className="gap-1.5 text-xs font-bold rounded-full"
                 onClick={() => {
                   setSelectedProfession("ALL");
                   setProjectRolesFilter([]);
@@ -737,8 +792,9 @@ export function SwipeCardDeck() {
                 <span>Kocok Ulang Deck</span>
               </Button>
               <Button
+                variant="primary"
                 size="sm"
-                className="gap-1.5 bg-devora-brand text-white hover:bg-devora-brand-dark font-bold text-xs shadow-md"
+                className="gap-1.5 font-bold text-xs shadow-md rounded-full"
                 onClick={() => (window.location.href = "/matches")}
               >
                 <span>Cek Teman yang Cocok ({useMatchStore.getState().matchedCandidates.length})</span>

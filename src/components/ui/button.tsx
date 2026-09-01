@@ -11,26 +11,26 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", children, ...props }, ref) => {
     const variantStyles = {
       primary:
-        "bg-devora-brand text-white hover:bg-devora-brand-dark focus-visible:ring-devora-brand active:translate-y-px",
+        "bg-[#FF5733] text-white hover:bg-[#D9411E] shadow-sm focus-visible:ring-[#FF5733] active:scale-[0.98]",
       secondary:
-        "bg-transparent border border-devora-border text-devora-ink hover:bg-devora-surface hover:border-devora-border-strong focus-visible:ring-devora-border-strong",
+        "bg-white border border-[#E2E8F0] text-[#0F172A] hover:bg-slate-50 hover:border-[#CBD5E1] shadow-2xs focus-visible:ring-slate-400 active:scale-[0.98]",
       ghost:
-        "bg-transparent text-devora-ink hover:bg-devora-surface-strong focus-visible:ring-devora-border",
+        "bg-transparent text-[#0F172A] hover:bg-slate-100 focus-visible:ring-slate-300",
       destructive:
-        "bg-devora-danger text-white hover:bg-red-700 focus-visible:ring-devora-danger",
+        "bg-[#EF4444] text-white hover:bg-red-600 focus-visible:ring-red-500 active:scale-[0.98]",
     };
 
     const sizeStyles = {
-      sm: "h-9 px-3.5 text-xs",
-      md: "h-11 px-5 text-sm", // 44px height per design.md (42-46px)
-      lg: "h-12 px-6 text-base",
+      sm: "h-9 px-4 text-xs font-bold",
+      md: "h-11 px-5 text-xs sm:text-sm font-bold",
+      lg: "h-12 px-7 text-sm font-bold",
     };
 
     return (
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center font-medium transition-colors duration-150 rounded-button disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 select-none",
+          "inline-flex items-center justify-center font-bold transition-all duration-150 rounded-full disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 select-none",
           variantStyles[variant],
           sizeStyles[size],
           className

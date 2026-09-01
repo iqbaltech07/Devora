@@ -47,7 +47,7 @@ export function MatchScoreBadge({
   const getScoreTheme = (s: number) => {
     if (s >= 85) {
       return {
-        color: "#E85D3F", // Devora Brand Terracotta
+        color: "#FF5733", // Devora Brand Electric Coral
         tier: "High Synergy",
         tierVariant: "brand" as const,
       };
