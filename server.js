@@ -105,8 +105,23 @@ app.prepare().then(() => {
           sentAt: newMessage.createdAt instanceof Date ? newMessage.createdAt.toISOString() : String(newMessage.createdAt),
         };
 
-        // Emit to receiver
+        // Emit message payload to receiver
         io.to(`user:${receiverId}`).emit("new_message", formatted);
+
+        // Also emit real-time chat notification with toast pop-up to receiver
+        const chatNotif = {
+          id: `chat-${newMessage.id}`,
+          type: "MESSAGE",
+          title: `💬 Pesan Baru dari ${senderName || "Teman Ngoding"}`,
+          message: content.length > 70 ? content.slice(0, 70) + "..." : content,
+          actorId: senderId,
+          actorName: senderName || "Teman Ngoding",
+          linkUrl: "/messages",
+          read: false,
+          createdAt: "Baru saja",
+          timestamp: Date.now(),
+        };
+        io.to(`user:${receiverId}`).emit("new_notification", chatNotif);
 
         // Also emit back to all other tabs of sender
         socket.to(`user:${senderId}`).emit("new_message", formatted);

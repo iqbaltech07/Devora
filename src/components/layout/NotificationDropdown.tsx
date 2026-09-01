@@ -9,6 +9,7 @@ import {
   Heart,
   Flame,
   FolderKanban,
+  MessageSquare,
   Check,
   CheckCheck,
   X,
@@ -193,6 +194,7 @@ export function NotificationDropdown() {
                       {notif.type === "LIKE" && <Heart className="w-2.5 h-2.5 text-[#FF5733] fill-[#FF5733]" />}
                       {notif.type === "MATCH" && <Flame className="w-2.5 h-2.5 text-emerald-500 fill-emerald-500" />}
                       {notif.type === "PROJECT_INVITE" && <FolderKanban className="w-2.5 h-2.5 text-blue-500" />}
+                      {notif.type === "MESSAGE" && <MessageSquare className="w-2.5 h-2.5 text-violet-500" />}
                       {notif.type === "SYSTEM" && <Sparkles className="w-2.5 h-2.5 text-amber-500" />}
                     </span>
                   </div>

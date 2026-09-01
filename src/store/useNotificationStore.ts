@@ -5,7 +5,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 export interface NotificationItem {
   id: string;
-  type: "LIKE" | "MATCH" | "PROJECT_INVITE" | "SYSTEM";
+  type: "LIKE" | "MATCH" | "PROJECT_INVITE" | "MESSAGE" | "SYSTEM";
   title: string;
   message: string;
   actorId?: string;
