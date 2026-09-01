@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { useMatchStore } from "@/store/useMatchStore";
 
 export const NAV_ITEMS = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Find Partner", href: "/find-partner", icon: Flame },
   { label: "Projects", href: "/projects", icon: FolderKanban },
   { label: "Matches", href: "/matches", icon: Users },
