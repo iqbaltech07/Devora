@@ -22,7 +22,7 @@ export function NotificationDropdown() {
   const router = useRouter();
   const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useNotificationStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"ALL" | "LIKE" | "MATCH">("ALL");
+  const [activeTab, setActiveTab] = useState<"ALL" | "LIKE" | "MATCH" | "PROJECT_INVITE">("ALL");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -117,7 +117,7 @@ export function NotificationDropdown() {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-[#E2E8F0] text-[11px] font-bold text-[#64748B]">
+            <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-[#E2E8F0] text-[10px] font-bold text-[#64748B]">
               <button
                 type="button"
                 onClick={() => setActiveTab("ALL")}
@@ -127,6 +127,16 @@ export function NotificationDropdown() {
                 )}
               >
                 Semua ({notifications.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("PROJECT_INVITE")}
+                className={cn(
+                  "flex-1 py-1 rounded-full transition-all text-center",
+                  activeTab === "PROJECT_INVITE" ? "bg-[#0F172A] text-white shadow-xs" : "hover:text-[#0F172A]"
+                )}
+              >
+                Proyek ({notifications.filter((n) => n.type === "PROJECT_INVITE").length})
               </button>
               <button
                 type="button"

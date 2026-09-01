@@ -185,7 +185,60 @@ app.prepare().then(() => {
       }
     });
 
-    // 7. Disconnect handling
+    // 7. Send Real-Time Project Application Accepted (ACC) Notification Event
+    socket.on("send_project_acc", async ({ ownerId, ownerName, ownerAvatar, applicantId, projectTitle, roleTitle }) => {
+      try {
+        if (!applicantId) return;
+
+        const notifPayload = {
+          id: `project-acc-${applicantId}-${Date.now()}`,
+          type: "PROJECT_INVITE",
+          title: "🎉 Lamaran Proyek Diterima (ACC)!",
+          message: `Selamat! Pengajuan kamu untuk peran "${roleTitle || "Developer"}" di proyek "${projectTitle || "Proyek"}" telah DITERIMA oleh ${ownerName || "Pemilik Proyek"}. Kamu resmi bergabung!`,
+          actorName: ownerName || "Pemilik Proyek",
+          actorAvatar: ownerAvatar,
+          linkUrl: "/projects",
+          read: false,
+          createdAt: "Baru saja",
+        };
+
+        io.to(`user:${applicantId}`).emit("new_notification", notifPayload);
+        io.to(`user:${applicantId}`).emit("project_accepted", {
+          ownerId,
+          ownerName,
+          projectTitle,
+          roleTitle,
+        });
+      } catch (err) {
+        console.error("Socket send_project_acc error:", err);
+      }
+    });
+
+    // 8. Send Real-Time Incoming Join Request Notification Event
+    socket.on("send_project_apply", async ({ applicantId, applicantName, applicantAvatar, applicantRole, ownerId, projectTitle, roleTitle }) => {
+      try {
+        if (!ownerId) return;
+
+        const notifPayload = {
+          id: `project-apply-${applicantId}-${Date.now()}`,
+          type: "PROJECT_INVITE",
+          title: "📥 Lamaran Proyek Masuk!",
+          message: `${applicantName || "Developer"} (${applicantRole || "Developer"}) mengajukan diri untuk peran "${roleTitle || "Developer"}" di proyek "${projectTitle || "Proyek"}".`,
+          actorName: applicantName || "Developer",
+          actorAvatar: applicantAvatar,
+          actorRole: applicantRole || "Developer",
+          linkUrl: "/projects",
+          read: false,
+          createdAt: "Baru saja",
+        };
+
+        io.to(`user:${ownerId}`).emit("new_notification", notifPayload);
+      } catch (err) {
+        console.error("Socket send_project_apply error:", err);
+      }
+    });
+
+    // 9. Disconnect handling
     socket.on("disconnect", () => {
       if (currentUserId && userSockets.has(currentUserId)) {
         const set = userSockets.get(currentUserId);

@@ -14,7 +14,7 @@ function timeAgo(date: Date): string {
   return `${days} hari lalu`;
 }
 
-// GET /api/notifications: Fetch incoming likes, matches, and unread messages as rich notifications
+// GET /api/notifications: Fetch incoming likes, matches, unread messages, and project ACC/application updates
 export async function GET() {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -61,6 +61,59 @@ export async function GET() {
 
     const senderIds = unreadMessages.map((m) => m.senderId);
 
+    // 4. Fetch Join Requests where current user is the Applicant (e.g. ACC / Accepted by Project Owner)
+    const myApplications = await prisma.joinRequest.findMany({
+      where: {
+        applicantId: currentUserId,
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            title: true,
+            authorId: true,
+            author: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                title: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 15,
+    });
+
+    // 5. Fetch Incoming Join Requests where current user is the Project Author
+    const incomingProjectRequests = await prisma.joinRequest.findMany({
+      where: {
+        project: {
+          authorId: currentUserId,
+        },
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+        applicant: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 15,
+    });
+
     // Gather all related user profiles
     const allUserIds = Array.from(
       new Set([...swiperIds, ...partnerIds, ...senderIds])
@@ -84,7 +137,64 @@ export async function GET() {
 
     const notifications = [];
 
-    // Format Incoming Likes
+    // Format 1: My Project Applications (ACC / Accepted or Rejected)
+    for (const app of myApplications) {
+      if (!app.project) continue;
+      const author = app.project.author;
+
+      if (app.status === "ACCEPTED") {
+        notifications.push({
+          id: `project-acc-${app.id}`,
+          type: "PROJECT_INVITE",
+          title: "🎉 Lamaran Proyek Diterima (ACC)!",
+          message: `Selamat! Pengajuan kamu untuk peran "${app.roleTitle}" di proyek "${app.project.title}" telah DITERIMA oleh ${author?.name || "Pemilik Proyek"}. Kamu resmi bergabung ke tim!`,
+          actorId: author?.id,
+          actorName: author?.name || "Pemilik Proyek",
+          actorAvatar: author?.image || undefined,
+          actorRole: author?.title || "Project Owner",
+          linkUrl: "/projects",
+          read: false,
+          createdAt: timeAgo(app.updatedAt),
+          timestamp: new Date(app.updatedAt).getTime(),
+        });
+      } else if (app.status === "REJECTED") {
+        notifications.push({
+          id: `project-rej-${app.id}`,
+          type: "SYSTEM",
+          title: "Update Pengajuan Proyek",
+          message: `Pengajuan kamu untuk posisi "${app.roleTitle}" di proyek "${app.project.title}" belum dapat diterima saat ini.`,
+          actorId: author?.id,
+          actorName: author?.name || "Pemilik Proyek",
+          actorAvatar: author?.image || undefined,
+          actorRole: author?.title || "Project Owner",
+          linkUrl: "/projects",
+          read: false,
+          createdAt: timeAgo(app.updatedAt),
+          timestamp: new Date(app.updatedAt).getTime(),
+        });
+      }
+    }
+
+    // Format 2: Incoming Applications for My Authored Projects
+    for (const req of incomingProjectRequests) {
+      if (!req.applicant || !req.project) continue;
+      notifications.push({
+        id: `project-incoming-${req.id}`,
+        type: "PROJECT_INVITE",
+        title: "📥 Lamaran Proyek Masuk!",
+        message: `${req.applicant.name || "Developer"} (${req.applicant.title || "Developer"}) mengajukan diri untuk peran "${req.roleTitle}" di proyek "${req.project.title}".`,
+        actorId: req.applicant.id,
+        actorName: req.applicant.name || "Developer",
+        actorAvatar: req.applicant.image || undefined,
+        actorRole: req.applicant.title || "Developer",
+        linkUrl: "/projects",
+        read: req.status !== "PENDING",
+        createdAt: timeAgo(req.createdAt),
+        timestamp: new Date(req.createdAt).getTime(),
+      });
+    }
+
+    // Format 3: Incoming Likes
     for (const swipe of incomingSwipes) {
       const swiper = userMap.get(swipe.swiperId);
       if (!swiper) continue;
@@ -104,7 +214,7 @@ export async function GET() {
       });
     }
 
-    // Format Matches
+    // Format 4: Mutual Matches
     for (const match of mutualMatches) {
       const partnerId = match.user1Id === currentUserId ? match.user2Id : match.user1Id;
       const partner = userMap.get(partnerId);
@@ -125,7 +235,7 @@ export async function GET() {
       });
     }
 
-    // Format Unread Messages
+    // Format 5: Unread Messages
     for (const msg of unreadMessages) {
       const sender = userMap.get(msg.senderId);
       if (!sender) continue;

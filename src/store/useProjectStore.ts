@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Project, ProjectRole, ProjectMilestone, ProjectStage, JoinRequest } from "./types";
+import { getSocket } from "@/lib/socket";
 
 interface ProjectFilterState {
   searchQuery: string;
@@ -300,6 +301,23 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       set((state) => ({
         joinRequests: state.joinRequests.map((r) => (r.id === tempId ? realReq : r)),
       }));
+
+      // Emit real-time project application notification
+      try {
+        const socket = getSocket();
+        if (socket) {
+          socket.emit("send_project_apply", {
+            applicantId: realReq.applicantId,
+            applicantName: realReq.applicantName,
+            applicantAvatar: realReq.applicantAvatarUrl,
+            applicantRole: realReq.applicantTitle,
+            projectTitle: realReq.projectTitle,
+            roleTitle: realReq.roleTitle,
+          });
+        }
+      } catch (err) {
+        console.warn("Socket send_project_apply emit error:", err);
+      }
     } catch (error) {
       console.error("expressInterest error, rolling back:", error);
       // Rollback
@@ -314,6 +332,8 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   acceptJoinRequest: async (requestId) => {
     // 1. OPTIMISTIC UPDATE: Instantly change status to ACCEPTED
     const prevRequests = get().joinRequests;
+    const targetReq = prevRequests.find((r) => r.id === requestId);
+
     set((state) => ({
       joinRequests: state.joinRequests.map((req) =>
         req.id === requestId ? { ...req, status: "ACCEPTED" } : req
@@ -327,6 +347,20 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         body: JSON.stringify({ action: "RESPOND", requestId, status: "ACCEPTED" }),
       });
       if (!res.ok) throw new Error("Failed to accept request");
+
+      // Emit real-time project ACC notification to applicant
+      try {
+        const socket = getSocket();
+        if (socket && targetReq) {
+          socket.emit("send_project_acc", {
+            applicantId: targetReq.applicantId,
+            projectTitle: targetReq.projectTitle,
+            roleTitle: targetReq.roleTitle,
+          });
+        }
+      } catch (err) {
+        console.warn("Socket send_project_acc emit error:", err);
+      }
     } catch (error) {
       console.error("acceptJoinRequest error, rolling back:", error);
       // Rollback to previous state
