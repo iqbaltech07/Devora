@@ -105,8 +105,23 @@ app.prepare().then(() => {
           sentAt: newMessage.createdAt instanceof Date ? newMessage.createdAt.toISOString() : String(newMessage.createdAt),
         };
 
-        // Emit to receiver
+        // Emit message payload to receiver
         io.to(`user:${receiverId}`).emit("new_message", formatted);
+
+        // Also emit real-time chat notification with toast pop-up to receiver
+        const chatNotif = {
+          id: `chat-${newMessage.id}`,
+          type: "MESSAGE",
+          title: `💬 Pesan Baru dari ${senderName || "Teman Ngoding"}`,
+          message: content.length > 70 ? content.slice(0, 70) + "..." : content,
+          actorId: senderId,
+          actorName: senderName || "Teman Ngoding",
+          linkUrl: "/messages",
+          read: false,
+          createdAt: "Baru saja",
+          timestamp: Date.now(),
+        };
+        io.to(`user:${receiverId}`).emit("new_notification", chatNotif);
 
         // Also emit back to all other tabs of sender
         socket.to(`user:${senderId}`).emit("new_message", formatted);
@@ -118,7 +133,127 @@ app.prepare().then(() => {
       }
     });
 
-    // 5. Disconnect handling
+    // 5. Send Real-Time Profile Like Event
+    socket.on("send_like", async ({ senderId, senderName, senderAvatar, senderRole, receiverId }) => {
+      try {
+        if (!senderId || !receiverId) return;
+
+        const notifPayload = {
+          id: `like-${senderId}-${Date.now()}`,
+          type: "LIKE",
+          title: "Menyukai Profil Kamu!",
+          message: `${senderName || "Seorang Developer"} (${senderRole || "Developer"}) baru saja menyukai profilmu! Geser kanan untuk auto-match.`,
+          actorName: senderName || "Developer",
+          actorAvatar: senderAvatar,
+          actorRole: senderRole || "Developer",
+          linkUrl: "/matches",
+          read: false,
+          createdAt: "Baru saja",
+        };
+
+        // Emit instant notification to receiver room
+        io.to(`user:${receiverId}`).emit("new_notification", notifPayload);
+        io.to(`user:${receiverId}`).emit("profile_liked", {
+          senderId,
+          senderName,
+          senderAvatar,
+          senderRole,
+        });
+      } catch (err) {
+        console.error("Socket send_like error:", err);
+      }
+    });
+
+    // 6. Send Real-Time Mutual Match Event
+    socket.on("send_match", async ({ user1Id, user2Id, user1Name, user1Avatar, user2Name, user2Avatar }) => {
+      try {
+        if (!user1Id || !user2Id) return;
+
+        const notifForUser2 = {
+          id: `match-${user1Id}-${Date.now()}`,
+          type: "MATCH",
+          title: "Yeay, Match Baru Terbentuk!",
+          message: `Kamu dan ${user1Name || "Partner"} saling menyukai! Mulai obrolan untuk berkolaborasi.`,
+          actorName: user1Name,
+          actorAvatar: user1Avatar,
+          linkUrl: "/messages",
+          read: false,
+          createdAt: "Baru saja",
+        };
+
+        const notifForUser1 = {
+          id: `match-${user2Id}-${Date.now()}`,
+          type: "MATCH",
+          title: "Yeay, Match Baru Terbentuk!",
+          message: `Kamu dan ${user2Name || "Partner"} saling menyukai! Mulai obrolan untuk berkolaborasi.`,
+          actorName: user2Name,
+          actorAvatar: user2Avatar,
+          linkUrl: "/messages",
+          read: false,
+          createdAt: "Baru saja",
+        };
+
+        io.to(`user:${user2Id}`).emit("new_notification", notifForUser2);
+        io.to(`user:${user1Id}`).emit("new_notification", notifForUser1);
+      } catch (err) {
+        console.error("Socket send_match error:", err);
+      }
+    });
+
+    // 7. Send Real-Time Project Application Accepted (ACC) Notification Event
+    socket.on("send_project_acc", async ({ ownerId, ownerName, ownerAvatar, applicantId, projectTitle, roleTitle }) => {
+      try {
+        if (!applicantId) return;
+
+        const notifPayload = {
+          id: `project-acc-${applicantId}-${Date.now()}`,
+          type: "PROJECT_INVITE",
+          title: "🎉 Lamaran Proyek Diterima (ACC)!",
+          message: `Selamat! Pengajuan kamu untuk peran "${roleTitle || "Developer"}" di proyek "${projectTitle || "Proyek"}" telah DITERIMA oleh ${ownerName || "Pemilik Proyek"}. Kamu resmi bergabung!`,
+          actorName: ownerName || "Pemilik Proyek",
+          actorAvatar: ownerAvatar,
+          linkUrl: "/projects",
+          read: false,
+          createdAt: "Baru saja",
+        };
+
+        io.to(`user:${applicantId}`).emit("new_notification", notifPayload);
+        io.to(`user:${applicantId}`).emit("project_accepted", {
+          ownerId,
+          ownerName,
+          projectTitle,
+          roleTitle,
+        });
+      } catch (err) {
+        console.error("Socket send_project_acc error:", err);
+      }
+    });
+
+    // 8. Send Real-Time Incoming Join Request Notification Event
+    socket.on("send_project_apply", async ({ applicantId, applicantName, applicantAvatar, applicantRole, ownerId, projectTitle, roleTitle }) => {
+      try {
+        if (!ownerId) return;
+
+        const notifPayload = {
+          id: `project-apply-${applicantId}-${Date.now()}`,
+          type: "PROJECT_INVITE",
+          title: "📥 Lamaran Proyek Masuk!",
+          message: `${applicantName || "Developer"} (${applicantRole || "Developer"}) mengajukan diri untuk peran "${roleTitle || "Developer"}" di proyek "${projectTitle || "Proyek"}".`,
+          actorName: applicantName || "Developer",
+          actorAvatar: applicantAvatar,
+          actorRole: applicantRole || "Developer",
+          linkUrl: "/projects",
+          read: false,
+          createdAt: "Baru saja",
+        };
+
+        io.to(`user:${ownerId}`).emit("new_notification", notifPayload);
+      } catch (err) {
+        console.error("Socket send_project_apply error:", err);
+      }
+    });
+
+    // 9. Disconnect handling
     socket.on("disconnect", () => {
       if (currentUserId && userSockets.has(currentUserId)) {
         const set = userSockets.get(currentUserId);

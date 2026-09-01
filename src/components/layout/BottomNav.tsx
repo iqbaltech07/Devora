@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useMatchStore } from "@/store/useMatchStore";
 
 const MOBILE_NAV = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Find", href: "/find-partner", icon: Flame },
   { label: "Projects", href: "/projects", icon: FolderKanban },
   { label: "Matches", href: "/matches", icon: Users },

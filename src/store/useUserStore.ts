@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { UserProfile, GitAccount, GitRepository, SkillItem } from "./types";
+import { UserProfile, GitAccount, GitRepository, SkillItem, Certificate, PortfolioProject } from "./types";
 
 interface UserState {
   currentUser: UserProfile;
@@ -27,6 +27,10 @@ interface UserState {
   disconnectGitAccount: (provider: "github" | "gitlab") => void;
   syncGitAccount: (provider: "github" | "gitlab") => void;
   toggleRepoEvidence: (repoId: string) => void;
+  addCertificate: (cert: Omit<Certificate, "id" | "createdAt">) => Promise<Certificate | null>;
+  deleteCertificate: (id: string) => Promise<boolean>;
+  addPortfolio: (proj: Omit<PortfolioProject, "id" | "createdAt">) => Promise<PortfolioProject | null>;
+  deletePortfolio: (id: string) => Promise<boolean>;
   addSkillItem: (
     name: string,
     category: SkillItem["category"],
@@ -131,6 +135,8 @@ export const useUserStore = create<UserState>((set, get) => ({
             linkedinUrl: data.linkedinUrl || "",
             websiteUrl: data.websiteUrl || "",
             profileCompleteness: typeof data.profileCompleteness === "number" ? data.profileCompleteness : 0,
+            certificates: Array.isArray(data.certificates) ? data.certificates : [],
+            portfolios: Array.isArray(data.portfolios) ? data.portfolios : [],
           },
         }));
       } else {
@@ -348,4 +354,90 @@ export const useUserStore = create<UserState>((set, get) => ({
         },
       };
     }),
+  addCertificate: async (cert) => {
+    try {
+      const res = await fetch("/api/users/me/certificates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cert),
+      });
+      if (res.ok) {
+        const created: Certificate = await res.json();
+        set((state) => ({
+          currentUser: {
+            ...state.currentUser,
+            certificates: [created, ...(state.currentUser.certificates || [])],
+          },
+        }));
+        return created;
+      }
+      return null;
+    } catch (err) {
+      console.error("addCertificate error:", err);
+      return null;
+    }
+  },
+  deleteCertificate: async (id) => {
+    try {
+      const res = await fetch(`/api/users/me/certificates?id=${id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        set((state) => ({
+          currentUser: {
+            ...state.currentUser,
+            certificates: (state.currentUser.certificates || []).filter((c) => c.id !== id),
+          },
+        }));
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error("deleteCertificate error:", err);
+      return false;
+    }
+  },
+  addPortfolio: async (proj) => {
+    try {
+      const res = await fetch("/api/users/me/portfolios", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(proj),
+      });
+      if (res.ok) {
+        const created: PortfolioProject = await res.json();
+        set((state) => ({
+          currentUser: {
+            ...state.currentUser,
+            portfolios: [created, ...(state.currentUser.portfolios || [])],
+          },
+        }));
+        return created;
+      }
+      return null;
+    } catch (err) {
+      console.error("addPortfolio error:", err);
+      return null;
+    }
+  },
+  deletePortfolio: async (id) => {
+    try {
+      const res = await fetch(`/api/users/me/portfolios?id=${id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        set((state) => ({
+          currentUser: {
+            ...state.currentUser,
+            portfolios: (state.currentUser.portfolios || []).filter((p) => p.id !== id),
+          },
+        }));
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error("deletePortfolio error:", err);
+      return false;
+    }
+  },
 }));

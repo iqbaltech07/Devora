@@ -177,6 +177,27 @@ export async function GET() {
           },
           take: 1,
         },
+        certificates: {
+          select: {
+            id: true,
+            title: true,
+            issuer: true,
+            issueDate: true,
+            credentialUrl: true,
+            fileUrl: true,
+          },
+        },
+        portfolios: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            liveUrl: true,
+            repoUrl: true,
+            tags: true,
+            imageUrl: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -253,6 +274,8 @@ export async function GET() {
               tech: user.projects[0].tags || primaryStack,
             }
           : undefined,
+        certificates: user.certificates || [],
+        portfolios: user.portfolios || [],
       });
     });
 

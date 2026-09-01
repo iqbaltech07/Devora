@@ -3,6 +3,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useMatchStore } from "@/store/useMatchStore";
+import { useUserStore } from "@/store/useUserStore";
+import { useUiStore } from "@/store/useUiStore";
+import { useChatStore } from "@/store/useChatStore";
+import { getSocket } from "@/lib/socket";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -27,6 +31,13 @@ import {
   Cloud,
   Compass,
   Eye,
+  Rocket,
+  Award,
+  FolderGit2,
+  Briefcase,
+  GraduationCap,
+  ExternalLink,
+  GitBranch,
 } from "lucide-react";
 import { SwipeCardSkeleton } from "@/components/ui/SwipeCardSkeleton";
 import { cn } from "@/lib/utils";
@@ -48,6 +59,12 @@ export function SwipeCardDeck() {
 
   const queryRoles = searchParams.get("roles");
   const queryProject = searchParams.get("project");
+  const inviteProjectId = searchParams.get("inviteProjectId");
+  const inviteProjectTitle = searchParams.get("projectTitle") || queryProject;
+  const isInviteMode = Boolean(inviteProjectId);
+
+  const { addToast } = useUiStore();
+  const { sendMessageAsync } = useChatStore();
 
   const [selectedProfession, setSelectedProfession] = useState<string>("ALL");
   const [projectRolesFilter, setProjectRolesFilter] = useState<string[]>([]);
@@ -61,6 +78,7 @@ export function SwipeCardDeck() {
     undoSwipe,
     resetDeck,
     lastAction,
+    inspectingCandidate,
     setInspectingCandidate,
     showMatchCelebration,
     latestMatchedCandidate,
@@ -90,6 +108,22 @@ export function SwipeCardDeck() {
       setProjectRolesFilter([]);
     }
   }, [queryRoles]);
+
+  const handleInviteCandidate = async (candidate: any) => {
+    if (!candidate) return;
+    swipeRight(candidate.id);
+
+    const inviteMsg = `Halo ${candidate.name}! Saya ingin mengundang kamu untuk berkolaborasi di proyek "${inviteProjectTitle || "Proyek Kolaborasi"}". Cek detail proyek dan mari kita bangun bersama!`;
+    await sendMessageAsync(candidate.id, inviteMsg);
+
+    addToast({
+      title: "Undangan Kolaborasi Terkirim! 🚀",
+      description: `Undangan proyek "${inviteProjectTitle || "Kolaborasi"}" telah dikirimkan ke chat ${candidate.name}.`,
+      type: "success",
+    });
+
+    router.push(`/messages?userId=${candidate.id}`);
+  };
 
   const matchedUserIds = matchedCandidates.map((m) => m.id);
 
@@ -227,17 +261,36 @@ export function SwipeCardDeck() {
     }, 280);
   }, [currentCard, swipeExit, swipeLeft]);
 
+  const { currentUser } = useUserStore();
+
   const handleMatch = useCallback(() => {
     if (!currentCard || swipeExit) return;
     setSwipeExit("right");
     const flingX = typeof window !== "undefined" ? (window.innerWidth || 600) + 150 : 650;
     setDragOffset({ x: flingX, y: 40 });
+
+    // Emit real-time like notification via socket to the target user
+    try {
+      const socket = getSocket();
+      if (socket && currentUser?.id) {
+        socket.emit("send_like", {
+          senderId: currentUser.id,
+          senderName: currentUser.name || "Developer",
+          senderAvatar: currentUser.image || currentUser.avatarUrl,
+          senderRole: currentUser.title || "Developer",
+          receiverId: currentCard.id,
+        });
+      }
+    } catch (socketErr) {
+      console.warn("Socket send_like emit failed:", socketErr);
+    }
+
     setTimeout(() => {
       swipeRight(currentCard.id);
       setSwipeExit(null);
       setDragOffset({ x: 0, y: 0 });
     }, 280);
-  }, [currentCard, swipeExit, swipeRight]);
+  }, [currentCard, swipeExit, swipeRight, currentUser]);
 
   // Pointer Drag Handlers (Mouse & Touch)
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -314,8 +367,31 @@ export function SwipeCardDeck() {
 
   return (
     <div className="relative w-full mx-auto flex flex-col items-center select-none space-y-4">
+      {/* Mode Undang ke Proyek Banner */}
+      {isInviteMode && (
+        <div className="w-full max-w-[340px] xs:max-w-[370px] sm:max-w-[420px] p-3 bg-devora-brand/10 border-2 border-devora-brand rounded-container flex items-center justify-between gap-3 text-left shadow-md animate-in fade-in">
+          <div className="flex items-center gap-2.5">
+            <Rocket className="w-5 h-5 text-devora-brand shrink-0" />
+            <div className="space-y-0.5 min-w-0">
+              <span className="text-xs font-bold text-devora-brand-dark truncate block">
+                Mode Undang ke Proyek: &ldquo;{inviteProjectTitle || "Proyek Anda"}&rdquo;
+              </span>
+              <p className="text-[10px] text-devora-muted leading-tight">
+                Pilih calon partner dan klik tombol &quot;Undang ke Proyek 🚀&quot; untuk mengirimkan undangan langsung ke chat mereka!
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => router.push("/find-partner")}
+            className="text-[10px] bg-devora-surface px-2.5 py-1.5 rounded-button text-devora-muted hover:text-devora-ink font-bold border border-devora-border shrink-0 hover:bg-devora-surface-strong transition-colors"
+          >
+            Batal
+          </button>
+        </div>
+      )}
+
       {/* Active Project Filter Banner */}
-      {projectRolesFilter.length > 0 && (
+      {projectRolesFilter.length > 0 && !isInviteMode && (
         <div className="w-full max-w-[340px] xs:max-w-[370px] sm:max-w-[420px] p-2.5 bg-devora-surface border border-devora-border rounded-container flex items-center justify-between gap-2 text-left shadow-xs">
           <div className="space-y-0.5">
             <span className="text-[10px] font-mono uppercase font-bold text-devora-brand flex items-center gap-1">
@@ -715,16 +791,38 @@ export function SwipeCardDeck() {
 
               {/* Card Content Body */}
               <div className="flex-1 p-3.5 sm:p-4 flex flex-col justify-between space-y-2.5 overflow-y-auto">
-                {/* Location & Availability Pills */}
-                <div className="flex flex-wrap items-center gap-2 text-xs text-devora-muted font-medium">
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-devora-surface-strong text-devora-ink font-semibold">
-                    <MapPin className="w-3.5 h-3.5 text-devora-brand" />
+                {/* Location & Developer Highlights Pills */}
+                <div className="flex flex-wrap items-center gap-1.5 text-xs text-devora-muted font-medium">
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-devora-surface-strong text-devora-ink font-semibold text-[11px]">
+                    <MapPin className="w-3 h-3 text-devora-brand" />
                     {currentCard.location.split("(")[0]}
                   </span>
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-devora-surface-strong text-devora-ink font-semibold">
-                    <Clock className="w-3.5 h-3.5 text-devora-brand" />
+
+                  {currentCard.experienceYears !== undefined && currentCard.experienceYears !== null && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-700 font-bold text-[11px] border border-amber-500/20">
+                      <Briefcase className="w-3 h-3 text-amber-600" />
+                      {currentCard.experienceYears} Thn Exp
+                    </span>
+                  )}
+
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-devora-surface-strong text-devora-ink font-semibold text-[11px]">
+                    <Clock className="w-3 h-3 text-devora-brand" />
                     {currentCard.availabilityHrs} jam/mgg
                   </span>
+
+                  {currentCard.certificates && currentCard.certificates.length > 0 && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-700 font-bold text-[11px] border border-emerald-500/20">
+                      <Award className="w-3 h-3 text-emerald-600" />
+                      {currentCard.certificates.length} Sertifikat
+                    </span>
+                  )}
+
+                  {currentCard.portfolios && currentCard.portfolios.length > 0 && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-700 font-bold text-[11px] border border-blue-500/20">
+                      <FolderGit2 className="w-3 h-3 text-blue-600" />
+                      {currentCard.portfolios.length} Proyek Live
+                    </span>
+                  )}
                 </div>
 
                 {/* Bio Quote with Accent Left Border */}
@@ -814,14 +912,25 @@ export function SwipeCardDeck() {
                   </button>
                 )}
 
-                {/* MATCH / CONNECT Button */}
-                <button
-                  onClick={handleMatch}
-                  title="Ajak Match (Geser Kanan / Panah Kanan)"
-                  className="w-12 h-12 rounded-full bg-devora-brand text-white hover:bg-devora-brand-dark flex items-center justify-center shadow-lg shadow-devora-brand/35 hover:scale-110 active:scale-90 transition-all duration-150"
-                >
-                  <Heart className="w-6 h-6 fill-white" />
-                </button>
+                {/* MATCH / INVITE Button */}
+                {isInviteMode ? (
+                  <button
+                    onClick={() => handleInviteCandidate(currentCard)}
+                    title="Undang ke Proyek Ini (Kirim undangan langsung ke chat)"
+                    className="px-5 py-2.5 rounded-full bg-devora-brand text-white hover:bg-devora-brand-dark flex items-center gap-1.5 font-bold text-xs shadow-lg shadow-devora-brand/35 hover:scale-105 active:scale-95 transition-all duration-150"
+                  >
+                    <Rocket className="w-4 h-4 fill-white" />
+                    <span>Undang ke Proyek 🚀</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleMatch}
+                    title="Ajak Match (Geser Kanan / Panah Kanan)"
+                    className="w-12 h-12 rounded-full bg-devora-brand text-white hover:bg-devora-brand-dark flex items-center justify-center shadow-lg shadow-devora-brand/35 hover:scale-110 active:scale-90 transition-all duration-150"
+                  >
+                    <Heart className="w-6 h-6 fill-white" />
+                  </button>
+                )}
               </div>
             </div>
           </>
@@ -880,9 +989,254 @@ export function SwipeCardDeck() {
         <span>•</span>
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span>Geser Kanan: Match</span>
+          <span>{isInviteMode ? "Undang: Kirim ke Chat" : "Geser Kanan: Match"}</span>
         </span>
       </div>
+
+      {/* ================================================================
+          MODAL: CANDIDATE SPEC MODAL (Showcase Sertifikat & Portofolio)
+          ================================================================ */}
+      {inspectingCandidate && (
+        <div
+          className="fixed inset-0 z-50 bg-devora-ink/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
+          onClick={() => setInspectingCandidate(null)}
+        >
+          <div
+            className="w-full max-w-xl bg-devora-surface border-2 border-devora-border rounded-container shadow-2xl p-5 sm:p-6 space-y-5 my-8 text-left"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-devora-border pb-4">
+              <div className="flex items-start gap-3.5">
+                <img
+                  src={inspectingCandidate.avatarUrl}
+                  alt={inspectingCandidate.name}
+                  className="w-14 h-14 rounded-full object-cover border-2 border-devora-brand shadow-xs shrink-0"
+                />
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-lg font-bold text-devora-ink">
+                      {inspectingCandidate.name}
+                    </h3>
+                    <Badge variant="brand" className="text-[10px] font-bold py-0.5 px-2">
+                      {inspectingCandidate.matchScore}% Match
+                    </Badge>
+                  </div>
+                  <p className="text-xs font-semibold text-devora-brand-dark">
+                    {inspectingCandidate.title}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-devora-muted font-medium">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3 h-3 text-devora-brand" />
+                      {inspectingCandidate.location}
+                    </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-devora-brand" />
+                      {inspectingCandidate.availabilityHrs} jam/minggu
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setInspectingCandidate(null)}
+                className="p-1.5 text-devora-muted hover:text-devora-ink rounded-button hover:bg-devora-surface-strong"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+              {/* Jam Terbang & Ritme */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="p-3 bg-devora-background rounded-button border border-devora-border space-y-1">
+                  <span className="text-[10px] font-mono uppercase font-bold text-devora-muted flex items-center gap-1">
+                    <Briefcase className="w-3 h-3 text-devora-brand" />
+                    <span>Jam Terbang / Pengalaman:</span>
+                  </span>
+                  <p className="text-xs font-bold text-devora-ink">
+                    {inspectingCandidate.experienceYears !== undefined && inspectingCandidate.experienceYears !== null
+                      ? `${inspectingCandidate.experienceYears} Tahun Pengalaman (${inspectingCandidate.experienceLevel || "Developer"})`
+                      : "Pengalaman Praktis / Project-Based"}
+                  </p>
+                </div>
+
+                <div className="p-3 bg-devora-background rounded-button border border-devora-border space-y-1">
+                  <span className="text-[10px] font-mono uppercase font-bold text-devora-muted flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-devora-brand" />
+                    <span>Jadwal & Komitmen:</span>
+                  </span>
+                  <p className="text-xs font-bold text-devora-ink">
+                    {inspectingCandidate.availabilityHrs} jam/mgg ({inspectingCandidate.flexibleHours !== false ? "Fleksibel" : "Tetap"})
+                  </p>
+                </div>
+              </div>
+
+              {/* Bio */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase font-bold text-devora-muted block">
+                  Bio / Tentang Developer:
+                </span>
+                <p className="text-xs text-devora-ink leading-relaxed bg-devora-background p-2.5 rounded-button border border-devora-border">
+                  {inspectingCandidate.bio}
+                </p>
+              </div>
+
+              {/* Tech Stack */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-mono uppercase font-bold text-devora-muted block">
+                  Tech Stack Lengkap:
+                </span>
+                <div className="flex flex-wrap gap-1">
+                  {inspectingCandidate.primaryStack.map((tech, i) => (
+                    <Badge
+                      key={i}
+                      variant="default"
+                      className="text-xs py-0.5 px-2 bg-devora-surface-strong text-devora-ink font-semibold"
+                    >
+                      {tech}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sertifikasi */}
+              {inspectingCandidate.certificates && inspectingCandidate.certificates.length > 0 && (
+                <div className="space-y-2 pt-2 border-t border-devora-border">
+                  <div className="flex items-center gap-1.5">
+                    <Award className="w-3.5 h-3.5 text-amber-500" />
+                    <span className="text-[10px] font-mono uppercase font-bold text-devora-ink">
+                      Sertifikasi Terverifikasi ({inspectingCandidate.certificates.length}):
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {inspectingCandidate.certificates.map((cert) => (
+                      <div
+                        key={cert.id}
+                        className="p-2.5 bg-devora-background border border-devora-border rounded-button flex items-start justify-between gap-2"
+                      >
+                        <div className="space-y-0.5 min-w-0">
+                          <p className="text-xs font-bold text-devora-ink truncate">{cert.title}</p>
+                          <p className="text-[10px] text-devora-muted">
+                            {cert.issuer} {cert.issueDate && `• ${cert.issueDate}`}
+                          </p>
+                        </div>
+                        {cert.credentialUrl && (
+                          <a
+                            href={cert.credentialUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-1 text-devora-brand hover:underline shrink-0"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Portofolio Proyek */}
+              {inspectingCandidate.portfolios && inspectingCandidate.portfolios.length > 0 && (
+                <div className="space-y-2 pt-2 border-t border-devora-border">
+                  <div className="flex items-center gap-1.5">
+                    <FolderGit2 className="w-3.5 h-3.5 text-devora-brand" />
+                    <span className="text-[10px] font-mono uppercase font-bold text-devora-ink">
+                      Portofolio Proyek Live ({inspectingCandidate.portfolios.length}):
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {inspectingCandidate.portfolios.map((proj) => (
+                      <div
+                        key={proj.id}
+                        className="p-3 bg-devora-background border border-devora-border rounded-container space-y-1.5 flex flex-col justify-between"
+                      >
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-devora-ink">{proj.title}</p>
+                          {proj.description && (
+                            <p className="text-[11px] text-devora-muted line-clamp-2 leading-relaxed">
+                              {proj.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 pt-1 border-t border-devora-border/50 text-[11px]">
+                          {proj.liveUrl && (
+                            <a
+                              href={proj.liveUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-devora-brand font-bold hover:underline inline-flex items-center gap-1"
+                            >
+                              <ExternalLink className="w-2.5 h-2.5" />
+                              <span>Live Demo</span>
+                            </a>
+                          )}
+                          {proj.repoUrl && (
+                            <a
+                              href={proj.repoUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-devora-ink font-bold hover:text-devora-brand inline-flex items-center gap-1"
+                            >
+                              <GitBranch className="w-2.5 h-2.5" />
+                              <span>GitHub</span>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-devora-border">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => setInspectingCandidate(null)}
+              >
+                Tutup
+              </Button>
+              {isInviteMode ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => {
+                    const cand = inspectingCandidate;
+                    setInspectingCandidate(null);
+                    handleInviteCandidate(cand);
+                  }}
+                  className="gap-1.5 bg-devora-brand text-white hover:bg-devora-brand-dark font-bold text-xs"
+                >
+                  <Rocket className="w-3.5 h-3.5" />
+                  <span>Undang ke Proyek 🚀</span>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => {
+                    const cand = inspectingCandidate;
+                    setInspectingCandidate(null);
+                    swipeRight(cand.id);
+                    router.push(`/messages?userId=${cand.id}`);
+                  }}
+                  className="gap-1.5 bg-devora-brand text-white hover:bg-devora-brand-dark font-bold text-xs"
+                >
+                  <Heart className="w-3.5 h-3.5 fill-white" />
+                  <span>Match & Kirim Pesan</span>
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

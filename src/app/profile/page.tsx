@@ -49,6 +49,11 @@ import {
   ChevronUp,
   ShieldCheck,
   Zap,
+  Award,
+  FolderGit2,
+  Share2,
+  Trash2,
+  Copy,
 } from "lucide-react";
 import { ProfilePageSkeleton } from "@/components/ui/ProfileSkeleton";
 import { COMPLETE_INDONESIA_REGIONS, GeoLocationGroup } from "@/lib/geo-data";
@@ -178,7 +183,17 @@ const EXPERIENCE_YEAR_PRESETS = [
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { currentUser, updateProfileApi, logout, isLoadingProfile, fetchProfile } = useUserStore();
+  const {
+    currentUser,
+    updateProfileApi,
+    logout,
+    isLoadingProfile,
+    fetchProfile,
+    addCertificate,
+    deleteCertificate,
+    addPortfolio,
+    deletePortfolio,
+  } = useUserStore();
   const { addToast } = useUiStore();
 
   const [activeTab, setActiveTab] = useState<"EDIT" | "PREVIEW">("EDIT");
@@ -222,6 +237,25 @@ export default function ProfilePage() {
       : ["Next.js", "TypeScript", "Tailwind CSS"]
   );
   const [customSkillInput, setCustomSkillInput] = useState("");
+
+  // Certificates State
+  const [isAddingCert, setIsAddingCert] = useState(false);
+  const [certTitle, setCertTitle] = useState("");
+  const [certIssuer, setCertIssuer] = useState("");
+  const [certIssueDate, setCertIssueDate] = useState("");
+  const [certCredentialUrl, setCertCredentialUrl] = useState("");
+  const [isSubmittingCert, setIsSubmittingCert] = useState(false);
+
+  // Portfolio Project Showcase State
+  const [isAddingProj, setIsAddingProj] = useState(false);
+  const [projTitle, setProjTitle] = useState("");
+  const [projDesc, setProjDesc] = useState("");
+  const [projLiveUrl, setProjLiveUrl] = useState("");
+  const [projRepoUrl, setProjRepoUrl] = useState("");
+  const [projTags, setProjTags] = useState<string[]>(["Next.js", "React"]);
+  const [projTagInput, setProjTagInput] = useState("");
+  const [projImageUrl, setProjImageUrl] = useState("");
+  const [isSubmittingProj, setIsSubmittingProj] = useState(false);
 
   // Geo API & City Search
   const [geoGroups, setGeoGroups] = useState<GeoLocationGroup[]>(COMPLETE_INDONESIA_REGIONS);
@@ -472,6 +506,135 @@ export default function ProfilePage() {
     }
   };
 
+  const handleCopyProfileLink = () => {
+    if (typeof window === "undefined") return;
+    const url = `${window.location.origin}/user/${currentUser.id || "me"}`;
+    navigator.clipboard.writeText(url);
+    addToast({
+      title: "Link Profil Disalin! 🚀",
+      description: "Link publik profilmu sudah disalin ke clipboard. Siap dibagikan ke LinkedIn, Twitter/X, atau WhatsApp!",
+      type: "success",
+    });
+  };
+
+  const handleCreateCert = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!certTitle.trim() || !certIssuer.trim()) {
+      addToast({
+        title: "Data Belum Lengkap",
+        description: "Nama sertifikat dan nama lembaga penerbit wajib diisi.",
+        type: "error",
+      });
+      return;
+    }
+
+    setIsSubmittingCert(true);
+    const created = await addCertificate({
+      title: certTitle.trim(),
+      issuer: certIssuer.trim(),
+      issueDate: certIssueDate.trim() || undefined,
+      credentialUrl: certCredentialUrl.trim() || undefined,
+    });
+    setIsSubmittingCert(false);
+
+    if (created) {
+      setCertTitle("");
+      setCertIssuer("");
+      setCertIssueDate("");
+      setCertCredentialUrl("");
+      setIsAddingCert(false);
+      addToast({
+        title: "Sertifikat Ditambahkan",
+        description: `Sertifikat "${created.title}" berhasil disimpan di profilmu.`,
+        type: "success",
+      });
+    } else {
+      addToast({
+        title: "Gagal Menambahkan",
+        description: "Terjadi kendala saat menyimpan sertifikat ke database.",
+        type: "error",
+      });
+    }
+  };
+
+  const handleDeleteCert = async (id: string, titleName: string) => {
+    const ok = await deleteCertificate(id);
+    if (ok) {
+      addToast({
+        title: "Sertifikat Dihapus",
+        description: `Sertifikat "${titleName}" telah dihapus dari profil.`,
+        type: "info",
+      });
+    }
+  };
+
+  const handleAddProjTag = () => {
+    const trimmed = projTagInput.trim();
+    if (trimmed && !projTags.includes(trimmed)) {
+      setProjTags([...projTags, trimmed]);
+      setProjTagInput("");
+    }
+  };
+
+  const handleRemoveProjTag = (tag: string) => {
+    setProjTags(projTags.filter((t) => t !== tag));
+  };
+
+  const handleCreateProj = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!projTitle.trim()) {
+      addToast({
+        title: "Judul Proyek Wajib Diisi",
+        description: "Mohon isi nama atau judul proyek portofolio kamu.",
+        type: "error",
+      });
+      return;
+    }
+
+    setIsSubmittingProj(true);
+    const created = await addPortfolio({
+      title: projTitle.trim(),
+      description: projDesc.trim() || undefined,
+      liveUrl: projLiveUrl.trim() || undefined,
+      repoUrl: projRepoUrl.trim() || undefined,
+      tags: projTags,
+      imageUrl: projImageUrl.trim() || undefined,
+    });
+    setIsSubmittingProj(false);
+
+    if (created) {
+      setProjTitle("");
+      setProjDesc("");
+      setProjLiveUrl("");
+      setProjRepoUrl("");
+      setProjTags(["Next.js", "React"]);
+      setProjImageUrl("");
+      setIsAddingProj(false);
+      addToast({
+        title: "Proyek Portofolio Ditambahkan",
+        description: `Proyek "${created.title}" berhasil dipublikasikan di profilmu.`,
+        type: "success",
+      });
+    } else {
+      addToast({
+        title: "Gagal Menambahkan Proyek",
+        description: "Terjadi kendala saat menyimpan proyek ke database.",
+        type: "error",
+      });
+    }
+  };
+
+  const handleDeleteProj = async (id: string, titleName: string) => {
+    const ok = await deletePortfolio(id);
+    if (ok) {
+      addToast({
+        title: "Proyek Dihapus",
+        description: `Proyek "${titleName}" telah dihapus dari portofoliomu.`,
+        type: "info",
+      });
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await authClient.signOut({
@@ -513,34 +676,47 @@ export default function ProfilePage() {
             </p>
           </div>
 
-          {/* Mode Switcher Tabs */}
-          <div className="flex items-center p-1 bg-devora-surface border border-devora-border rounded-button">
-            <button
+          {/* Action Buttons: Mode Switcher & Share Profile */}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
               type="button"
-              onClick={() => setActiveTab("EDIT")}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-button text-xs font-bold transition-all",
-                activeTab === "EDIT"
-                  ? "bg-devora-ink text-white shadow-xs"
-                  : "text-devora-muted hover:text-devora-ink"
-              )}
+              variant="secondary"
+              size="sm"
+              onClick={handleCopyProfileLink}
+              className="gap-1.5 text-xs font-bold bg-devora-surface border-devora-border hover:border-devora-brand hover:text-devora-brand"
             >
-              <Edit3 className="w-3.5 h-3.5" />
-              <span>Edit Profil</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("PREVIEW")}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-button text-xs font-bold transition-all",
-                activeTab === "PREVIEW"
-                  ? "bg-devora-ink text-white shadow-xs"
-                  : "text-devora-muted hover:text-devora-ink"
-              )}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              <span>Pratinjau Publik</span>
-            </button>
+              <Share2 className="w-3.5 h-3.5" />
+              <span>Salin Link Profil</span>
+            </Button>
+
+            <div className="flex items-center p-1 bg-devora-surface border border-devora-border rounded-button">
+              <button
+                type="button"
+                onClick={() => setActiveTab("EDIT")}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-button text-xs font-bold transition-all",
+                  activeTab === "EDIT"
+                    ? "bg-devora-ink text-white shadow-xs"
+                    : "text-devora-muted hover:text-devora-ink"
+                )}
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Edit Profil</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("PREVIEW")}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-button text-xs font-bold transition-all",
+                  activeTab === "PREVIEW"
+                    ? "bg-devora-ink text-white shadow-xs"
+                    : "text-devora-muted hover:text-devora-ink"
+                )}
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Pratinjau Publik</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -830,6 +1006,111 @@ export default function ProfilePage() {
                   </a>
                 )}
               </div>
+
+              {/* Showcase Sertifikasi Terverifikasi */}
+              {currentUser.certificates && currentUser.certificates.length > 0 && (
+                <div className="space-y-3 pt-3 border-t border-devora-border">
+                  <div className="flex items-center gap-2">
+                    <Award className="w-4 h-4 text-amber-500" />
+                    <h3 className="text-xs font-mono uppercase font-bold text-devora-ink tracking-wider">
+                      Sertifikasi Terverifikasi ({currentUser.certificates.length})
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {currentUser.certificates.map((cert) => (
+                      <div
+                        key={cert.id}
+                        className="p-3 bg-devora-background border border-devora-border rounded-button flex items-start justify-between gap-2"
+                      >
+                        <div className="space-y-0.5">
+                          <h4 className="text-xs font-bold text-devora-ink line-clamp-1">{cert.title}</h4>
+                          <p className="text-[11px] text-devora-muted">
+                            {cert.issuer} {cert.issueDate && `• ${cert.issueDate}`}
+                          </p>
+                        </div>
+                        {cert.credentialUrl && (
+                          <a
+                            href={cert.credentialUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xs font-bold text-devora-brand hover:underline shrink-0 inline-flex items-center gap-1 p-1"
+                            title="Lihat Kredensial"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Showcase Portofolio Proyek yang Pernah Dibuat */}
+              {currentUser.portfolios && currentUser.portfolios.length > 0 && (
+                <div className="space-y-3 pt-3 border-t border-devora-border">
+                  <div className="flex items-center gap-2">
+                    <FolderGit2 className="w-4 h-4 text-devora-brand" />
+                    <h3 className="text-xs font-mono uppercase font-bold text-devora-ink tracking-wider">
+                      Portofolio Proyek Live ({currentUser.portfolios.length})
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {currentUser.portfolios.map((proj) => (
+                      <div
+                        key={proj.id}
+                        className="p-3.5 bg-devora-background border border-devora-border rounded-container space-y-2 flex flex-col justify-between"
+                      >
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-bold text-devora-ink">{proj.title}</h4>
+                          {proj.description && (
+                            <p className="text-xs text-devora-muted line-clamp-2 leading-relaxed">
+                              {proj.description}
+                            </p>
+                          )}
+                          {proj.tags && proj.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 pt-1">
+                              {proj.tags.map((t) => (
+                                <Badge
+                                  key={t}
+                                  variant="default"
+                                  className="text-[10px] py-0.5 px-1.5 bg-devora-surface-strong text-devora-ink font-semibold"
+                                >
+                                  {t}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-2 border-t border-devora-border/60">
+                          {proj.liveUrl && (
+                            <a
+                              href={proj.liveUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-[11px] font-bold text-devora-brand hover:underline"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              <span>Live Demo</span>
+                            </a>
+                          )}
+                          {proj.repoUrl && (
+                            <a
+                              href={proj.repoUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-[11px] font-bold text-devora-ink hover:text-devora-brand"
+                            >
+                              <GitBranch className="w-3 h-3" />
+                              <span>GitHub</span>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </Card>
           </div>
         ) : (
@@ -1542,6 +1823,424 @@ export default function ProfilePage() {
                   className="w-full px-3.5 py-2 bg-devora-background border border-devora-border rounded-button text-xs sm:text-sm text-devora-ink focus:outline-none focus:border-devora-brand"
                 />
               </div>
+            </Card>
+
+            {/* -------------------------------------------------------------
+                SECTION 6: MANAJEMEN & UPLOAD SERTIFIKAT (Certificates)
+                ------------------------------------------------------------- */}
+            <Card className="p-5 sm:p-6 bg-devora-surface border-devora-border space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-devora-border pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold text-xs">
+                    6
+                  </div>
+                  <div>
+                    <h2 className="text-base font-bold text-devora-ink flex items-center gap-1.5">
+                      <Award className="w-4 h-4 text-amber-500" />
+                      <span>Sertifikasi & Lisensi Developer</span>
+                    </h2>
+                    <p className="text-xs text-devora-muted">
+                      Upload bukti sertifikat kursus, bootcamp, atau sertifikasi cloud untuk meningkatkan reputasi kamu.
+                    </p>
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => setIsAddingCert(!isAddingCert)}
+                  className="text-xs font-bold gap-1 self-start sm:self-auto border-devora-border hover:border-amber-500"
+                >
+                  {isAddingCert ? <X className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 text-amber-500" />}
+                  <span>{isAddingCert ? "Batal" : "+ Tambah Sertifikat"}</span>
+                </Button>
+              </div>
+
+              {/* Form Tambah Sertifikat */}
+              {isAddingCert && (
+                <div className="p-4 bg-devora-background rounded-container border-2 border-amber-500/30 space-y-3 animate-in fade-in duration-200">
+                  <h3 className="text-xs font-bold uppercase font-mono text-amber-600 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Formulir Tambah Sertifikat Baru</span>
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                        Nama Sertifikat <span className="text-devora-brand">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Contoh: Belajar Membuat Aplikasi Web dengan React"
+                        value={certTitle}
+                        onChange={(e) => setCertTitle(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink font-semibold focus:outline-none focus:border-amber-500"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                        Lembaga / Platform Penerbit <span className="text-devora-brand">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Contoh: Dicoding, Coursera, AWS, Binar, FreeCodeCamp"
+                        value={certIssuer}
+                        onChange={(e) => setCertIssuer(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink font-semibold focus:outline-none focus:border-amber-500"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                        Bulan & Tahun Perolehan
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Contoh: Jan 2025"
+                        value={certIssueDate}
+                        onChange={(e) => setCertIssueDate(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                        Link Verifikasi / Kredensial
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://dicoding.com/certificates/..."
+                        value={certCredentialUrl}
+                        onChange={(e) => setCertCredentialUrl(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink focus:outline-none focus:border-amber-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setIsAddingCert(false)}
+                      className="text-xs"
+                    >
+                      Batal
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleCreateCert}
+                      disabled={isSubmittingCert}
+                      className="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold gap-1"
+                    >
+                      <Save className="w-3 h-3" />
+                      <span>{isSubmittingCert ? "Menyimpan..." : "Simpan Sertifikat"}</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Daftar Sertifikat yang Tersimpan */}
+              {currentUser.certificates && currentUser.certificates.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                  {currentUser.certificates.map((cert) => (
+                    <div
+                      key={cert.id}
+                      className="p-3 bg-devora-background border border-devora-border rounded-button flex items-start justify-between gap-2 group hover:border-amber-500/50 transition-colors"
+                    >
+                      <div className="space-y-0.5 min-w-0">
+                        <h4 className="text-xs font-bold text-devora-ink truncate">{cert.title}</h4>
+                        <p className="text-[11px] text-devora-muted">
+                          {cert.issuer} {cert.issueDate && `• ${cert.issueDate}`}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {cert.credentialUrl && (
+                          <a
+                            href={cert.credentialUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-1 text-devora-brand hover:text-devora-brand-dark rounded"
+                            title="Buka Kredensial"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCert(cert.id, cert.title)}
+                          className="p-1 text-devora-muted hover:text-red-500 rounded transition-colors"
+                          title="Hapus Sertifikat"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 bg-devora-background/60 rounded-button border border-dashed border-devora-border text-center space-y-1">
+                  <Award className="w-6 h-6 text-devora-muted mx-auto" />
+                  <p className="text-xs font-semibold text-devora-ink">Belum ada sertifikat ditambahkan</p>
+                  <p className="text-[11px] text-devora-muted">
+                    Tambahkan sertifikat bootcamp atau kursus untuk meningkatkan daya tarik profil kamu.
+                  </p>
+                </div>
+              )}
+            </Card>
+
+            {/* -------------------------------------------------------------
+                SECTION 7: SHOWCASE PORTOFOLIO PROYEK (Portfolio Projects)
+                ------------------------------------------------------------- */}
+            <Card className="p-5 sm:p-6 bg-devora-surface border-devora-border space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-devora-border pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-devora-brand/10 text-devora-brand flex items-center justify-center font-bold text-xs">
+                    7
+                  </div>
+                  <div>
+                    <h2 className="text-base font-bold text-devora-ink flex items-center gap-1.5">
+                      <FolderGit2 className="w-4 h-4 text-devora-brand" />
+                      <span>Showcase Proyek yang Pernah Dibuat</span>
+                    </h2>
+                    <p className="text-xs text-devora-muted">
+                      Tampilkan website atau aplikasi yang pernah kamu buat lengkap dengan demo dan repository.
+                    </p>
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => setIsAddingProj(!isAddingProj)}
+                  className="text-xs font-bold gap-1 self-start sm:self-auto border-devora-border hover:border-devora-brand"
+                >
+                  {isAddingProj ? <X className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 text-devora-brand" />}
+                  <span>{isAddingProj ? "Batal" : "+ Tambah Proyek Portofolio"}</span>
+                </Button>
+              </div>
+
+              {/* Form Tambah Proyek Portofolio */}
+              {isAddingProj && (
+                <div className="p-4 bg-devora-background rounded-container border-2 border-devora-brand/30 space-y-3 animate-in fade-in duration-200">
+                  <h3 className="text-xs font-bold uppercase font-mono text-devora-brand flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Formulir Proyek Portofolio Baru</span>
+                  </h3>
+
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                        Judul / Nama Proyek <span className="text-devora-brand">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Contoh: SaaS Platform Pengelola Inventaris & Kasir Toko"
+                        value={projTitle}
+                        onChange={(e) => setProjTitle(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink font-semibold focus:outline-none focus:border-devora-brand"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                        Deskripsi Singkat Proyek
+                      </label>
+                      <textarea
+                        rows={2}
+                        placeholder="Ceritakan fitur utama, tantangan teknis yang kamu selesaikan, atau metrik keberhasilan proyek..."
+                        value={projDesc}
+                        onChange={(e) => setProjDesc(e.target.value)}
+                        className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink focus:outline-none focus:border-devora-brand resize-none"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                          Link Live Demo (Website Aktif)
+                        </label>
+                        <input
+                          type="url"
+                          placeholder="https://myproject.vercel.app"
+                          value={projLiveUrl}
+                          onChange={(e) => setProjLiveUrl(e.target.value)}
+                          className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink focus:outline-none focus:border-devora-brand"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                          Link GitHub Repository
+                        </label>
+                        <input
+                          type="url"
+                          placeholder="https://github.com/username/repo-name"
+                          value={projRepoUrl}
+                          onChange={(e) => setProjRepoUrl(e.target.value)}
+                          className="w-full px-3 py-2 text-xs bg-devora-surface border border-devora-border rounded-button text-devora-ink focus:outline-none focus:border-devora-brand"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Tech Stack Chips for Project */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-mono font-semibold text-devora-muted">
+                        Tech Stack yang Digunakan di Proyek Ini:
+                      </label>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {projTags.map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="default"
+                            className="text-xs py-0.5 px-2 bg-devora-surface-strong text-devora-ink font-semibold gap-1"
+                          >
+                            <span>{tag}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveProjTag(tag)}
+                              className="text-devora-muted hover:text-red-500 font-bold"
+                            >
+                              ×
+                            </button>
+                          </Badge>
+                        ))}
+
+                        <div className="inline-flex items-center gap-1">
+                          <input
+                            type="text"
+                            placeholder="+ Tambah tech..."
+                            value={projTagInput}
+                            onChange={(e) => setProjTagInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleAddProjTag();
+                              }
+                            }}
+                            className="w-28 px-2 py-1 text-xs bg-devora-surface border border-devora-border rounded text-devora-ink focus:outline-none focus:border-devora-brand"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddProjTag}
+                            className="px-2 py-1 text-[11px] font-bold bg-devora-brand text-white rounded hover:bg-devora-brand-dark"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setIsAddingProj(false)}
+                      className="text-xs"
+                    >
+                      Batal
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleCreateProj}
+                      disabled={isSubmittingProj}
+                      className="text-xs bg-devora-brand hover:bg-devora-brand-dark text-white font-bold gap-1"
+                    >
+                      <Save className="w-3 h-3" />
+                      <span>{isSubmittingProj ? "Menyimpan..." : "Simpan Proyek"}</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Daftar Proyek yang Tersimpan */}
+              {currentUser.portfolios && currentUser.portfolios.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  {currentUser.portfolios.map((proj) => (
+                    <div
+                      key={proj.id}
+                      className="p-4 bg-devora-background border border-devora-border rounded-container space-y-2 flex flex-col justify-between group hover:border-devora-brand/50 transition-colors"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <h4 className="text-sm font-bold text-devora-ink">{proj.title}</h4>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteProj(proj.id, proj.title)}
+                            className="p-1 text-devora-muted hover:text-red-500 rounded transition-colors"
+                            title="Hapus Proyek"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        {proj.description && (
+                          <p className="text-xs text-devora-muted line-clamp-2 leading-relaxed">
+                            {proj.description}
+                          </p>
+                        )}
+
+                        {proj.tags && proj.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 pt-1">
+                            {proj.tags.map((t) => (
+                              <Badge
+                                key={t}
+                                variant="default"
+                                className="text-[10px] py-0.5 px-1.5 bg-devora-surface-strong text-devora-ink font-semibold"
+                              >
+                                {t}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-2 border-t border-devora-border/60">
+                        {proj.liveUrl && (
+                          <a
+                            href={proj.liveUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] font-bold text-devora-brand hover:underline"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            <span>Live Demo</span>
+                          </a>
+                        )}
+                        {proj.repoUrl && (
+                          <a
+                            href={proj.repoUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] font-bold text-devora-ink hover:text-devora-brand"
+                          >
+                            <GitBranch className="w-3 h-3" />
+                            <span>GitHub</span>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 bg-devora-background/60 rounded-button border border-dashed border-devora-border text-center space-y-1">
+                  <FolderGit2 className="w-6 h-6 text-devora-muted mx-auto" />
+                  <p className="text-xs font-semibold text-devora-ink">Belum ada portofolio proyek</p>
+                  <p className="text-[11px] text-devora-muted">
+                    Showcase proyek yang pernah kamu buat agar calon partner yakin dengan keahlianmu.
+                  </p>
+                </div>
+              )}
             </Card>
 
             {/* Bottom Actions Bar (Sticky on Mobile) */}

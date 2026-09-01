@@ -15,6 +15,12 @@ export async function GET() {
       where: { id: session.user.id },
       include: {
         accounts: true,
+        certificates: {
+          orderBy: { createdAt: "desc" },
+        },
+        portfolios: {
+          orderBy: { createdAt: "desc" },
+        },
         projects: {
           include: { roles: true, roadmap: true, joinRequests: true },
         },
@@ -72,6 +78,8 @@ export async function GET() {
               },
               include: {
                 accounts: true,
+                certificates: true,
+                portfolios: true,
                 projects: {
                   include: { roles: true, roadmap: true, joinRequests: true },
                 },
@@ -321,6 +329,12 @@ export async function PUT(req: Request) {
       },
       include: {
         accounts: true,
+        certificates: {
+          orderBy: { createdAt: "desc" },
+        },
+        portfolios: {
+          orderBy: { createdAt: "desc" },
+        },
         projects: {
           include: { roles: true, roadmap: true, joinRequests: true },
         },
