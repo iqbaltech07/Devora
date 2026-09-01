@@ -12,6 +12,8 @@ import { useUserStore } from "@/store/useUserStore";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 
+import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
+
 export interface ShellProps {
   children: React.ReactNode;
   className?: string;
@@ -22,6 +24,9 @@ export function Shell({ children, className }: ShellProps) {
   const pathname = usePathname();
   const { toasts, removeToast } = useUiStore();
   const { currentUser, isAuthenticated, fetchProfile } = useUserStore();
+
+  // Activate 100% Real-time Notifications engine globally
+  useRealtimeNotifications();
 
   useEffect(() => {
     fetchProfile();

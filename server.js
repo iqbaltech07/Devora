@@ -118,7 +118,74 @@ app.prepare().then(() => {
       }
     });
 
-    // 5. Disconnect handling
+    // 5. Send Real-Time Profile Like Event
+    socket.on("send_like", async ({ senderId, senderName, senderAvatar, senderRole, receiverId }) => {
+      try {
+        if (!senderId || !receiverId) return;
+
+        const notifPayload = {
+          id: `like-${senderId}-${Date.now()}`,
+          type: "LIKE",
+          title: "Menyukai Profil Kamu!",
+          message: `${senderName || "Seorang Developer"} (${senderRole || "Developer"}) baru saja menyukai profilmu! Geser kanan untuk auto-match.`,
+          actorName: senderName || "Developer",
+          actorAvatar: senderAvatar,
+          actorRole: senderRole || "Developer",
+          linkUrl: "/matches",
+          read: false,
+          createdAt: "Baru saja",
+        };
+
+        // Emit instant notification to receiver room
+        io.to(`user:${receiverId}`).emit("new_notification", notifPayload);
+        io.to(`user:${receiverId}`).emit("profile_liked", {
+          senderId,
+          senderName,
+          senderAvatar,
+          senderRole,
+        });
+      } catch (err) {
+        console.error("Socket send_like error:", err);
+      }
+    });
+
+    // 6. Send Real-Time Mutual Match Event
+    socket.on("send_match", async ({ user1Id, user2Id, user1Name, user1Avatar, user2Name, user2Avatar }) => {
+      try {
+        if (!user1Id || !user2Id) return;
+
+        const notifForUser2 = {
+          id: `match-${user1Id}-${Date.now()}`,
+          type: "MATCH",
+          title: "Yeay, Match Baru Terbentuk!",
+          message: `Kamu dan ${user1Name || "Partner"} saling menyukai! Mulai obrolan untuk berkolaborasi.`,
+          actorName: user1Name,
+          actorAvatar: user1Avatar,
+          linkUrl: "/messages",
+          read: false,
+          createdAt: "Baru saja",
+        };
+
+        const notifForUser1 = {
+          id: `match-${user2Id}-${Date.now()}`,
+          type: "MATCH",
+          title: "Yeay, Match Baru Terbentuk!",
+          message: `Kamu dan ${user2Name || "Partner"} saling menyukai! Mulai obrolan untuk berkolaborasi.`,
+          actorName: user2Name,
+          actorAvatar: user2Avatar,
+          linkUrl: "/messages",
+          read: false,
+          createdAt: "Baru saja",
+        };
+
+        io.to(`user:${user2Id}`).emit("new_notification", notifForUser2);
+        io.to(`user:${user1Id}`).emit("new_notification", notifForUser1);
+      } catch (err) {
+        console.error("Socket send_match error:", err);
+      }
+    });
+
+    // 7. Disconnect handling
     socket.on("disconnect", () => {
       if (currentUserId && userSockets.has(currentUserId)) {
         const set = userSockets.get(currentUserId);

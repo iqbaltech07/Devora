@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useMatchStore } from "@/store/useMatchStore";
+import { useUserStore } from "@/store/useUserStore";
+import { getSocket } from "@/lib/socket";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -227,17 +229,36 @@ export function SwipeCardDeck() {
     }, 280);
   }, [currentCard, swipeExit, swipeLeft]);
 
+  const { currentUser } = useUserStore();
+
   const handleMatch = useCallback(() => {
     if (!currentCard || swipeExit) return;
     setSwipeExit("right");
     const flingX = typeof window !== "undefined" ? (window.innerWidth || 600) + 150 : 650;
     setDragOffset({ x: flingX, y: 40 });
+
+    // Emit real-time like notification via socket to the target user
+    try {
+      const socket = getSocket();
+      if (socket && currentUser?.id) {
+        socket.emit("send_like", {
+          senderId: currentUser.id,
+          senderName: currentUser.name || "Developer",
+          senderAvatar: currentUser.image || currentUser.avatarUrl,
+          senderRole: currentUser.title || "Developer",
+          receiverId: currentCard.id,
+        });
+      }
+    } catch (socketErr) {
+      console.warn("Socket send_like emit failed:", socketErr);
+    }
+
     setTimeout(() => {
       swipeRight(currentCard.id);
       setSwipeExit(null);
       setDragOffset({ x: 0, y: 0 });
     }, 280);
-  }, [currentCard, swipeExit, swipeRight]);
+  }, [currentCard, swipeExit, swipeRight, currentUser]);
 
   // Pointer Drag Handlers (Mouse & Touch)
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {

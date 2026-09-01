@@ -20,8 +20,9 @@ import { cn } from "@/lib/utils";
 
 export function NotificationDropdown() {
   const router = useRouter();
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotificationStore();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useNotificationStore();
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"ALL" | "LIKE" | "MATCH">("ALL");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -47,6 +48,11 @@ export function NotificationDropdown() {
     }
   };
 
+  const filteredNotifications = notifications.filter((n) => {
+    if (activeTab === "ALL") return true;
+    return n.type === activeTab;
+  });
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Notification Trigger Bell Button */}
@@ -59,7 +65,7 @@ export function NotificationDropdown() {
             ? "bg-white border-[#FF5733] text-[#FF5733] shadow-sm"
             : "border-[#E2E8F0] bg-white text-[#64748B] hover:text-[#0F172A] hover:border-[#CBD5E1]"
         )}
-        title="Notifikasi"
+        title="Notifikasi Real-time"
         aria-label="Lihat Notifikasi"
       >
         <Bell className="w-4 h-4" />
@@ -76,35 +82,79 @@ export function NotificationDropdown() {
       {isOpen && (
         <div className="absolute right-0 mt-2.5 w-80 sm:w-96 bg-white border border-[#E2E8F0] rounded-[24px] shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
           {/* Header */}
-          <div className="p-4 border-b border-[#E2E8F0] flex items-center justify-between bg-[#FAF9F5]">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-[#FF5733]/15 text-[#FF5733] flex items-center justify-center">
-                <Bell className="w-3.5 h-3.5" />
+          <div className="p-4 border-b border-[#E2E8F0] bg-[#FAF9F5] space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-[#FF5733]/15 text-[#FF5733] flex items-center justify-center">
+                  <Bell className="w-3.5 h-3.5" />
+                </div>
+                <h3 className="text-xs font-bold text-[#0F172A]">Notifikasi</h3>
+                {unreadCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-[#FFF1EE] text-[#FF5733] text-[10px] font-bold font-mono">
+                    {unreadCount} baru
+                  </span>
+                )}
               </div>
-              <h3 className="text-xs font-bold text-[#0F172A]">Notifikasi</h3>
-              {unreadCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-[#FFF1EE] text-[#FF5733] text-[10px] font-bold font-mono">
-                  {unreadCount} baru
-                </span>
-              )}
+
+              <div className="flex items-center gap-2">
+                {/* Live Realtime Status Pill */}
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-[9px] font-semibold text-emerald-700">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                  <span>Realtime</span>
+                </div>
+
+                {unreadCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={markAllAsRead}
+                    className="text-[11px] font-semibold text-[#64748B] hover:text-[#FF5733] flex items-center gap-1 transition-colors"
+                  >
+                    <CheckCheck className="w-3 h-3" />
+                    <span>Tandai dibaca</span>
+                  </button>
+                )}
+              </div>
             </div>
 
-            {unreadCount > 0 && (
+            {/* Filter Tabs */}
+            <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-[#E2E8F0] text-[11px] font-bold text-[#64748B]">
               <button
                 type="button"
-                onClick={markAllAsRead}
-                className="text-[11px] font-semibold text-[#64748B] hover:text-[#FF5733] flex items-center gap-1 transition-colors"
+                onClick={() => setActiveTab("ALL")}
+                className={cn(
+                  "flex-1 py-1 rounded-full transition-all text-center",
+                  activeTab === "ALL" ? "bg-[#0F172A] text-white shadow-xs" : "hover:text-[#0F172A]"
+                )}
               >
-                <CheckCheck className="w-3 h-3" />
-                <span>Tandai dibaca</span>
+                Semua ({notifications.length})
               </button>
-            )}
+              <button
+                type="button"
+                onClick={() => setActiveTab("LIKE")}
+                className={cn(
+                  "flex-1 py-1 rounded-full transition-all text-center",
+                  activeTab === "LIKE" ? "bg-[#0F172A] text-white shadow-xs" : "hover:text-[#0F172A]"
+                )}
+              >
+                Disukai ({notifications.filter((n) => n.type === "LIKE").length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("MATCH")}
+                className={cn(
+                  "flex-1 py-1 rounded-full transition-all text-center",
+                  activeTab === "MATCH" ? "bg-[#0F172A] text-white shadow-xs" : "hover:text-[#0F172A]"
+                )}
+              >
+                Match ({notifications.filter((n) => n.type === "MATCH").length})
+              </button>
+            </div>
           </div>
 
           {/* Notification List */}
           <div className="max-h-[380px] overflow-y-auto divide-y divide-[#E2E8F0]">
-            {notifications.length > 0 ? (
-              notifications.map((notif) => (
+            {filteredNotifications.length > 0 ? (
+              filteredNotifications.map((notif) => (
                 <div
                   key={notif.id}
                   onClick={() => handleNotificationClick(notif)}
