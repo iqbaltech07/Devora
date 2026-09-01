@@ -66,6 +66,7 @@ import {
   formatExperienceLabel,
   formatWorkPreferenceLabel,
 } from "@/lib/profile-utils";
+import { compressImageFile } from "@/lib/image-utils";
 import { cn } from "@/lib/utils";
 
 const POPULAR_TECH_PRESETS = [
@@ -535,7 +536,7 @@ export default function ProfilePage() {
   };
 
   // Certificate File Upload Handlers (Phone Gallery & PC)
-  const handleCertFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCertFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -548,17 +549,21 @@ export default function ProfilePage() {
       return;
     }
 
-    setCertFile(file);
-    setCertFileName(file.name);
-
-    if (file.type.startsWith("image/")) {
+    setIsUploadingFile(true);
+    try {
+      const { file: compressedFile, dataUrl } = await compressImageFile(file, 1400, 1400, 0.82);
+      setCertFile(compressedFile);
+      setCertFileName(compressedFile.name);
+      setCertFilePreview(dataUrl);
+    } catch (err) {
+      console.warn("Compression error, fallback to raw file:", err);
+      setCertFile(file);
+      setCertFileName(file.name);
       const reader = new FileReader();
-      reader.onload = () => {
-        setCertFilePreview(reader.result as string);
-      };
+      reader.onload = () => setCertFilePreview(reader.result as string);
       reader.readAsDataURL(file);
-    } else {
-      setCertFilePreview(null);
+    } finally {
+      setIsUploadingFile(false);
     }
   };
 
@@ -597,11 +602,11 @@ export default function ProfilePage() {
           const upData = await upRes.json();
           uploadedFileUrl = upData.url;
         } else if (certFilePreview) {
-          // Fallback to base64 preview
+          // Fallback to compressed base64 data URL
           uploadedFileUrl = certFilePreview;
         }
       } catch (err) {
-        console.warn("Upload error, using fallback preview:", err);
+        console.warn("Upload error, using compressed preview:", err);
         if (certFilePreview) uploadedFileUrl = certFilePreview;
       } finally {
         setIsUploadingFile(false);
@@ -633,7 +638,7 @@ export default function ProfilePage() {
     } else {
       addToast({
         title: "Gagal Menambahkan",
-        description: "Terjadi kendala saat menyimpan sertifikat ke database.",
+        description: "Terjadi kendala saat menyimpan sertifikat ke database. Silakan periksa kembali atau login ulang.",
         type: "error",
       });
     }

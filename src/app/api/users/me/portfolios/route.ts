@@ -11,15 +11,28 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    let dbUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+    if (!dbUser && session.user.email) {
+      dbUser = await prisma.user.findUnique({
+        where: { email: session.user.email },
+      });
+    }
+
+    if (!dbUser) {
+      return NextResponse.json({ error: "User tidak ditemukan" }, { status: 404 });
+    }
+
     const portfolios = await prisma.portfolioProject.findMany({
-      where: { userId: session.user.id },
+      where: { userId: dbUser.id },
       orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json(portfolios);
   } catch (error: any) {
     console.error("GET /api/users/me/portfolios error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -28,7 +41,23 @@ export async function POST(request: Request) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Sesi login kedaluwarsa. Silakan refresh atau login kembali." }, { status: 401 });
+    }
+
+    let dbUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+    if (!dbUser && session.user.email) {
+      dbUser = await prisma.user.findUnique({
+        where: { email: session.user.email },
+      });
+    }
+
+    if (!dbUser) {
+      return NextResponse.json(
+        { error: "Akun pengguna tidak ditemukan di database. Silakan login ulang." },
+        { status: 404 }
+      );
     }
 
     const { title, description, liveUrl, repoUrl, tags, imageUrl } = await request.json();
@@ -46,7 +75,7 @@ export async function POST(request: Request) {
 
     const project = await prisma.portfolioProject.create({
       data: {
-        userId: session.user.id,
+        userId: dbUser.id,
         title: title.trim(),
         description: description ? String(description).trim() : null,
         liveUrl: liveUrl ? String(liveUrl).trim() : null,
@@ -59,7 +88,7 @@ export async function POST(request: Request) {
     return NextResponse.json(project, { status: 201 });
   } catch (error: any) {
     console.error("POST /api/users/me/portfolios error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -75,16 +104,28 @@ export async function DELETE(request: Request) {
     const id = searchParams.get("id");
 
     if (!id) {
-      return NextResponse.json({ error: "Portfolio ID is required" }, { status: 400 });
+      return NextResponse.json({ error: "ID portofolio wajib disertakan" }, { status: 400 });
     }
 
-    // Verify ownership
-    const existing = await prisma.portfolioProject.findUnique({
+    let dbUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+    if (!dbUser && session.user.email) {
+      dbUser = await prisma.user.findUnique({
+        where: { email: session.user.email },
+      });
+    }
+
+    if (!dbUser) {
+      return NextResponse.json({ error: "User tidak ditemukan" }, { status: 404 });
+    }
+
+    const project = await prisma.portfolioProject.findUnique({
       where: { id },
     });
 
-    if (!existing || existing.userId !== session.user.id) {
-      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+    if (!project || project.userId !== dbUser.id) {
+      return NextResponse.json({ error: "Proyek tidak ditemukan atau bukan milik Anda" }, { status: 404 });
     }
 
     await prisma.portfolioProject.delete({
@@ -94,6 +135,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("DELETE /api/users/me/portfolios error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }

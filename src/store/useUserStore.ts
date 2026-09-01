@@ -371,6 +371,8 @@ export const useUserStore = create<UserState>((set, get) => ({
         }));
         return created;
       }
+      const errJson = await res.json().catch(() => null);
+      console.error("addCertificate server error:", errJson || res.statusText);
       return null;
     } catch (err) {
       console.error("addCertificate error:", err);
@@ -414,6 +416,8 @@ export const useUserStore = create<UserState>((set, get) => ({
         }));
         return created;
       }
+      const errJson = await res.json().catch(() => null);
+      console.error("addPortfolio server error:", errJson || res.statusText);
       return null;
     } catch (err) {
       console.error("addPortfolio error:", err);
