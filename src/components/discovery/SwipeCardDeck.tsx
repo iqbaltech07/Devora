@@ -212,25 +212,30 @@ export function SwipeCardDeck() {
   const currentCard = filteredCandidates[0];
   const nextCard = filteredCandidates[1];
   const thirdCard = filteredCandidates[2];
+  const fourthCard = filteredCandidates[3];
 
   const handlePass = useCallback(() => {
     if (!currentCard || swipeExit) return;
     setSwipeExit("left");
+    const flingX = typeof window !== "undefined" ? -(window.innerWidth || 600) - 150 : -650;
+    setDragOffset({ x: flingX, y: 40 });
     setTimeout(() => {
       swipeLeft(currentCard.id);
       setSwipeExit(null);
       setDragOffset({ x: 0, y: 0 });
-    }, 220);
+    }, 280);
   }, [currentCard, swipeExit, swipeLeft]);
 
   const handleMatch = useCallback(() => {
     if (!currentCard || swipeExit) return;
     setSwipeExit("right");
+    const flingX = typeof window !== "undefined" ? (window.innerWidth || 600) + 150 : 650;
+    setDragOffset({ x: flingX, y: 40 });
     setTimeout(() => {
       swipeRight(currentCard.id);
       setSwipeExit(null);
       setDragOffset({ x: 0, y: 0 });
-    }, 220);
+    }, 280);
   }, [currentCard, swipeExit, swipeRight]);
 
   // Pointer Drag Handlers (Mouse & Touch)
@@ -268,7 +273,9 @@ export function SwipeCardDeck() {
 
   const handlePointerCancel = () => {
     setIsDragging(false);
-    setDragOffset({ x: 0, y: 0 });
+    if (!swipeExit) {
+      setDragOffset({ x: 0, y: 0 });
+    }
     dragStartRef.current = null;
   };
 
@@ -417,120 +424,163 @@ export function SwipeCardDeck() {
           <SwipeCardSkeleton />
         ) : currentCard ? (
           <>
-            {/* ─── Multi-Layer Stack Deck (Exact Match to Gambar 2 Reference) ─── */}
-            {/* Left Far Red Layer */}
-            <div
-              className="absolute inset-x-0 inset-y-2 rounded-[28px] pointer-events-none transition-transform duration-300 shadow-md bg-[#BE123C]"
-              style={{
-                transform: `translate3d(${-12 + dragOffset.x * 0.04}px, ${-4 + Math.abs(dragOffset.x) * 0.02}px, 0) rotate(${-4.5 + dragOffset.x * 0.02}deg) scale(0.96)`,
-                zIndex: 0,
-              }}
-            />
-
-            {/* Left Mid Cyan / Blue Layer */}
-            <div
-              className="absolute inset-x-0 inset-y-2 rounded-[28px] pointer-events-none transition-transform duration-300 shadow-md bg-[#0284C7]"
-              style={{
-                transform: `translate3d(${-8 + dragOffset.x * 0.03}px, ${-2 + Math.abs(dragOffset.x) * 0.015}px, 0) rotate(${-3.0 + dragOffset.x * 0.015}deg) scale(0.975)`,
-                zIndex: 0,
-              }}
-            />
-
-            {/* Left Near Emerald Green Layer */}
-            <div
-              className="absolute inset-x-0 inset-y-2 rounded-[28px] pointer-events-none transition-transform duration-300 shadow-md bg-[#059669]"
-              style={{
-                transform: `translate3d(${-4 + dragOffset.x * 0.02}px, 0px, 0) rotate(${-1.5 + dragOffset.x * 0.01}deg) scale(0.99)`,
-                zIndex: 0,
-              }}
-            />
-
-            {/* Right Far Royal Blue Layer */}
-            <div
-              className="absolute inset-x-0 inset-y-2 rounded-[28px] pointer-events-none transition-transform duration-300 shadow-md bg-[#1D4ED8]"
-              style={{
-                transform: `translate3d(${12 + dragOffset.x * 0.04}px, ${-4 + Math.abs(dragOffset.x) * 0.02}px, 0) rotate(${4.5 + dragOffset.x * 0.02}deg) scale(0.96)`,
-                zIndex: 0,
-              }}
-            />
-
-            {/* Right Mid Wine / Crimson Layer */}
-            <div
-              className="absolute inset-x-0 inset-y-2 rounded-[28px] pointer-events-none transition-transform duration-300 shadow-md bg-[#881337]"
-              style={{
-                transform: `translate3d(${8 + dragOffset.x * 0.03}px, ${-2 + Math.abs(dragOffset.x) * 0.015}px, 0) rotate(${3.0 + dragOffset.x * 0.015}deg) scale(0.975)`,
-                zIndex: 0,
-              }}
-            />
-
-            {/* Right Near Olive / Lime Green Layer */}
-            <div
-              className="absolute inset-x-0 inset-y-2 rounded-[28px] pointer-events-none transition-transform duration-300 shadow-md bg-[#65A30D]"
-              style={{
-                transform: `translate3d(${4 + dragOffset.x * 0.02}px, 0px, 0) rotate(${1.5 + dragOffset.x * 0.01}deg) scale(0.99)`,
-                zIndex: 0,
-              }}
-            />
-
-            {/* 3rd Bottom Background Card in Stack */}
-            {thirdCard && (
+            {/* ─── Realistic Card Stack Deck (Visual Matches Front Card Exactly) ─── */}
+            
+            {/* 3rd Bottom Background Card (Deepest Stack Layer) */}
+            {(fourthCard || thirdCard) && (
               <div
-                className="absolute inset-x-0 inset-y-2 rounded-container overflow-hidden pointer-events-none transition-all duration-300 border-2 border-devora-border/80 bg-devora-surface shadow-md flex flex-col justify-between"
+                className="absolute inset-x-0 inset-y-2 rounded-[28px] overflow-hidden pointer-events-none transition-all duration-300 border-2 border-devora-border bg-devora-surface shadow-md flex flex-col justify-between"
                 style={{
-                  transform: `translate3d(0, ${-20 + dragProgress * 10}px, 0) scale(${
-                    0.88 + dragProgress * 0.05
-                  }) rotate(${-1.5 + dragProgress * 0.75}deg)`,
-                  opacity: 0.65 + dragProgress * 0.25,
+                  transform: `translate3d(${-8 + dragOffset.x * 0.02}px, ${-6 + Math.abs(dragOffset.x) * 0.01}px, 0) rotate(${-3.2 + dragOffset.x * 0.015}deg) scale(0.93)`,
                   zIndex: 1,
+                  opacity: 0.75,
                 }}
               >
-                <div className="relative h-48 xs:h-52 sm:h-56 w-full bg-devora-surface-strong overflow-hidden opacity-60">
+                {/* Header Image with Gradient */}
+                <div className="relative h-48 xs:h-52 sm:h-56 w-full bg-devora-surface-strong overflow-hidden">
                   <img
-                    src={thirdCard.avatarUrl}
-                    alt={thirdCard.name}
-                    className="w-full h-full object-cover blur-[1.5px]"
+                    src={(fourthCard || thirdCard).avatarUrl}
+                    alt={(fourthCard || thirdCard).name}
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-devora-surface via-devora-surface/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-devora-surface via-devora-surface/30 to-black/30" />
                   <div className="absolute top-2.5 left-3 right-3 flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold text-devora-muted bg-devora-surface/90 px-2 py-0.5 rounded-full border border-devora-border">
-                      {thirdCard.name}
+                    <span className="text-[10px] font-mono font-bold text-devora-ink bg-white/90 px-2.5 py-0.5 rounded-full border border-devora-border shadow-xs">
+                      {(fourthCard || thirdCard).name}
                     </span>
-                    <span className="text-[10px] font-bold text-devora-brand bg-devora-surface/90 px-2 py-0.5 rounded-full border border-devora-border">
-                      {thirdCard.matchScore}% Match
+                    <span className="text-[10px] font-bold text-devora-brand bg-white/90 px-2.5 py-0.5 rounded-full border border-devora-border shadow-xs">
+                      {(fourthCard || thirdCard).matchScore}% Match
                     </span>
                   </div>
+                  <div className="absolute bottom-2 left-4 right-4">
+                    <h3 className="text-base font-bold text-devora-ink drop-shadow-sm">
+                      {(fourthCard || thirdCard).name}
+                    </h3>
+                    <p className="text-xs font-semibold text-devora-brand-dark">
+                      {(fourthCard || thirdCard).title}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Body Peek */}
+                <div className="flex-1 p-3.5 flex flex-col justify-between space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-devora-muted font-medium">
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-devora-surface-strong text-devora-ink font-semibold text-[11px]">
+                      <MapPin className="w-3 h-3 text-devora-brand" />
+                      {(fourthCard || thirdCard).location.split("(")[0]}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {(fourthCard || thirdCard).primaryStack.slice(0, 3).map((tech, idx) => (
+                      <Badge key={idx} variant="default" className="text-[10px] py-0.5 px-2 bg-devora-surface-strong text-devora-ink font-semibold">
+                        {tech}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Footer Action Bar Placeholder */}
+                <div className="p-3 border-t border-devora-border bg-devora-surface-strong/40 flex items-center justify-around">
+                  <div className="w-10 h-10 rounded-full bg-devora-surface border border-devora-border" />
+                  <div className="px-4 py-2 rounded-full bg-devora-surface border border-devora-border" />
+                  <div className="w-10 h-10 rounded-full bg-devora-brand/80" />
                 </div>
               </div>
             )}
 
-            {/* 2nd Middle Background Card in Stack */}
-            {nextCard && (
+            {/* 2nd Background Card (Middle Stack Layer) */}
+            {thirdCard && (
               <div
-                className="absolute inset-x-0 inset-y-2 rounded-container overflow-hidden pointer-events-none transition-all duration-300 border-2 border-devora-border bg-devora-surface shadow-xl flex flex-col justify-between"
+                className="absolute inset-x-0 inset-y-2 rounded-[28px] overflow-hidden pointer-events-none transition-all duration-300 border-2 border-devora-border bg-devora-surface shadow-lg flex flex-col justify-between"
                 style={{
-                  transform: `translate3d(0, ${-10 + dragProgress * 10}px, 0) scale(${
-                    0.94 + dragProgress * 0.06
-                  }) rotate(${1 - dragProgress * 1}deg)`,
-                  opacity: 0.88 + dragProgress * 0.12,
+                  transform: `translate3d(${6 + dragOffset.x * 0.03}px, ${-3 + Math.abs(dragOffset.x) * 0.015}px, 0) rotate(${2.2 + dragOffset.x * 0.02}deg) scale(0.96)`,
                   zIndex: 2,
+                  opacity: 0.88,
                 }}
               >
-                <div className="relative h-48 xs:h-52 sm:h-56 w-full bg-devora-surface-strong overflow-hidden opacity-85">
+                {/* Header Image with Gradient */}
+                <div className="relative h-48 xs:h-52 sm:h-56 w-full bg-devora-surface-strong overflow-hidden">
+                  <img
+                    src={thirdCard.avatarUrl}
+                    alt={thirdCard.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-devora-surface via-devora-surface/30 to-black/30" />
+                  <div className="absolute top-2.5 left-3 right-3 flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold text-devora-ink bg-white/90 px-2.5 py-0.5 rounded-full border border-devora-border shadow-xs">
+                      {thirdCard.name}
+                    </span>
+                    <span className="text-[10px] font-bold text-devora-brand bg-white/90 px-2.5 py-0.5 rounded-full border border-devora-border shadow-xs">
+                      {thirdCard.matchScore}% Match
+                    </span>
+                  </div>
+                  <div className="absolute bottom-2 left-4 right-4">
+                    <h3 className="text-base font-bold text-devora-ink drop-shadow-sm">
+                      {thirdCard.name}
+                    </h3>
+                    <p className="text-xs font-semibold text-devora-brand-dark">
+                      {thirdCard.title}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Body Peek */}
+                <div className="flex-1 p-3.5 flex flex-col justify-between space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-devora-muted font-medium">
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-devora-surface-strong text-devora-ink font-semibold text-[11px]">
+                      <MapPin className="w-3 h-3 text-devora-brand" />
+                      {thirdCard.location.split("(")[0]}
+                    </span>
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-devora-surface-strong text-devora-ink font-semibold text-[11px]">
+                      <Clock className="w-3 h-3 text-devora-brand" />
+                      {thirdCard.availabilityHrs} jam/mgg
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {thirdCard.primaryStack.slice(0, 3).map((tech, idx) => (
+                      <Badge key={idx} variant="default" className="text-[10px] py-0.5 px-2 bg-devora-surface-strong text-devora-ink font-semibold">
+                        {tech}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Footer Action Bar Placeholder */}
+                <div className="p-3 border-t border-devora-border bg-devora-surface-strong/40 flex items-center justify-around">
+                  <div className="w-10 h-10 rounded-full bg-devora-surface border border-devora-border" />
+                  <div className="px-4 py-2 rounded-full bg-devora-surface border border-devora-border" />
+                  <div className="w-10 h-10 rounded-full bg-devora-brand/80" />
+                </div>
+              </div>
+            )}
+
+            {/* 1st Background Card (Directly Underneath Top Card) */}
+            {nextCard && (
+              <div
+                className="absolute inset-x-0 inset-y-2 rounded-[28px] overflow-hidden pointer-events-none transition-all duration-300 border-2 border-devora-border bg-devora-surface shadow-xl flex flex-col justify-between"
+                style={{
+                  transform: `translate3d(${-2 + dragOffset.x * 0.04}px, 0px, 0) rotate(${-1.0 + dragOffset.x * 0.02}deg) scale(0.985)`,
+                  zIndex: 3,
+                  opacity: 0.96,
+                }}
+              >
+                {/* Header Image with Badges */}
+                <div className="relative h-48 xs:h-52 sm:h-56 w-full bg-devora-surface-strong overflow-hidden">
                   <img
                     src={nextCard.avatarUrl}
                     alt={nextCard.name}
-                    className="w-full h-full object-cover blur-[0.5px]"
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-devora-surface via-devora-surface/30 to-devora-ink/30" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-devora-surface via-devora-surface/30 to-black/30" />
                   
                   {/* Top Status & Match Badges */}
                   <div className="absolute top-2.5 left-3 right-3 flex items-center justify-between">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-devora-surface/90 backdrop-blur-md border border-devora-border text-[10px] font-semibold text-devora-ink shadow-sm">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-devora-border text-[10px] font-semibold text-devora-ink shadow-sm">
                       <span className="w-2 h-2 rounded-full bg-emerald-500" />
                       <span>Berikutnya: {nextCard.name}</span>
                     </div>
 
-                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-devora-surface/90 backdrop-blur-md border border-devora-brand/40 text-[10px] font-bold text-devora-brand shadow-sm">
+                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-devora-brand/40 text-[10px] font-bold text-devora-brand shadow-sm">
                       <Flame className="w-3 h-3 fill-devora-brand" />
                       <span>{nextCard.matchScore}% Match</span>
                     </div>
@@ -547,7 +597,7 @@ export function SwipeCardDeck() {
                 </div>
 
                 {/* Body Peek Preview */}
-                <div className="flex-1 p-3.5 flex flex-col justify-between space-y-2 opacity-75">
+                <div className="flex-1 p-3.5 flex flex-col justify-between space-y-2">
                   <div className="flex flex-wrap items-center gap-2 text-xs text-devora-muted font-medium">
                     <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-devora-surface-strong text-devora-ink font-semibold text-[11px]">
                       <MapPin className="w-3 h-3 text-devora-brand" />
@@ -570,6 +620,20 @@ export function SwipeCardDeck() {
                     ))}
                   </div>
                 </div>
+
+                {/* Footer Action Bar */}
+                <div className="p-3 border-t border-devora-border bg-devora-surface-strong/70 flex items-center justify-around gap-2">
+                  <div className="w-12 h-12 rounded-full bg-devora-surface border border-devora-border flex items-center justify-center text-devora-muted">
+                    <X className="w-6 h-6" />
+                  </div>
+                  <div className="px-4 py-2.5 rounded-full bg-devora-surface border border-devora-border text-xs font-bold text-devora-ink flex items-center gap-1.5">
+                    <Eye className="w-4 h-4 text-devora-brand" />
+                    <span>Spec</span>
+                  </div>
+                  <div className="w-12 h-12 rounded-full bg-devora-brand text-white flex items-center justify-center">
+                    <Heart className="w-6 h-6 fill-white" />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -580,22 +644,23 @@ export function SwipeCardDeck() {
               onPointerUp={handlePointerUp}
               onPointerCancel={handlePointerCancel}
               className={cn(
-                "absolute inset-x-0 inset-y-2 bg-devora-surface border-2 rounded-container overflow-hidden shadow-2xl flex flex-col justify-between cursor-grab active:cursor-grabbing will-change-transform transition-colors duration-150",
-                !isDragging && !swipeExit && "transition-[transform,opacity] duration-300 ease-out",
-                swipeExit === "left" &&
-                  "-translate-x-[160%] -rotate-25 opacity-0 pointer-events-none transition-all duration-200 ease-in",
-                swipeExit === "right" &&
-                  "translate-x-[160%] rotate-25 opacity-0 pointer-events-none transition-all duration-200 ease-in",
+                "absolute inset-x-0 inset-y-2 bg-devora-surface border-2 rounded-container overflow-hidden shadow-2xl flex flex-col justify-between cursor-grab active:cursor-grabbing will-change-transform select-none",
                 isDraggingRight ? "border-emerald-500/70 ring-2 ring-emerald-500/30" : isDraggingLeft ? "border-red-500/70 ring-2 ring-red-500/30" : "border-devora-border hover:border-devora-brand/40"
               )}
-              style={
-                !swipeExit
-                  ? {
-                      transform: `translate3d(${dragOffset.x}px, ${dragOffset.y * 0.35}px, 0) rotate(${currentRotation}deg)`,
-                      zIndex: 10,
-                    }
-                  : { zIndex: 10 }
-              }
+              style={{
+                transform: `translate3d(${dragOffset.x}px, ${dragOffset.y * 0.35}px, 0) rotate(${
+                  swipeExit === "right"
+                    ? 28
+                    : swipeExit === "left"
+                    ? -28
+                    : currentRotation
+                }deg)`,
+                opacity: swipeExit ? 0 : 1,
+                zIndex: 10,
+                transition: isDragging
+                  ? "none"
+                  : "transform 280ms cubic-bezier(0.2, 0.9, 0.3, 1), opacity 240ms ease-out",
+              }}
             >
               {/* Dynamic Luminous Drag Stamps */}
               <div
