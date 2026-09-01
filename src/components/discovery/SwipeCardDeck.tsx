@@ -68,6 +68,7 @@ export function SwipeCardDeck() {
     fetchCandidates,
     fetchMatches,
     isLoadingCandidates,
+    isResettingDeck,
   } = useMatchStore();
 
   useEffect(() => {
@@ -782,14 +783,15 @@ export function SwipeCardDeck() {
                 variant="secondary"
                 size="sm"
                 className="gap-1.5 text-xs font-bold rounded-full"
+                disabled={isResettingDeck || isLoadingCandidates}
                 onClick={() => {
                   setSelectedProfession("ALL");
                   setProjectRolesFilter([]);
                   resetDeck();
                 }}
               >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Kocok Ulang Deck</span>
+                <RotateCcw className={cn("w-3.5 h-3.5", isResettingDeck && "animate-spin text-devora-brand")} />
+                <span>{isResettingDeck ? "Mengocok Ulang Deck..." : "Kocok Ulang Deck"}</span>
               </Button>
               <Button
                 variant="primary"

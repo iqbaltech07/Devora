@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redis } from "@/lib/redis";
 import { headers } from "next/headers";
+import { swipeLimiter, resetDeckLimiter, checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(request: Request) {
   try {
@@ -11,10 +12,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const swiperId = session.user.id;
+
+    // Rate limiting: max 45 swipes / minute per user
+    const rateLimit = await checkRateLimit(swipeLimiter, swiperId);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          error: "Terlalu banyak aksi swipe. Harap tunggu sebentar.",
+          retryAfter: Math.ceil((rateLimit.reset - Date.now()) / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": Math.ceil((rateLimit.reset - Date.now()) / 1000).toString(),
+            "X-RateLimit-Limit": rateLimit.limit.toString(),
+            "X-RateLimit-Remaining": rateLimit.remaining.toString(),
+          },
+        }
+      );
+    }
+
     const body = await request.json();
     const swipedId = body.swipedId || body.targetUserId;
     const direction = body.direction;
-    const swiperId = session.user.id;
 
     if (!swipedId || !direction) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
@@ -124,14 +145,16 @@ export async function POST(request: Request) {
       }
     }
 
-    // 4. Invalidate Candidates Cache for both users
+    // 4. Invalidate Candidates & Incoming Likes Cache for both users
     try {
       await Promise.all([
         redis.del(`candidates:${swiperId}`),
         redis.del(`candidates:${swipedId}`),
+        redis.del(`likes:received:${swiperId}`),
+        redis.del(`likes:received:${swipedId}`),
       ]);
     } catch (cacheDelErr) {
-      console.warn("Redis DEL candidates error:", cacheDelErr);
+      console.warn("Redis DEL candidates/likes error:", cacheDelErr);
     }
 
     return NextResponse.json({ success: true, isMatch, matched: isMatch });
@@ -149,11 +172,38 @@ export async function DELETE() {
     }
 
     const swiperId = session.user.id;
+
+    // Rate limiting: max 4 deck resets / minute per user
+    const rateLimit = await checkRateLimit(resetDeckLimiter, swiperId);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          error: "Terlalu sering mengocok ulang deck. Harap tunggu beberapa saat.",
+          retryAfter: Math.ceil((rateLimit.reset - Date.now()) / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": Math.ceil((rateLimit.reset - Date.now()) / 1000).toString(),
+            "X-RateLimit-Limit": rateLimit.limit.toString(),
+            "X-RateLimit-Remaining": rateLimit.remaining.toString(),
+          },
+        }
+      );
+    }
+
     await prisma.swipe.deleteMany({
       where: { swiperId },
     });
 
-    await redis.del(`candidates:${swiperId}`);
+    try {
+      await Promise.all([
+        redis.del(`candidates:${swiperId}`),
+        redis.del(`likes:received:${swiperId}`),
+      ]);
+    } catch (e) {
+      console.warn("Redis delete error:", e);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

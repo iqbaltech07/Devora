@@ -9,6 +9,7 @@ interface MatchState {
   candidates: CandidatePartner[];
   swipedIds: string[];
   matchedCandidates: CandidatePartner[];
+  incomingLikes: CandidatePartner[];
   passedIds: string[];
   lastAction: { type: "LIKE" | "PASS"; candidateId: string } | null;
   inspectingCandidate: CandidatePartner | null;
@@ -18,12 +19,16 @@ interface MatchState {
   selectedMatchId: string | null;
   isLoadingMatches: boolean;
   isLoadingCandidates: boolean;
+  isLoadingIncomingLikes: boolean;
+  isResettingDeck: boolean;
 
   // Actions
   swipeLeft: (candidateId: string) => void;
   swipeRight: (candidateId: string) => void;
+  acceptIncomingLike: (candidateId: string) => Promise<void>;
+  passIncomingLike: (candidateId: string) => Promise<void>;
   undoSwipe: () => void;
-  resetDeck: () => void;
+  resetDeck: () => Promise<void>;
   setInspectingCandidate: (candidate: CandidatePartner | null) => void;
   closeMatchCelebration: () => void;
   selectMatch: (id: string | null) => void;
@@ -31,12 +36,14 @@ interface MatchState {
   // Async Data Fetching
   fetchCandidates: (force?: boolean) => Promise<void>;
   fetchMatches: (force?: boolean) => Promise<void>;
+  fetchIncomingLikes: (force?: boolean) => Promise<void>;
 }
 
 export const useMatchStore = create<MatchState>((set, get) => ({
   candidates: CANDIDATES_DATA,
   swipedIds: [],
   matchedCandidates: [],
+  incomingLikes: [],
   passedIds: [],
   lastAction: null,
   inspectingCandidate: null,
@@ -46,6 +53,8 @@ export const useMatchStore = create<MatchState>((set, get) => ({
   selectedMatchId: "cand-alex-1",
   isLoadingMatches: false,
   isLoadingCandidates: false,
+  isLoadingIncomingLikes: false,
+  isResettingDeck: false,
 
   swipeLeft: async (candidateId) => {
     // 1. Instant 0ms Optimistic state update
@@ -116,6 +125,73 @@ export const useMatchStore = create<MatchState>((set, get) => ({
     }
   },
 
+  acceptIncomingLike: async (candidateId: string) => {
+    const likePartner = get().incomingLikes.find((c) => c.id === candidateId);
+    
+    // 1. Optimistic removal from incoming likes
+    set((state) => ({
+      incomingLikes: state.incomingLikes.filter((c) => c.id !== candidateId),
+      swipedIds: [...state.swipedIds, candidateId],
+      lastAction: { type: "LIKE", candidateId },
+    }));
+
+    // 2. Perform swipe right to establish mutual match
+    try {
+      const res = await fetch("/api/swipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          swipedId: candidateId,
+          targetUserId: candidateId,
+          direction: "RIGHT",
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.isMatch || data.matched || data.alreadyMatched) {
+          if (likePartner) {
+            set((state) => ({
+              matchedCandidates: state.matchedCandidates.some((c) => c.id === likePartner.id)
+                ? state.matchedCandidates
+                : [...state.matchedCandidates, likePartner],
+              latestMatchedCandidate: likePartner,
+              showMatchCelebration: true,
+            }));
+          }
+          get().fetchMatches(true);
+        }
+      }
+    } catch (err) {
+      console.error("acceptIncomingLike error:", err);
+    }
+  },
+
+  passIncomingLike: async (candidateId: string) => {
+    // 1. Optimistic removal from incoming likes
+    set((state) => ({
+      incomingLikes: state.incomingLikes.filter((c) => c.id !== candidateId),
+      swipedIds: [...state.swipedIds, candidateId],
+      passedIds: [...state.passedIds, candidateId],
+      lastAction: { type: "PASS", candidateId },
+    }));
+
+    // 2. Perform swipe left
+    try {
+      await fetch("/api/swipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          swipedId: candidateId,
+          targetUserId: candidateId,
+          direction: "LEFT",
+        }),
+      });
+    } catch (err) {
+      console.error("passIncomingLike error:", err);
+    }
+  },
+
   undoSwipe: () =>
     set((state) => {
       if (!state.lastAction) return state;
@@ -135,16 +211,24 @@ export const useMatchStore = create<MatchState>((set, get) => ({
     }),
 
   resetDeck: async () => {
+    if (get().isResettingDeck) return;
     set({
+      isResettingDeck: true,
       swipedIds: [],
       passedIds: [],
       lastAction: null,
     });
     try {
-      await fetch("/api/swipes", { method: "DELETE" });
+      const res = await fetch("/api/swipes", { method: "DELETE" });
+      if (!res.ok && res.status === 429) {
+        console.warn("Deck reset rate limited. Please wait.");
+      }
       await get().fetchCandidates(true);
+      await get().fetchIncomingLikes(true);
     } catch (err) {
       console.error("resetDeck error:", err);
+    } finally {
+      set({ isResettingDeck: false });
     }
   },
 
@@ -158,6 +242,7 @@ export const useMatchStore = create<MatchState>((set, get) => ({
     set({ selectedMatchId: id }),
 
   fetchCandidates: async (force = false) => {
+    if (get().isLoadingCandidates) return;
     if (!force && get().candidates.length > 0) {
       return;
     }
@@ -169,6 +254,8 @@ export const useMatchStore = create<MatchState>((set, get) => ({
       if (res.ok) {
         const data: CandidatePartner[] = await res.json();
         set({ candidates: data });
+      } else if (res.status === 429) {
+        console.warn("Candidates request rate limited.");
       }
     } catch (err) {
       console.error("fetchCandidates error:", err);
@@ -178,6 +265,7 @@ export const useMatchStore = create<MatchState>((set, get) => ({
   },
 
   fetchMatches: async (force = false) => {
+    if (get().isLoadingMatches) return;
     if (!force && get().matchedCandidates.length > 0) {
       return;
     }
@@ -202,11 +290,36 @@ export const useMatchStore = create<MatchState>((set, get) => ({
           matchedCandidates: Array.from(candMap.values()),
           matches: Array.from(matchMap.values()),
         });
+      } else if (res.status === 429) {
+        console.warn("Matches request rate limited.");
       }
     } catch (err) {
       console.error("fetchMatches error:", err);
     } finally {
       set({ isLoadingMatches: false });
+    }
+  },
+
+  fetchIncomingLikes: async (force = false) => {
+    if (get().isLoadingIncomingLikes) return;
+    if (!force && get().incomingLikes.length > 0) {
+      return;
+    }
+    set({ isLoadingIncomingLikes: true });
+    try {
+      const res = await fetch(`/api/likes/received?t=${Date.now()}`, {
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        set({ incomingLikes: data.likes || [] });
+      } else if (res.status === 429) {
+        console.warn("Incoming likes request rate limited.");
+      }
+    } catch (err) {
+      console.error("fetchIncomingLikes error:", err);
+    } finally {
+      set({ isLoadingIncomingLikes: false });
     }
   },
 }));

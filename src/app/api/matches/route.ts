@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redis } from "@/lib/redis";
 import { headers } from "next/headers";
 import { CandidatePartner, CompatibilityResult, SkillItem } from "@/store/types";
+import { matchesLimiter, checkRateLimit } from "@/lib/ratelimit";
 
 function deriveTagsAndStack(title?: string | null, tags?: string[], primaryStack?: string[]) {
   const t = (title || "").toLowerCase();
@@ -81,6 +82,26 @@ export async function GET() {
     }
 
     const currentUserId = session.user.id;
+
+    // Rate Limiting: max 30 matches requests / minute per user
+    const rateLimit = await checkRateLimit(matchesLimiter, currentUserId);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        {
+          error: "Terlalu banyak permintaan daftar kecocokan. Harap tunggu sebentar.",
+          retryAfter: Math.ceil((rateLimit.reset - Date.now()) / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": Math.ceil((rateLimit.reset - Date.now()) / 1000).toString(),
+            "X-RateLimit-Limit": rateLimit.limit.toString(),
+            "X-RateLimit-Remaining": rateLimit.remaining.toString(),
+          },
+        }
+      );
+    }
+
     const cacheKey = `matches:${currentUserId}`;
 
     // 1. Check Redis Cache
