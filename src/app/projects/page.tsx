@@ -27,13 +27,23 @@ import {
   MessageSquare,
   ArrowRight,
   X,
-  Send,
   UserCheck,
   UserX,
+  Send,
+  GitBranch,
   Layers,
   Inbox,
   AlertCircle,
+  Eye,
+  Award,
+  FolderGit2,
+  Globe,
+  MapPin,
+  Briefcase,
+  GraduationCap,
+  Rocket,
 } from "lucide-react";
+import { UserProfile } from "@/store/types";
 import { ProjectBoardSkeletonList } from "@/components/ui/ProjectCardSkeleton";
 import { cn } from "@/lib/utils";
 
@@ -87,6 +97,11 @@ export default function ProjectsPage() {
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [pitchNote, setPitchNote] = useState("");
 
+  // Modal State for "Applicant Profile Inspector"
+  const [inspectingRequest, setInspectingRequest] = useState<JoinRequest | null>(null);
+  const [inspectingUser, setInspectingUser] = useState<UserProfile | null>(null);
+  const [isLoadingApplicant, setIsLoadingApplicant] = useState(false);
+
   const uniqueProjects = Array.from(
     new Map(projects.map((p) => [p.id, p])).values()
   );
@@ -134,6 +149,23 @@ export default function ProjectsPage() {
     setPitchNote(`Halo ${project.ownerName || "Owner"}, saya tertarik banget untuk kolaborasi dan bantu kembangin ${project.title}!`);
   };
 
+  const handleInspectApplicant = async (request: JoinRequest) => {
+    setInspectingRequest(request);
+    setInspectingUser(null);
+    setIsLoadingApplicant(true);
+    try {
+      const res = await fetch(`/api/users/${request.applicantId}`);
+      if (res.ok) {
+        const userData = await res.json();
+        setInspectingUser(userData);
+      }
+    } catch (err) {
+      console.error("Failed to fetch applicant profile:", err);
+    } finally {
+      setIsLoadingApplicant(false);
+    }
+  };
+
   const handleSendJoinRequest = (e: React.FormEvent) => {
     e.preventDefault();
     if (!joiningProject || !selectedRole) return;
@@ -165,6 +197,10 @@ export default function ProjectsPage() {
       description: `${request.applicantName} resmi menjadi partner proyek "${request.projectTitle}". Kamu bisa langsung mengobrol di Pesan!`,
       type: "success",
     });
+
+    if (inspectingRequest?.id === request.id) {
+      setInspectingRequest(null);
+    }
   };
 
   const handleRejectApplicant = (request: JoinRequest) => {
@@ -174,11 +210,18 @@ export default function ProjectsPage() {
       description: `Permintaan dari ${request.applicantName} telah ditolak.`,
       type: "info",
     });
+    if (inspectingRequest?.id === request.id) {
+      setInspectingRequest(null);
+    }
   };
 
   const handleFindPartnersForProject = (project: Project) => {
     const roleTitles = project.roles.map((r) => r.roleTitle).join(",");
-    router.push(`/find-partner?roles=${encodeURIComponent(roleTitles)}&project=${encodeURIComponent(project.title)}`);
+    router.push(
+      `/find-partner?inviteProjectId=${project.id}&projectTitle=${encodeURIComponent(
+        project.title
+      )}&roles=${encodeURIComponent(roleTitles)}`
+    );
   };
 
   return (
@@ -613,7 +656,17 @@ export default function ProjectsPage() {
                                       </div>
 
                                       {/* Decision Actions */}
-                                      <div className="flex items-center gap-2 self-end sm:self-center">
+                                      <div className="flex flex-wrap items-center gap-2 self-end sm:self-center">
+                                        <Button
+                                          size="sm"
+                                          variant="secondary"
+                                          className="text-xs font-semibold gap-1 bg-devora-surface border-devora-border hover:border-devora-brand hover:text-devora-brand"
+                                          onClick={() => handleInspectApplicant(applicant)}
+                                        >
+                                          <Eye className="w-3.5 h-3.5 text-devora-brand" />
+                                          <span>Inspect Profil</span>
+                                        </Button>
+
                                         {isPending ? (
                                           <>
                                             <Button
@@ -640,7 +693,7 @@ export default function ProjectsPage() {
                                               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                                               <span>Partner Resmi (Diterima)</span>
                                             </Badge>
-                                            <Link href="/messages">
+                                            <Link href={`/messages?userId=${applicant.applicantId}`}>
                                               <Button size="sm" className="text-xs gap-1 bg-devora-ink text-white">
                                                 <MessageSquare className="w-3.5 h-3.5" />
                                                 <span>Mulai Chat</span>
@@ -709,8 +762,8 @@ export default function ProjectsPage() {
                               onClick={() => handleFindPartnersForProject(project)}
                               className="gap-2 bg-devora-brand hover:bg-devora-brand-dark text-white font-bold text-xs shadow-sm"
                             >
-                              <Flame className="w-4 h-4 fill-white" />
-                              <span>Cari Partner Buat Proyek Ini (Swipe)</span>
+                              <Rocket className="w-4 h-4 text-white" />
+                              <span>Cari Partner Manual (Mode Undang)</span>
                               <ArrowRight className="w-3.5 h-3.5" />
                             </Button>
                           ) : (
@@ -880,6 +933,269 @@ export default function ProjectsPage() {
                   </Button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================
+            MODAL: APPLICANT PROFILE INSPECTOR (Lengkap dengan Sertifikat & Portofolio)
+            ================================================================ */}
+        {inspectingRequest && (
+          <div
+            className="fixed inset-0 z-50 bg-devora-ink/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
+            onClick={() => setInspectingRequest(null)}
+          >
+            <div
+              className="w-full max-w-2xl bg-devora-surface border-2 border-devora-border rounded-container shadow-2xl p-5 sm:p-6 space-y-5 my-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-start justify-between border-b border-devora-border pb-4">
+                <div className="flex items-start gap-3.5">
+                  <Avatar
+                    src={inspectingUser?.image || inspectingUser?.avatarUrl || inspectingRequest.applicantAvatarUrl}
+                    fallback={inspectingRequest.applicantName.slice(0, 2).toUpperCase()}
+                    size="lg"
+                    className="border-2 border-devora-brand shadow-xs shrink-0"
+                  />
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-lg font-bold text-devora-ink">
+                        {inspectingRequest.applicantName}
+                      </h3>
+                      <Badge variant="brand" className="text-[10px] font-bold py-0.5 px-2">
+                        Melamar: {inspectingRequest.roleTitle}
+                      </Badge>
+                    </div>
+                    <p className="text-xs font-semibold text-devora-brand-dark">
+                      {inspectingUser?.title || inspectingRequest.applicantTitle || "Web Developer"}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2 text-[11px] text-devora-muted font-medium">
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-devora-brand" />
+                        {inspectingUser?.location || "Indonesia"}
+                      </span>
+                      <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-devora-brand" />
+                        {inspectingRequest.hoursPerWeek} jam/minggu
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setInspectingRequest(null)}
+                  className="p-1.5 text-devora-muted hover:text-devora-ink rounded-button hover:bg-devora-surface-strong"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {isLoadingApplicant ? (
+                <div className="py-12 text-center text-xs text-devora-muted space-y-2">
+                  <div className="w-6 h-6 border-2 border-devora-brand border-t-transparent rounded-full animate-spin mx-auto" />
+                  <p>Memuat profil lengkap pelamar...</p>
+                </div>
+              ) : (
+                <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1">
+                  {/* Jam Terbang & Level Pengalaman */}
+                  <div className="grid grid-cols-1 sm:grid-grid-cols-2 gap-2.5">
+                    <div className="p-3 bg-devora-background rounded-button border border-devora-border space-y-1">
+                      <span className="text-[10px] font-mono uppercase font-bold text-devora-muted flex items-center gap-1">
+                        <Briefcase className="w-3 h-3 text-devora-brand" />
+                        <span>Jam Terbang / Pengalaman Web Dev:</span>
+                      </span>
+                      <p className="text-xs font-bold text-devora-ink">
+                        {inspectingUser?.experienceYears !== undefined && inspectingUser?.experienceYears !== null
+                          ? `${inspectingUser.experienceYears} Tahun Pengalaman (${inspectingUser.experienceLevel || "Developer"})`
+                          : "Pengalaman Praktis / Project-Based"}
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-devora-background rounded-button border border-devora-border space-y-1">
+                      <span className="text-[10px] font-mono uppercase font-bold text-devora-muted flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-devora-brand" />
+                        <span>Ritme & Ketersediaan:</span>
+                      </span>
+                      <p className="text-xs font-bold text-devora-ink">
+                        {inspectingUser?.workStyle || "Async-First & Weekend Sprints"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Motivasi / Pitch Note Pelamar */}
+                  <div className="p-3 bg-devora-brand-soft/30 border border-devora-brand/30 rounded-button space-y-1">
+                    <span className="text-[10px] font-mono uppercase font-bold text-devora-brand block">
+                      Pesan & Motivasi Lamaran:
+                    </span>
+                    <p className="text-xs text-devora-ink leading-relaxed italic">
+                      &ldquo;{inspectingRequest.pitchNote}&rdquo;
+                    </p>
+                  </div>
+
+                  {/* Bio Singkat */}
+                  {inspectingUser?.bio && (
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono uppercase font-bold text-devora-muted">
+                        Bio Pengembang:
+                      </span>
+                      <p className="text-xs text-devora-ink leading-relaxed bg-devora-background p-2.5 rounded-button border border-devora-border">
+                        {inspectingUser.bio}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Tech Stack & Skills */}
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] font-mono uppercase font-bold text-devora-muted block">
+                      Keahlian & Tech Stack:
+                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      {(inspectingUser?.skills?.length
+                        ? inspectingUser.skills
+                        : inspectingRequest.skills
+                      ).map((skill, i) => (
+                        <Badge
+                          key={i}
+                          variant="default"
+                          className="text-xs py-0.5 px-2 bg-devora-surface-strong text-devora-ink font-semibold"
+                        >
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Sertifikat Pelamar */}
+                  {inspectingUser?.certificates && inspectingUser.certificates.length > 0 && (
+                    <div className="space-y-2 pt-2 border-t border-devora-border">
+                      <div className="flex items-center gap-1.5">
+                        <Award className="w-3.5 h-3.5 text-amber-500" />
+                        <span className="text-[10px] font-mono uppercase font-bold text-devora-ink">
+                          Sertifikasi Terverifikasi ({inspectingUser.certificates.length}):
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {inspectingUser.certificates.map((cert) => (
+                          <div
+                            key={cert.id}
+                            className="p-2.5 bg-devora-background border border-devora-border rounded-button flex items-start justify-between gap-2"
+                          >
+                            <div className="space-y-0.5 min-w-0">
+                              <p className="text-xs font-bold text-devora-ink truncate">{cert.title}</p>
+                              <p className="text-[10px] text-devora-muted">
+                                {cert.issuer} {cert.issueDate && `• ${cert.issueDate}`}
+                              </p>
+                            </div>
+                            {cert.credentialUrl && (
+                              <a
+                                href={cert.credentialUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="p-1 text-devora-brand hover:underline shrink-0"
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Portofolio Proyek Pelamar */}
+                  {inspectingUser?.portfolios && inspectingUser.portfolios.length > 0 && (
+                    <div className="space-y-2 pt-2 border-t border-devora-border">
+                      <div className="flex items-center gap-1.5">
+                        <FolderGit2 className="w-3.5 h-3.5 text-devora-brand" />
+                        <span className="text-[10px] font-mono uppercase font-bold text-devora-ink">
+                          Showcase Portofolio Proyek ({inspectingUser.portfolios.length}):
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {inspectingUser.portfolios.map((proj) => (
+                          <div
+                            key={proj.id}
+                            className="p-3 bg-devora-background border border-devora-border rounded-container space-y-1.5 flex flex-col justify-between"
+                          >
+                            <div className="space-y-1">
+                              <p className="text-xs font-bold text-devora-ink">{proj.title}</p>
+                              {proj.description && (
+                                <p className="text-[11px] text-devora-muted line-clamp-2 leading-relaxed">
+                                  {proj.description}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 pt-1 border-t border-devora-border/50 text-[11px]">
+                              {proj.liveUrl && (
+                                <a
+                                  href={proj.liveUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-devora-brand font-bold hover:underline inline-flex items-center gap-1"
+                                >
+                                  <ExternalLink className="w-2.5 h-2.5" />
+                                  <span>Live Demo</span>
+                                </a>
+                              )}
+                              {proj.repoUrl && (
+                                <a
+                                  href={proj.repoUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-devora-ink font-bold hover:text-devora-brand inline-flex items-center gap-1"
+                                >
+                                  <GitBranch className="w-2.5 h-2.5" />
+                                  <span>GitHub</span>
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Footer Modal Actions */}
+              <div className="flex items-center justify-between gap-2 pt-3 border-t border-devora-border">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleRejectApplicant(inspectingRequest)}
+                  className="text-xs text-red-600 hover:bg-red-500/10 border-red-200 gap-1 font-semibold"
+                >
+                  <UserX className="w-3.5 h-3.5" />
+                  <span>Tolak Lamaran</span>
+                </Button>
+
+                <div className="flex items-center gap-2">
+                  <Link href={`/messages?userId=${inspectingRequest.applicantId}`}>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="text-xs font-bold gap-1 bg-devora-surface border-devora-border hover:border-devora-ink text-devora-ink"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>Chat Langsung</span>
+                    </Button>
+                  </Link>
+
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => handleAcceptApplicant(inspectingRequest)}
+                    className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-1.5 shadow-md"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Terima Partner (ACC)</span>
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         )}

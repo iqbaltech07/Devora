@@ -355,7 +355,7 @@ export default function MatchesPage() {
                         <span>Lihat Spec Lengkap</span>
                       </Button>
 
-                      <Link href="/messages">
+                      <Link href={`/messages?userId=${candidate.id}`}>
                         <Button
                           size="sm"
                           className="text-xs gap-1.5 bg-devora-brand text-white hover:bg-devora-brand-dark font-bold shadow-xs"

@@ -49,6 +49,29 @@ export interface SkillItem {
 export type ExperienceLevel = "BEGINNER" | "JUNIOR" | "INTERMEDIATE" | "SENIOR";
 export type WorkPreference = "REMOTE" | "HYBRID" | "ONSITE";
 
+export interface Certificate {
+  id: string;
+  userId?: string;
+  title: string;
+  issuer: string;
+  issueDate?: string | null;
+  credentialUrl?: string | null;
+  fileUrl?: string | null;
+  createdAt?: string;
+}
+
+export interface PortfolioProject {
+  id: string;
+  userId?: string;
+  title: string;
+  description?: string | null;
+  liveUrl?: string | null;
+  repoUrl?: string | null;
+  tags: string[];
+  imageUrl?: string | null;
+  createdAt?: string;
+}
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -81,6 +104,9 @@ export interface UserProfile {
   linkedinUrl?: string;
   websiteUrl?: string;
   profileCompleteness?: number;
+
+  certificates?: Certificate[];
+  portfolios?: PortfolioProject[];
 }
 
 export interface ProjectRole {
@@ -227,6 +253,9 @@ export interface CandidatePartner {
   linkedinUrl?: string;
   websiteUrl?: string;
   profileCompleteness?: number;
+
+  certificates?: Certificate[];
+  portfolios?: PortfolioProject[];
 }
 
 export interface ToastMessage {

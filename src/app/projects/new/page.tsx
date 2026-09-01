@@ -29,6 +29,7 @@ import {
   Smartphone,
   Cloud,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface RoleDraft {
   id: string;
@@ -128,6 +129,17 @@ export default function NewProjectPage() {
       })
     );
     setNewSkillInputs({ ...newSkillInputs, [roleId]: "" });
+  };
+
+  const handleQuickAddSkillToRole = (roleId: string, skill: string) => {
+    setRoles(
+      roles.map((r) => {
+        if (r.id === roleId && !r.requiredSkills.includes(skill)) {
+          return { ...r, requiredSkills: [...r.requiredSkills, skill] };
+        }
+        return r;
+      })
+    );
   };
 
   const handleRemoveSkillFromRole = (roleId: string, skillToRemove: string) => {
@@ -424,33 +436,38 @@ export default function NewProjectPage() {
                   </div>
 
                   {/* Tech Stack for this Role */}
-                  <div className="space-y-1.5">
-                    <span className="text-[11px] font-mono text-devora-muted font-medium block">
-                      Tech Stack / Keahlian yang Dibutuhkan:
-                    </span>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-mono text-devora-muted font-medium block">
+                        Tech Stack / Keahlian yang Dibutuhkan:
+                      </span>
+                      <span className="text-[10px] text-devora-muted">Ketik & tekan tombol Tambah atau klik rekomendasi</span>
+                    </div>
+
                     <div className="flex flex-wrap items-center gap-1.5">
                       {role.requiredSkills.map((skill) => (
                         <Badge
                           key={skill}
                           variant="default"
-                          className="text-xs py-0.5 px-2 bg-devora-surface-strong text-devora-ink gap-1"
+                          className="text-xs py-1 px-2.5 bg-devora-surface-strong text-devora-ink font-semibold gap-1.5 border border-devora-border"
                         >
                           <span>{skill}</span>
                           <button
                             type="button"
                             onClick={() => handleRemoveSkillFromRole(role.id, skill)}
-                            className="hover:text-red-500 text-devora-muted ml-0.5"
+                            className="hover:text-red-500 text-devora-muted font-bold ml-0.5"
+                            title="Hapus skill"
                           >
                             ×
                           </button>
                         </Badge>
                       ))}
 
-                      {/* Add Skill tag input */}
-                      <div className="inline-flex items-center gap-1">
+                      {/* Add Skill Input with Dedicated "+ Tambah" Button */}
+                      <div className="inline-flex items-center gap-1 bg-devora-surface p-0.5 rounded border border-devora-border focus-within:border-devora-brand">
                         <input
                           type="text"
-                          placeholder="+ Tambah skill..."
+                          placeholder="Nama skill (misal: Redis)..."
                           value={newSkillInputs[role.id] || ""}
                           onChange={(e) =>
                             setNewSkillInputs({
@@ -464,8 +481,57 @@ export default function NewProjectPage() {
                               handleAddSkillToRole(role.id);
                             }
                           }}
-                          className="w-24 px-2 py-1 text-[11px] bg-devora-surface border border-devora-border rounded text-devora-ink placeholder:text-devora-muted focus:outline-none focus:border-devora-brand"
+                          className="w-36 px-2 py-1 text-xs bg-transparent text-devora-ink placeholder:text-devora-muted focus:outline-none"
                         />
+                        <button
+                          type="button"
+                          onClick={() => handleAddSkillToRole(role.id)}
+                          className="px-2.5 py-1 text-xs font-bold bg-devora-brand hover:bg-devora-brand-dark text-white rounded transition-colors flex items-center gap-1"
+                        >
+                          <Plus className="w-3 h-3" />
+                          <span>Tambah</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Quick Skill Recommendation Chips (1-Click Add) */}
+                    <div className="space-y-1 pt-1">
+                      <span className="text-[10px] font-mono text-devora-muted">
+                        Pilih Cepat (1-Klik Tambah):
+                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {[
+                          "Next.js",
+                          "React",
+                          "TypeScript",
+                          "Tailwind CSS",
+                          "Node.js",
+                          "PostgreSQL",
+                          "Figma",
+                          "Python",
+                          "Docker",
+                          "Go",
+                          "Supabase",
+                          "Prisma",
+                        ].map((preset) => {
+                          const isAlreadyAdded = role.requiredSkills.includes(preset);
+                          return (
+                            <button
+                              type="button"
+                              key={preset}
+                              disabled={isAlreadyAdded}
+                              onClick={() => handleQuickAddSkillToRole(role.id, preset)}
+                              className={cn(
+                                "text-[10px] px-2 py-0.5 rounded-full border transition-all",
+                                isAlreadyAdded
+                                  ? "bg-devora-surface-strong text-devora-muted border-transparent opacity-50 cursor-not-allowed"
+                                  : "bg-devora-surface hover:bg-devora-brand/10 hover:border-devora-brand hover:text-devora-brand text-devora-ink border-devora-border cursor-pointer font-medium"
+                              )}
+                            >
+                              +{preset}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>

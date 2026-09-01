@@ -50,7 +50,7 @@ export const useMatchStore = create<MatchState>((set, get) => ({
   latestMatchedCandidate: null,
   showMatchCelebration: false,
   matches: INITIAL_MATCHES,
-  selectedMatchId: "cand-alex-1",
+  selectedMatchId: null,
   isLoadingMatches: false,
   isLoadingCandidates: false,
   isLoadingIncomingLikes: false,

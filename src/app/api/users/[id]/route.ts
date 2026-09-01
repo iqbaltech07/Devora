@@ -56,6 +56,29 @@ export async function GET(
           },
           take: 3,
         },
+        certificates: {
+          select: {
+            id: true,
+            title: true,
+            issuer: true,
+            issueDate: true,
+            credentialUrl: true,
+            fileUrl: true,
+          },
+          orderBy: { createdAt: "desc" },
+        },
+        portfolios: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            liveUrl: true,
+            repoUrl: true,
+            tags: true,
+            imageUrl: true,
+          },
+          orderBy: { createdAt: "desc" },
+        },
       },
     });
 

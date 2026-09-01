@@ -145,9 +145,11 @@ export default function DashboardPage() {
               </div>
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-2xl sm:text-3xl font-extrabold text-[#0F172A]">
-                  {incomingLikes.length > 0 ? incomingLikes.length : 2}
+                  {incomingLikes.length}
                 </span>
-                <span className="text-[11px] text-[#FF5733] font-semibold animate-pulse">Menunggu</span>
+                <span className="text-[11px] text-[#FF5733] font-semibold">
+                  {incomingLikes.length > 0 ? "Menunggu Respon" : "Terkini"}
+                </span>
               </div>
               <p className="text-[11px] text-[#94A3B8] mt-1">Geser balik untuk match</p>
             </div>
@@ -187,7 +189,7 @@ export default function DashboardPage() {
               </div>
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-2xl sm:text-3xl font-extrabold text-[#0F172A]">
-                  {unreadCount > 0 ? unreadCount : 3}
+                  {unreadCount}
                 </span>
                 <span className="text-[11px] text-emerald-600 font-semibold">Real-time</span>
               </div>
