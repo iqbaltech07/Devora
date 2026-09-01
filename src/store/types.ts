@@ -46,6 +46,9 @@ export interface SkillItem {
   isPrimary?: boolean;
 }
 
+export type ExperienceLevel = "BEGINNER" | "JUNIOR" | "INTERMEDIATE" | "SENIOR";
+export type WorkPreference = "REMOTE" | "HYBRID" | "ONSITE";
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -67,6 +70,17 @@ export interface UserProfile {
   image?: string;
   onboarded?: boolean;
   gitAccounts?: GitAccount[];
+
+  // Professional Developer Profile Fields (Phase 1)
+  experienceYears?: number;
+  experienceLevel?: ExperienceLevel;
+  workPreference?: WorkPreference;
+  flexibleHours?: boolean;
+  availableDays?: string[];
+  portfolioUrl?: string;
+  linkedinUrl?: string;
+  websiteUrl?: string;
+  profileCompleteness?: number;
 }
 
 export interface ProjectRole {
@@ -202,6 +216,17 @@ export interface CandidatePartner {
     tech: string[];
   };
   tags: string[];
+
+  // Professional profile attributes
+  experienceYears?: number;
+  experienceLevel?: ExperienceLevel;
+  workPreference?: WorkPreference;
+  flexibleHours?: boolean;
+  availableDays?: string[];
+  portfolioUrl?: string;
+  linkedinUrl?: string;
+  websiteUrl?: string;
+  profileCompleteness?: number;
 }
 
 export interface ToastMessage {

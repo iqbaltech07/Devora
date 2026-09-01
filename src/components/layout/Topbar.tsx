@@ -10,6 +10,8 @@ import { useUserStore } from "@/store/useUserStore";
 import { useUiStore } from "@/store/useUiStore";
 import { authClient } from "@/lib/auth-client";
 
+import { NotificationDropdown } from "./NotificationDropdown";
+
 export function Topbar() {
   const router = useRouter();
   const { currentUser, isAuthenticated, logout } = useUserStore();
@@ -36,20 +38,20 @@ export function Topbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-devora-border bg-devora-background/95 backdrop-blur-sm">
-      <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 sm:px-6 md:px-8">
+    <header className="sticky top-0 z-40 w-full border-b border-devora-border bg-[#FAF9F5]/90 backdrop-blur-md">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Logo */}
         <div className="flex items-center gap-6 md:gap-8">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-button bg-devora-brand flex items-center justify-center text-white font-bold text-base shadow-sm group-hover:bg-devora-brand-dark transition-colors">
+            <div className="w-9 h-9 rounded-2xl bg-[#FF5733] flex items-center justify-center text-white shadow-md shadow-[#FF5733]/25 group-hover:scale-105 transition-transform duration-200">
               <Flame className="w-5 h-5 fill-white" />
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold tracking-tight text-devora-ink leading-tight">
+              <span className="text-xl font-extrabold tracking-tight text-[#0F172A] leading-tight">
                 Devora
               </span>
-              <span className="text-[10px] text-devora-muted font-mono tracking-wider uppercase -mt-0.5">
-                Dev Dating
+              <span className="text-[10px] text-[#64748B] font-mono tracking-wider uppercase -mt-0.5">
+                Dev Matchmaking
               </span>
             </div>
           </Link>
@@ -61,19 +63,15 @@ export function Topbar() {
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <Link href="/find-partner">
-            <Button size="sm" className="hidden sm:inline-flex items-center gap-1.5 bg-devora-brand hover:bg-devora-brand-dark text-white font-semibold">
-              <Flame className="w-3.5 h-3.5 fill-white" />
-              <span>Find Partner</span>
-            </Button>
-          </Link>
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Notification Button Dropdown */}
+          <NotificationDropdown />
 
           {isAuthenticated ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-2.5">
               <Link
                 href="/profile"
-                className="flex items-center p-0.5 rounded-button hover:bg-devora-surface transition-colors"
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E2E8F0] bg-white text-xs font-bold text-[#0F172A] hover:border-[#FF5733] transition-colors shadow-xs"
                 title="Lihat & Edit Profil"
               >
                 <Avatar
@@ -90,8 +88,19 @@ export function Topbar() {
                       : "DV"
                   }
                   size="sm"
-                  className="hover:border-devora-brand border border-devora-border cursor-pointer transition-colors"
+                  className="w-5 h-5"
                 />
+                <span>{currentUser.name || "Profil Saya"}</span>
+              </Link>
+
+              <Link href="/find-partner">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0F172A] text-white text-xs font-bold shadow-md hover:bg-[#1E293B] hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  <Flame className="w-3.5 h-3.5 fill-white" />
+                  <span>Ruang Match</span>
+                </button>
               </Link>
 
               {/* Dedicated Sign Out Button */}
@@ -99,19 +108,32 @@ export function Topbar() {
                 type="button"
                 onClick={handleLogout}
                 title="Keluar dari Akun (Log Out)"
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-button text-xs font-semibold text-devora-muted hover:text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all duration-150"
+                className="inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-semibold text-[#64748B] hover:text-red-600 hover:bg-red-50 transition-all duration-150"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Keluar</span>
               </button>
             </div>
           ) : (
-            <Link href="/signin">
-              <Button variant="secondary" size="sm" className="gap-1.5 font-bold">
-                <LogIn className="w-3.5 h-3.5" />
-                <span>Masuk</span>
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2 sm:gap-2.5">
+              <Link href="/signin">
+                <button
+                  type="button"
+                  className="px-3 sm:px-4 py-2 text-xs font-bold text-[#0F172A] hover:text-[#FF5733] transition-colors"
+                >
+                  Masuk
+                </button>
+              </Link>
+              <Link href="/find-partner">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#0F172A] text-white text-xs font-bold shadow-md hover:bg-[#1E293B] hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  <Flame className="w-3.5 h-3.5 fill-white" />
+                  <span>Find Partner</span>
+                </button>
+              </Link>
+            </div>
           )}
         </div>
       </div>
