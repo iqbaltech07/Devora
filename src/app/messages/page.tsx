@@ -688,7 +688,7 @@ export default function MessagesPage() {
                             {activePartner.name} mengundang kamu ke:
                           </h4>
                           <p className="text-xs sm:text-sm font-extrabold text-[#FF5733]">
-                            "{activePartner.projectTitle || "SaaS Inventory Platform"}"
+                            {`"${activePartner.projectTitle || "SaaS Inventory Platform"}"`}
                           </p>
                         </div>
                       </div>
