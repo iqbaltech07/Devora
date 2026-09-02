@@ -10,12 +10,14 @@ import {
   Flame,
   FolderKanban,
   MessageSquare,
+  Users,
   Check,
   CheckCheck,
   X,
   ArrowRight,
   Sparkles,
   Radio,
+  ExternalLink,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -24,7 +26,7 @@ export function NotificationDropdown() {
   const router = useRouter();
   const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } = useNotificationStore();
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"ALL" | "LIKE" | "MATCH" | "PROJECT_INVITE">("ALL");
+  const [activeTab, setActiveTab] = useState<"ALL" | "FOLLOW" | "LIKE" | "MATCH" | "PROJECT_INVITE">("ALL");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -58,6 +60,7 @@ export function NotificationDropdown() {
 
   const filteredNotifications = notifications.filter((n) => {
     if (activeTab === "ALL") return true;
+    if (activeTab === "FOLLOW") return n.type === "FOLLOW" || n.type === "FOLLOW_BACK";
     return n.type === activeTab;
   });
 
@@ -92,7 +95,11 @@ export function NotificationDropdown() {
           {/* Header */}
           <div className="p-4 border-b border-[#E2E8F0] bg-[#FAF9F5] space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <Link
+                href="/notifications"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
                 <div className="w-6 h-6 rounded-lg bg-[#FF5733]/15 text-[#FF5733] flex items-center justify-center">
                   <Bell className="w-3.5 h-3.5" />
                 </div>
@@ -102,15 +109,9 @@ export function NotificationDropdown() {
                     {unreadCount} baru
                   </span>
                 )}
-              </div>
+              </Link>
 
               <div className="flex items-center gap-2">
-                {/* Live Realtime Status Pill */}
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FAF9F5] border border-[#E2E8F0] text-[9px] font-bold text-[#0F172A]">
-                  <Radio className="w-3 h-3 text-[#FF5733]" />
-                  <span>Realtime</span>
-                </div>
-
                 {unreadCount > 0 && (
                   <button
                     type="button"
@@ -121,16 +122,25 @@ export function NotificationDropdown() {
                     <span>Tandai dibaca</span>
                   </button>
                 )}
+
+                <Link
+                  href="/notifications"
+                  onClick={() => setIsOpen(false)}
+                  className="p-1 text-[#64748B] hover:text-[#0F172A] rounded-md hover:bg-slate-200/60 transition-colors"
+                  title="Buka Halaman Notifikasi Penuh"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
               </div>
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-[#E2E8F0] text-[10px] font-bold text-[#64748B]">
+            <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-[#E2E8F0] text-[10px] font-bold text-[#64748B] overflow-x-auto scrollbar-none">
               <button
                 type="button"
                 onClick={() => setActiveTab("ALL")}
                 className={cn(
-                  "flex-1 py-1 rounded-full transition-all text-center",
+                  "flex-1 py-1 px-2 rounded-full transition-all text-center whitespace-nowrap",
                   activeTab === "ALL" ? "bg-[#0F172A] text-white shadow-xs" : "hover:text-[#0F172A]"
                 )}
               >
@@ -138,9 +148,19 @@ export function NotificationDropdown() {
               </button>
               <button
                 type="button"
+                onClick={() => setActiveTab("FOLLOW")}
+                className={cn(
+                  "flex-1 py-1 px-2 rounded-full transition-all text-center whitespace-nowrap",
+                  activeTab === "FOLLOW" ? "bg-[#0F172A] text-white shadow-xs" : "hover:text-[#0F172A]"
+                )}
+              >
+                Follow ({notifications.filter((n) => n.type === "FOLLOW" || n.type === "FOLLOW_BACK").length})
+              </button>
+              <button
+                type="button"
                 onClick={() => setActiveTab("PROJECT_INVITE")}
                 className={cn(
-                  "flex-1 py-1 rounded-full transition-all text-center",
+                  "flex-1 py-1 px-2 rounded-full transition-all text-center whitespace-nowrap",
                   activeTab === "PROJECT_INVITE" ? "bg-[#0F172A] text-white shadow-xs" : "hover:text-[#0F172A]"
                 )}
               >
@@ -150,21 +170,11 @@ export function NotificationDropdown() {
                 type="button"
                 onClick={() => setActiveTab("LIKE")}
                 className={cn(
-                  "flex-1 py-1 rounded-full transition-all text-center",
+                  "flex-1 py-1 px-2 rounded-full transition-all text-center whitespace-nowrap",
                   activeTab === "LIKE" ? "bg-[#0F172A] text-white shadow-xs" : "hover:text-[#0F172A]"
                 )}
               >
-                Disukai ({notifications.filter((n) => n.type === "LIKE").length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("MATCH")}
-                className={cn(
-                  "flex-1 py-1 rounded-full transition-all text-center",
-                  activeTab === "MATCH" ? "bg-[#0F172A] text-white shadow-xs" : "hover:text-[#0F172A]"
-                )}
-              >
-                Match ({notifications.filter((n) => n.type === "MATCH").length})
+                Suka ({notifications.filter((n) => n.type === "LIKE").length})
               </button>
             </div>
           </div>
@@ -198,6 +208,7 @@ export function NotificationDropdown() {
 
                     {/* Floating Type Badge */}
                     <span className="absolute -bottom-1 -right-1 w-4.5 h-4.5 rounded-full bg-white shadow-xs border border-[#E2E8F0] flex items-center justify-center">
+                      {(notif.type === "FOLLOW" || notif.type === "FOLLOW_BACK") && <Users className="w-2.5 h-2.5 text-[#FF5733]" />}
                       {notif.type === "LIKE" && <Heart className="w-2.5 h-2.5 text-[#FF5733] fill-[#FF5733]" />}
                       {notif.type === "MATCH" && <Flame className="w-2.5 h-2.5 text-emerald-500 fill-emerald-500" />}
                       {notif.type === "PROJECT_INVITE" && <FolderKanban className="w-2.5 h-2.5 text-blue-500" />}
@@ -236,20 +247,21 @@ export function NotificationDropdown() {
                 <Bell className="w-8 h-8 mx-auto text-[#CBD5E1]" />
                 <p className="text-xs font-semibold">Belum ada notifikasi baru.</p>
                 <p className="text-[11px] text-[#94A3B8]">
-                  Notifikasi ketika ada yang menyukai profilmu akan muncul di sini.
+                  Notifikasi ketika ada yang menyukai profilmu atau mengikutimu akan muncul di sini.
                 </p>
               </div>
             )}
           </div>
 
-          {/* Footer */}
-          <div className="p-3 border-t border-[#E2E8F0] bg-[#FAF9F5] text-center">
+          {/* Footer with full page navigation button */}
+          <div className="p-3 border-t border-[#E2E8F0] bg-[#FAF9F5] flex items-center justify-between">
             <Link
-              href="/find-partner"
+              href="/notifications"
               onClick={() => setIsOpen(false)}
-              className="text-xs font-bold text-[#0F172A] hover:text-[#FF5733] transition-colors"
+              className="text-xs font-bold text-[#FF5733] hover:underline flex items-center gap-1 mx-auto"
             >
-              Cari & Swipe Partner Lainnya →
+              <span>Buka Halaman Notifikasi Selengkapnya</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
