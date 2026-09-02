@@ -64,6 +64,12 @@ model User {
   certificates  Certificate[]
   portfolios    PortfolioProject[]
 
+  posts         Post[]             @relation("UserPosts")
+  postLikes     PostLike[]         @relation("UserPostLikes")
+  comments      Comment[]          @relation("UserComments")
+  bookmarks     Bookmark[]         @relation("UserBookmarks")
+  stories       Story[]            @relation("UserStories")
+
   @@unique([email])
   @@map("user")
 }
@@ -133,6 +139,7 @@ model Project {
   roles         ProjectRole[]
   roadmap       ProjectMilestone[]
   joinRequests  JoinRequest[]
+  posts         Post[]
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -267,4 +274,82 @@ model PortfolioProject {
   updatedAt   DateTime @updatedAt
 
   @@map("portfolio_project")
+}
+
+// ----------------------------------------------------------------------------
+// Devora Social Media Models (Instagram for Developers)
+// ----------------------------------------------------------------------------
+
+model Post {
+  id           String     @id @default(cuid())
+  authorId     String
+  author       User       @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
+  
+  content      String     // Caption text / description
+  mediaUrls    String[]   @default([]) // UI screenshot images, mockup diagrams
+  codeSnippet  String?    // Formatted code snippet block
+  codeLanguage String?    // "typescript" | "python" | "go" | "rust" | "sql" | "html" | "css"
+  tags         String[]   @default([]) // ["#BuildInPublic", "#Showcase", "#Nextjs"]
+  category     String     @default("GENERAL") // "SHOWCASE", "BUILD_IN_PUBLIC", "NEED_PARTNER", "TECH_TIPS", "GENERAL"
+  
+  projectId    String?
+  project      Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  
+  likes        PostLike[]
+  comments     Comment[]
+  bookmarks    Bookmark[]
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@map("post")
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserPostLikes", fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@map("post_like")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  authorId  String
+  content   String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("comment")
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserBookmarks", fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@map("bookmark")
+}
+
+model Story {
+  id        String   @id @default(cuid())
+  authorId  String
+  author    User     @relation("UserStories", fields: [authorId], references: [id], onDelete: Cascade)
+  mediaUrl  String?
+  caption   String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("story")
 }

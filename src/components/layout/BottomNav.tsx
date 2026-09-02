@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Flame, FolderKanban, Users, User } from "lucide-react";
+import { Compass, Flame, MessageSquare, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMatchStore } from "@/store/useMatchStore";
 
 const MOBILE_NAV = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Find", href: "/find-partner", icon: Flame },
-  { label: "Projects", href: "/projects", icon: FolderKanban },
-  { label: "Matches", href: "/matches", icon: Users },
-  { label: "Profile", href: "/profile", icon: User },
+  { label: "Feed", href: "/dashboard", icon: Sparkles },
+  { label: "Eksplor", href: "/explore", icon: Compass },
+  { label: "Cari", href: "/find-partner", icon: Flame },
+  { label: "Pesan", href: "/messages", icon: MessageSquare },
+  { label: "Profil", href: "/profile", icon: User },
 ];
 
 export function BottomNav() {

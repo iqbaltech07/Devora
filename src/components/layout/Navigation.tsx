@@ -3,16 +3,18 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Flame, FolderKanban, Users, User } from "lucide-react";
+import { Compass, Flame, FolderKanban, MessageSquare, Sparkles, User, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMatchStore } from "@/store/useMatchStore";
+import { useChatStore } from "@/store/useChatStore";
 
 export const NAV_ITEMS = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Find Partner", href: "/find-partner", icon: Flame },
-  { label: "Projects", href: "/projects", icon: FolderKanban },
-  { label: "Matches", href: "/matches", icon: Users },
-  { label: "Profile", href: "/profile", icon: User },
+  { label: "Feed Sejawat", href: "/dashboard", icon: Sparkles },
+  { label: "Eksplor", href: "/explore", icon: Compass },
+  { label: "Cari Partner", href: "/find-partner", icon: Flame },
+  { label: "Proyek", href: "/projects", icon: FolderKanban },
+  { label: "Pesan", href: "/messages", icon: MessageSquare },
+  { label: "Profil", href: "/profile", icon: User },
 ];
 
 export function Navigation({ className }: { className?: string }) {

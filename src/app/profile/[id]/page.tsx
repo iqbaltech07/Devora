@@ -48,6 +48,7 @@ export default function PublicProfilePage() {
   const { addToast } = useUiStore();
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [userPosts, setUserPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,15 +77,24 @@ export default function PublicProfilePage() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/users/${userId}`);
-        if (!res.ok) {
-          if (res.status === 404) {
+        const [profileRes, postsRes] = await Promise.all([
+          fetch(`/api/users/${userId}`),
+          fetch(`/api/posts?authorId=${userId}`),
+        ]);
+
+        if (!profileRes.ok) {
+          if (profileRes.status === 404) {
             throw new Error("Profil developer tidak ditemukan.");
           }
           throw new Error("Gagal memuat profil developer.");
         }
-        const data = await res.json();
-        setProfile(data);
+        const profileData = await profileRes.json();
+        setProfile(profileData);
+
+        if (postsRes.ok) {
+          const postsData = await postsRes.json();
+          setUserPosts(postsData.posts || []);
+        }
       } catch (err: any) {
         setError(err.message || "Terjadi kesalahan saat memuat profil.");
       } finally {
@@ -512,6 +522,49 @@ export default function PublicProfilePage() {
             </div>
           </Card>
         </div>
+
+        {/* ─── 4.5 POSTINGAN FEED KOMUNITAS ─── */}
+        {userPosts.length > 0 && (
+          <Card className="p-5 sm:p-6 bg-devora-surface border-2 border-devora-border rounded-container space-y-4">
+            <div className="flex items-center justify-between border-b border-devora-border pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-devora-brand" />
+                <h2 className="text-sm font-mono uppercase font-bold text-devora-ink tracking-wider">
+                  Postingan & Update Karya ({userPosts.length})
+                </h2>
+              </div>
+              <span className="text-xs text-devora-muted">Feed Sejawat</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {userPosts.map((post: any) => (
+                <div
+                  key={post.id}
+                  className="p-3.5 bg-devora-background border border-devora-border rounded-container space-y-2 flex flex-col justify-between hover:border-devora-brand transition-colors"
+                >
+                  <div className="space-y-1.5">
+                    {post.mediaUrls && post.mediaUrls.length > 0 && (
+                      <div className="rounded-lg overflow-hidden aspect-video bg-slate-900 mb-2">
+                        <img src={post.mediaUrls[0]} alt="Post" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <p className="text-xs text-devora-ink line-clamp-3 leading-relaxed">
+                      {post.content}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-devora-border text-[11px] text-devora-muted font-bold">
+                    <span className="flex items-center gap-1 text-devora-brand">
+                      <Flame className="w-3 h-3 fill-devora-brand" />
+                      {post.likeCount} Reaksi
+                    </span>
+                    <span>{post.commentCount} Komentar</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
 
         {/* ─── 5. SERTIFIKASI TERVERIFIKASI ─── */}
         {certificates.length > 0 && (
