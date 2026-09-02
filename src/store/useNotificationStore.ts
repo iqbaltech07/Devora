@@ -25,10 +25,11 @@ interface NotificationState {
   isOpen: boolean;
   activePopup: NotificationItem | null;
   seenNotifIds: string[];
+  lastFetchedAt: number;
   setIsOpen: (isOpen: boolean) => void;
   setActivePopup: (popup: NotificationItem | null) => void;
   dismissPopup: () => void;
-  fetchNotifications: () => Promise<void>;
+  fetchNotifications: (force?: boolean) => Promise<void>;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   addNotification: (item: Omit<NotificationItem, "id" | "read" | "createdAt"> & { id?: string; createdAt?: string }) => void;
@@ -36,6 +37,7 @@ interface NotificationState {
 }
 
 const DEFAULT_NOTIFICATIONS: NotificationItem[] = [];
+let notifFetchPromise: Promise<void> | null = null;
 
 export const useNotificationStore = create<NotificationState>()(
   persist(
@@ -46,58 +48,75 @@ export const useNotificationStore = create<NotificationState>()(
       isOpen: false,
       activePopup: null,
       seenNotifIds: [],
+      lastFetchedAt: 0,
 
       setIsOpen: (isOpen) => set({ isOpen }),
       setActivePopup: (activePopup) => set({ activePopup }),
       dismissPopup: () => set({ activePopup: null }),
 
-      fetchNotifications: async () => {
-        try {
-          set({ isLoading: true });
-          const res = await fetch("/api/notifications");
-          if (!res.ok) {
-            set({ isLoading: false });
-            return;
-          }
-          const data = await res.json();
-          if (data.success && Array.isArray(data.notifications)) {
-            const currentSeen = new Set(get().seenNotifIds || []);
-            const existingReadIds = new Set(
-              get().notifications.filter((n) => n.read).map((n) => n.id)
-            );
-
-            const merged = data.notifications.map((n: NotificationItem) => ({
-              ...n,
-              read: existingReadIds.has(n.id) || n.read,
-            }));
-
-            // Detect genuinely new incoming unread notifications to show in popup banner
-            const brandNewUnread = merged.filter(
-              (n: NotificationItem) => !n.read && !currentSeen.has(n.id)
-            );
-
-            if (brandNewUnread.length > 0) {
-              // Trigger popup for the most recent unread item
-              set({ activePopup: brandNewUnread[0] });
-            }
-
-            // Update seen list
-            const allFetchedIds = merged.map((n: NotificationItem) => n.id);
-            const nextSeen = Array.from(new Set([...currentSeen, ...allFetchedIds]));
-
-            set({
-              notifications: merged,
-              unreadCount: merged.filter((n: NotificationItem) => !n.read).length,
-              seenNotifIds: nextSeen,
-              isLoading: false,
-            });
-          } else {
-            set({ isLoading: false });
-          }
-        } catch (error) {
-          console.error("fetchNotifications error:", error);
-          set({ isLoading: false });
+      fetchNotifications: async (force = false) => {
+        const now = Date.now();
+        if (!force && now - get().lastFetchedAt < 10000 && get().notifications.length > 0) {
+          return;
         }
+
+        if (notifFetchPromise) {
+          return notifFetchPromise;
+        }
+
+        notifFetchPromise = (async () => {
+          try {
+            set({ isLoading: true });
+            const res = await fetch("/api/notifications");
+            if (!res.ok) {
+              set({ isLoading: false });
+              return;
+            }
+            const data = await res.json();
+            if (data.success && Array.isArray(data.notifications)) {
+              const currentSeen = new Set(get().seenNotifIds || []);
+              const existingReadIds = new Set(
+                get().notifications.filter((n) => n.read).map((n) => n.id)
+              );
+
+              const merged = data.notifications.map((n: NotificationItem) => ({
+                ...n,
+                read: existingReadIds.has(n.id) || n.read,
+              }));
+
+              // Detect genuinely new incoming unread notifications to show in popup banner
+              const brandNewUnread = merged.filter(
+                (n: NotificationItem) => !n.read && !currentSeen.has(n.id)
+              );
+
+              if (brandNewUnread.length > 0) {
+                // Trigger popup for the most recent unread item
+                set({ activePopup: brandNewUnread[0] });
+              }
+
+              // Update seen list
+              const allFetchedIds = merged.map((n: NotificationItem) => n.id);
+              const nextSeen = Array.from(new Set([...currentSeen, ...allFetchedIds]));
+
+              set({
+                notifications: merged,
+                unreadCount: merged.filter((n: NotificationItem) => !n.read).length,
+                seenNotifIds: nextSeen,
+                lastFetchedAt: Date.now(),
+                isLoading: false,
+              });
+            } else {
+              set({ isLoading: false });
+            }
+          } catch (err) {
+            console.error("fetchNotifications error:", err);
+            set({ isLoading: false });
+          } finally {
+            notifFetchPromise = null;
+          }
+        })();
+
+        return notifFetchPromise;
       },
 
       markAsRead: (id) => {

@@ -28,7 +28,9 @@ export async function GET() {
           },
         },
         views: {
-          include: {
+          select: {
+            viewerId: true,
+            viewedAt: true,
             viewer: {
               select: {
                 id: true,

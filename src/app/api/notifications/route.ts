@@ -30,145 +30,6 @@ export async function GET() {
       select: { id: true, name: true, githubUsername: true },
     });
 
-    // 1. Fetch incoming follows (who followed currentUser)
-    const incomingFollows = await prisma.follow.findMany({
-      where: {
-        followingId: currentUserId,
-      },
-      include: {
-        follower: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            title: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 20,
-    });
-
-    // Check mutual follows
-    const followerIds = incomingFollows.map((f) => f.follower.id);
-    const myFollows = await prisma.follow.findMany({
-      where: {
-        followerId: currentUserId,
-        followingId: { in: followerIds },
-      },
-      select: { followingId: true },
-    });
-    const myFollowSet = new Set(myFollows.map((mf) => mf.followingId));
-
-    // 2. Fetch post likes on current user's posts
-    const postLikes = await prisma.postLike.findMany({
-      where: {
-        post: { authorId: currentUserId },
-        userId: { not: currentUserId },
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            title: true,
-          },
-        },
-        post: {
-          select: {
-            id: true,
-            content: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 15,
-    });
-
-    // 3. Fetch root comments on current user's posts
-    const postComments = await prisma.comment.findMany({
-      where: {
-        post: { authorId: currentUserId },
-        authorId: { not: currentUserId },
-        parentId: null, // Only root comments
-      },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            title: true,
-          },
-        },
-        post: {
-          select: {
-            id: true,
-            content: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 15,
-    });
-
-    // 4. Fetch Comment Likes (Likes on comments authored by current user)
-    const commentLikes = await prisma.commentLike.findMany({
-      where: {
-        comment: { authorId: currentUserId },
-        userId: { not: currentUserId },
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            title: true,
-          },
-        },
-        comment: {
-          select: {
-            id: true,
-            content: true,
-            postId: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 15,
-    });
-
-    // 5. Fetch Nested Comment Replies (Replies to comments authored by current user)
-    const commentReplies = await prisma.comment.findMany({
-      where: {
-        parent: { authorId: currentUserId },
-        authorId: { not: currentUserId },
-        parentId: { not: null },
-      },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            title: true,
-          },
-        },
-        parent: {
-          select: {
-            id: true,
-            content: true,
-            postId: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 15,
-    });
-
-    // 6. Fetch Post Mentions / Tag Teman (@)
     const mentionTerms: string[] = [];
     if (currentUserRecord?.githubUsername) {
       mentionTerms.push(`@${currentUserRecord.githubUsername}`);
@@ -184,9 +45,152 @@ export async function GET() {
       content: { contains: term, mode: "insensitive" as const },
     }));
 
-    const mentionedPosts =
+    // Execute all queries in PARALLEL via Promise.all
+    const [
+      incomingFollows,
+      postLikes,
+      postComments,
+      commentLikes,
+      commentReplies,
+      mentionedPosts,
+      incomingSwipes,
+      mutualMatches,
+      unreadMessages,
+      myApplications,
+      incomingProjectRequests,
+    ] = await Promise.all([
+      // 1. Follows
+      prisma.follow.findMany({
+        where: { followingId: currentUserId },
+        include: {
+          follower: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              title: true,
+              followers: {
+                where: { followerId: currentUserId },
+                select: { id: true },
+              },
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+      }),
+
+      // 2. Post Likes
+      prisma.postLike.findMany({
+        where: {
+          post: { authorId: currentUserId },
+          userId: { not: currentUserId },
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              title: true,
+            },
+          },
+          post: {
+            select: {
+              id: true,
+              content: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 15,
+      }),
+
+      // 3. Post Comments
+      prisma.comment.findMany({
+        where: {
+          post: { authorId: currentUserId },
+          authorId: { not: currentUserId },
+          parentId: null,
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              title: true,
+            },
+          },
+          post: {
+            select: {
+              id: true,
+              content: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 15,
+      }),
+
+      // 4. Comment Likes
+      prisma.commentLike.findMany({
+        where: {
+          comment: { authorId: currentUserId },
+          userId: { not: currentUserId },
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              title: true,
+            },
+          },
+          comment: {
+            select: {
+              id: true,
+              content: true,
+              postId: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 15,
+      }),
+
+      // 5. Comment Replies
+      prisma.comment.findMany({
+        where: {
+          parent: { authorId: currentUserId },
+          authorId: { not: currentUserId },
+          parentId: { not: null },
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              title: true,
+            },
+          },
+          parent: {
+            select: {
+              id: true,
+              content: true,
+              postId: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 15,
+      }),
+
+      // 6. Mentioned Posts
       mentionOrClauses.length > 0
-        ? await prisma.post.findMany({
+        ? prisma.post.findMany({
             where: {
               authorId: { not: currentUserId },
               OR: mentionOrClauses,
@@ -205,107 +209,16 @@ export async function GET() {
             orderBy: { createdAt: "desc" },
             take: 15,
           })
-        : [];
+        : Promise.resolve([]),
 
-    // 7. Fetch incoming profile likes (Users who swiped RIGHT on currentUser)
-    const incomingSwipes = await prisma.swipe.findMany({
-      where: {
-        swipedId: currentUserId,
-        direction: "RIGHT",
-      },
-      orderBy: { createdAt: "desc" },
-      take: 20,
-    });
-
-    const swiperIds = incomingSwipes.map((s) => s.swiperId);
-
-    // 8. Fetch mutual matches
-    const mutualMatches = await prisma.match.findMany({
-      where: {
-        OR: [{ user1Id: currentUserId }, { user2Id: currentUserId }],
-      },
-      orderBy: { createdAt: "desc" },
-      take: 15,
-    });
-
-    const partnerIds = mutualMatches.map((m) =>
-      m.user1Id === currentUserId ? m.user2Id : m.user1Id
-    );
-
-    // 9. Fetch unread messages
-    const unreadMessages = await prisma.message.findMany({
-      where: {
-        receiverId: currentUserId,
-        read: false,
-      },
-      orderBy: { createdAt: "desc" },
-      take: 15,
-    });
-
-    const senderIds = unreadMessages.map((m) => m.senderId);
-
-    // 10. Fetch Join Requests where current user is the Applicant (e.g. ACC / Accepted by Project Owner)
-    const myApplications = await prisma.joinRequest.findMany({
-      where: {
-        applicantId: currentUserId,
-      },
-      include: {
-        project: {
-          select: {
-            id: true,
-            title: true,
-            authorId: true,
-            author: {
-              select: {
-                id: true,
-                name: true,
-                image: true,
-                title: true,
-              },
-            },
-          },
+      // 7. Incoming Swipes
+      prisma.swipe.findMany({
+        where: {
+          swipedId: currentUserId,
+          direction: "RIGHT",
         },
-      },
-      orderBy: { updatedAt: "desc" },
-      take: 15,
-    });
-
-    // 11. Fetch Incoming Join Requests where current user is the Project Author
-    const incomingProjectRequests = await prisma.joinRequest.findMany({
-      where: {
-        project: {
-          authorId: currentUserId,
-        },
-      },
-      include: {
-        project: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-        applicant: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            title: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 15,
-    });
-
-    // Gather all related user profiles
-    const allUserIds = Array.from(
-      new Set([...swiperIds, ...partnerIds, ...senderIds])
-    );
-
-    const relatedUsers =
-      allUserIds.length > 0
-        ? await prisma.user.findMany({
-            where: { id: { in: allUserIds } },
+        include: {
+          swiper: {
             select: {
               id: true,
               name: true,
@@ -313,17 +226,122 @@ export async function GET() {
               title: true,
               tags: true,
             },
-          })
-        : [];
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+      }),
 
-    const userMap = new Map(relatedUsers.map((u) => [u.id, u]));
+      // 8. Mutual Matches
+      prisma.match.findMany({
+        where: {
+          OR: [{ user1Id: currentUserId }, { user2Id: currentUserId }],
+        },
+        include: {
+          user1: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              title: true,
+              tags: true,
+            },
+          },
+          user2: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              title: true,
+              tags: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 15,
+      }),
+
+      // 9. Unread Messages
+      prisma.message.findMany({
+        where: {
+          receiverId: currentUserId,
+          read: false,
+        },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              title: true,
+              tags: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 15,
+      }),
+
+      // 10. My Project Applications
+      prisma.joinRequest.findMany({
+        where: {
+          applicantId: currentUserId,
+        },
+        include: {
+          project: {
+            select: {
+              id: true,
+              title: true,
+              authorId: true,
+              author: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                  title: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: { updatedAt: "desc" },
+        take: 15,
+      }),
+
+      // 11. Incoming Project Join Requests
+      prisma.joinRequest.findMany({
+        where: {
+          project: {
+            authorId: currentUserId,
+          },
+        },
+        include: {
+          project: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+          applicant: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              title: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 15,
+      }),
+    ]);
 
     const notifications: any[] = [];
 
     // Format 0: Follow & Follow Back Notifications
     for (const f of incomingFollows) {
       if (!f.follower) continue;
-      const isFollowBack = myFollowSet.has(f.follower.id);
+      const isFollowBack = f.follower.followers && f.follower.followers.length > 0;
       notifications.push({
         id: `follow-${f.id}`,
         type: isFollowBack ? "FOLLOW_BACK" : "FOLLOW",
@@ -498,19 +516,18 @@ export async function GET() {
       });
     }
 
-    // Format H: Incoming Likes
+    // Format H: Incoming Likes (Swipes)
     for (const swipe of incomingSwipes) {
-      const swiper = userMap.get(swipe.swiperId);
-      if (!swiper) continue;
+      if (!swipe.swiper) continue;
       notifications.push({
         id: `swipe-like-${swipe.id}`,
         type: "LIKE",
         title: "Menyukai Profil Anda",
-        message: `${swiper.name || "Seorang pengembang"} (${swiper.title || "Pengembang"}) tertarik dengan profil Anda. Geser ke kanan untuk mencocokkan profil!`,
-        actorId: swiper.id,
-        actorName: swiper.name || "Pengembang",
-        actorAvatar: swiper.image || undefined,
-        actorRole: swiper.title || "Pengembang",
+        message: `${swipe.swiper.name || "Seorang pengembang"} (${swipe.swiper.title || "Pengembang"}) tertarik dengan profil Anda. Geser ke kanan untuk mencocokkan profil!`,
+        actorId: swipe.swiper.id,
+        actorName: swipe.swiper.name || "Pengembang",
+        actorAvatar: swipe.swiper.image || undefined,
+        actorRole: swipe.swiper.title || "Pengembang",
         linkUrl: "/matches",
         read: false,
         createdAt: timeAgo(swipe.createdAt),
@@ -520,8 +537,7 @@ export async function GET() {
 
     // Format I: Mutual Matches
     for (const match of mutualMatches) {
-      const partnerId = match.user1Id === currentUserId ? match.user2Id : match.user1Id;
-      const partner = userMap.get(partnerId);
+      const partner = match.user1Id === currentUserId ? match.user2 : match.user1;
       if (!partner) continue;
       notifications.push({
         id: `match-item-${match.id}`,
@@ -541,18 +557,17 @@ export async function GET() {
 
     // Format J: Unread Messages
     for (const msg of unreadMessages) {
-      const sender = userMap.get(msg.senderId);
-      if (!sender) continue;
+      if (!msg.sender) continue;
       notifications.push({
         id: `msg-item-${msg.id}`,
         type: "MESSAGE",
         title: "Pesan Baru",
-        message: `${sender.name || "Rekan"}: "${msg.content.slice(0, 60)}${msg.content.length > 60 ? "..." : ""}"`,
-        actorId: sender.id,
-        actorName: sender.name || "Partner",
-        actorAvatar: sender.image || undefined,
-        actorRole: sender.title || "Developer",
-        linkUrl: `/messages?userId=${sender.id}`,
+        message: `${msg.sender.name || "Rekan"}: "${msg.content.slice(0, 60)}${msg.content.length > 60 ? "..." : ""}"`,
+        actorId: msg.sender.id,
+        actorName: msg.sender.name || "Partner",
+        actorAvatar: msg.sender.image || undefined,
+        actorRole: msg.sender.title || "Developer",
+        linkUrl: `/messages?userId=${msg.sender.id}`,
         read: false,
         createdAt: timeAgo(msg.createdAt),
         timestamp: new Date(msg.createdAt).getTime(),

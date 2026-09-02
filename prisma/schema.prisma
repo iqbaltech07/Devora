@@ -149,6 +149,9 @@ model Project {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@index([authorId])
+  @@index([stage])
+  @@index([createdAt])
   @@map("project")
 }
 
@@ -167,6 +170,7 @@ model ProjectRole {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
+  @@index([projectId])
   @@map("project_role")
 }
 
@@ -183,6 +187,7 @@ model ProjectMilestone {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  @@index([projectId])
   @@map("project_milestone")
 }
 
@@ -200,6 +205,9 @@ model JoinRequest {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  @@index([projectId])
+  @@index([applicantId])
+  @@index([status])
   @@map("join_request")
 }
 
@@ -216,6 +224,9 @@ model Message {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
   @@map("message")
 }
 
@@ -231,6 +242,8 @@ model Swipe {
   swiped      User     @relation("SwipesReceived", fields: [swipedId], references: [id], onDelete: Cascade)
 
   @@unique([swiperId, swipedId]) // Prevent duplicate swipes
+  @@index([swiperId])
+  @@index([swipedId])
   @@map("swipe")
 }
 
@@ -245,6 +258,8 @@ model Match {
   user2       User     @relation("User2Matches", fields: [user2Id], references: [id], onDelete: Cascade)
 
   @@unique([user1Id, user2Id])
+  @@index([user1Id])
+  @@index([user2Id])
   @@map("match")
 }
 
@@ -261,6 +276,7 @@ model Certificate {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  @@index([userId])
   @@map("certificate")
 }
 
@@ -278,6 +294,7 @@ model PortfolioProject {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@index([userId])
   @@map("portfolio_project")
 }
 
@@ -307,6 +324,9 @@ model Post {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([category])
   @@map("post")
 }
 
@@ -319,6 +339,9 @@ model PostLike {
   createdAt DateTime @default(now())
 
   @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+  @@index([createdAt])
   @@map("post_like")
 }
 
@@ -336,6 +359,10 @@ model Comment {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
+  @@index([postId])
+  @@index([authorId])
+  @@index([parentId])
+  @@index([createdAt])
   @@map("comment")
 }
 
@@ -348,6 +375,8 @@ model CommentLike {
   createdAt DateTime @default(now())
 
   @@unique([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
   @@map("comment_like")
 }
 
@@ -360,6 +389,8 @@ model Bookmark {
   createdAt DateTime @default(now())
 
   @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
   @@map("bookmark")
 }
 
@@ -373,6 +404,8 @@ model Story {
   expiresAt DateTime
   createdAt DateTime    @default(now())
 
+  @@index([authorId])
+  @@index([expiresAt])
   @@map("story")
 }
 
@@ -385,6 +418,8 @@ model StoryView {
   viewedAt  DateTime @default(now())
 
   @@unique([storyId, viewerId])
+  @@index([storyId])
+  @@index([viewerId])
   @@map("story_view")
 }
 
@@ -397,5 +432,7 @@ model Follow {
   createdAt   DateTime @default(now())
 
   @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
   @@map("follow")
 }

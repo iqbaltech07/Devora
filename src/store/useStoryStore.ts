@@ -37,8 +37,9 @@ interface StoryState {
   activeStoryIndex: number;
   isLoading: boolean;
   isSubmitting: boolean;
+  lastFetchedAt: number;
 
-  fetchStories: () => Promise<void>;
+  fetchStories: (force?: boolean) => Promise<void>;
   createStory: (mediaUrl?: string, caption?: string) => Promise<boolean>;
   recordView: (storyId: string) => Promise<void>;
   replyStory: (storyId: string, message: string) => Promise<{ success: boolean; receiverId?: string }>;
@@ -48,23 +49,44 @@ interface StoryState {
   prevStory: () => void;
 }
 
+let storyFetchPromise: Promise<void> | null = null;
+
 export const useStoryStore = create<StoryState>((set, get) => ({
   storyGroups: [],
   activeGroupIndex: null,
   activeStoryIndex: 0,
   isLoading: false,
   isSubmitting: false,
+  lastFetchedAt: 0,
 
-  fetchStories: async () => {
-    try {
-      set({ isLoading: true });
-      const res = await fetch("/api/stories");
-      if (!res.ok) return;
-      const data = await res.json();
-      set({ storyGroups: data || [], isLoading: false });
-    } catch {
-      set({ isLoading: false });
+  fetchStories: async (force = false) => {
+    const now = Date.now();
+    if (!force && now - get().lastFetchedAt < 30000 && get().storyGroups.length > 0) {
+      return;
     }
+
+    if (storyFetchPromise) {
+      return storyFetchPromise;
+    }
+
+    storyFetchPromise = (async () => {
+      try {
+        set({ isLoading: true });
+        const res = await fetch("/api/stories");
+        if (!res.ok) {
+          set({ isLoading: false });
+          return;
+        }
+        const data = await res.json();
+        set({ storyGroups: data || [], lastFetchedAt: Date.now(), isLoading: false });
+      } catch {
+        set({ isLoading: false });
+      } finally {
+        storyFetchPromise = null;
+      }
+    })();
+
+    return storyFetchPromise;
   },
 
   createStory: async (mediaUrl, caption) => {

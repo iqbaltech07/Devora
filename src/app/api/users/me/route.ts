@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { calculateProfileCompleteness } from "@/lib/profile-utils";
 
+const githubReposCache = new Map<string, { data: any[]; expiresAt: number }>();
+
 export async function GET() {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -91,34 +93,43 @@ export async function GET() {
           }
         }
 
-        // Fetch top public repos for portfolio evidence
+        // Fetch top public repos for portfolio evidence with in-memory caching
         if (githubUsername) {
-          const reposRes = await fetch(
-            `https://api.github.com/users/${githubUsername}/repos?sort=updated&per_page=6`,
-            {
-              headers: {
-                "User-Agent": "Devora-Platform",
-                Accept: "application/vnd.github.v3+json",
-              },
-              next: { revalidate: 300 },
-            }
-          );
-          if (reposRes.ok) {
-            const rawRepos = await reposRes.json();
-            if (Array.isArray(rawRepos)) {
-              gitRepos = rawRepos.map((r: any) => ({
-                id: `gh-repo-${r.id}`,
-                name: r.name,
-                description: r.description || "No description provided.",
-                language: r.language || "TypeScript",
-                languageColor: getLanguageColor(r.language),
-                starsCount: r.stargazers_count || 0,
-                forksCount: r.forks_count || 0,
-                isPrivate: r.private || false,
-                updatedAt: r.updated_at || new Date().toISOString(),
-                isEvidence: true,
-                url: r.html_url || `https://github.com/${githubUsername}/${r.name}`,
-              }));
+          const now = Date.now();
+          const cached = githubReposCache.get(githubUsername);
+          if (cached && cached.expiresAt > now) {
+            gitRepos = cached.data;
+          } else {
+            const reposRes = await fetch(
+              `https://api.github.com/users/${githubUsername}/repos?sort=updated&per_page=6`,
+              {
+                headers: {
+                  "User-Agent": "Devora-Platform",
+                  Accept: "application/vnd.github.v3+json",
+                },
+              }
+            );
+            if (reposRes.ok) {
+              const rawRepos = await reposRes.json();
+              if (Array.isArray(rawRepos)) {
+                gitRepos = rawRepos.map((r: any) => ({
+                  id: `gh-repo-${r.id}`,
+                  name: r.name,
+                  description: r.description || "No description provided.",
+                  language: r.language || "TypeScript",
+                  languageColor: getLanguageColor(r.language),
+                  starsCount: r.stargazers_count || 0,
+                  forksCount: r.forks_count || 0,
+                  isPrivate: r.private || false,
+                  updatedAt: r.updated_at || new Date().toISOString(),
+                  isEvidence: true,
+                  url: r.html_url || `https://github.com/${githubUsername}/${r.name}`,
+                }));
+                githubReposCache.set(githubUsername, {
+                  data: gitRepos,
+                  expiresAt: now + 5 * 60 * 1000, // 5 mins cache
+                });
+              }
             }
           }
         }

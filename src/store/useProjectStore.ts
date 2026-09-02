@@ -35,7 +35,8 @@ interface ProjectState {
   joinRequests: JoinRequest[];
   isLoading: boolean;
   error: string | null;
-  fetchProjects: () => Promise<void>;
+  lastFetchedAt: number;
+  fetchProjects: (force?: boolean) => Promise<void>;
   createProjectAsync: (project: Omit<Project, "id" | "createdAt">) => Promise<Project>;
   updateProjectAsync: (projectId: string, data: Partial<Project>) => Promise<Project | null>;
   deleteProjectAsync: (projectId: string) => Promise<boolean>;
@@ -71,6 +72,8 @@ interface ProjectState {
 export const INITIAL_PROJECTS: Project[] = [];
 export const INITIAL_JOIN_REQUESTS: JoinRequest[] = [];
 
+let projFetchPromise: Promise<void> | null = null;
+
 export const useProjectStore = create<ProjectState>((set, get) => ({
   projects: INITIAL_PROJECTS,
   selectedProjectId: null,
@@ -94,38 +97,55 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   joinRequests: INITIAL_JOIN_REQUESTS,
   isLoading: false,
   error: null,
+  lastFetchedAt: 0,
 
-  fetchProjects: async () => {
-    set({ isLoading: true, error: null });
-    try {
-      const [projRes, reqRes] = await Promise.all([
-        fetch(`/api/projects?t=${Date.now()}`),
-        fetch(`/api/projects/requests?t=${Date.now()}`),
-      ]);
-
-      if (!projRes.ok) throw new Error("Failed to fetch projects");
-      const projectsData = await projRes.json();
-
-      let requestsData: JoinRequest[] = [];
-      if (reqRes.ok) {
-        requestsData = await reqRes.json();
-      }
-
-      const uniqueProjects = Array.from(
-        new Map((Array.isArray(projectsData) ? projectsData : []).map((p: any) => [p.id, p])).values()
-      );
-      const uniqueRequests = Array.from(
-        new Map((Array.isArray(requestsData) ? requestsData : []).map((r: any) => [r.id, r])).values()
-      );
-
-      set({
-        projects: uniqueProjects,
-        joinRequests: uniqueRequests,
-        isLoading: false,
-      });
-    } catch (err: any) {
-      set({ error: err.message, isLoading: false });
+  fetchProjects: async (force = false) => {
+    const now = Date.now();
+    if (!force && now - get().lastFetchedAt < 15000 && get().projects.length > 0) {
+      return;
     }
+
+    if (projFetchPromise) {
+      return projFetchPromise;
+    }
+
+    projFetchPromise = (async () => {
+      set({ isLoading: true, error: null });
+      try {
+        const [projRes, reqRes] = await Promise.all([
+          fetch(`/api/projects`),
+          fetch(`/api/projects/requests`),
+        ]);
+
+        if (!projRes.ok) throw new Error("Failed to fetch projects");
+        const projectsData = await projRes.json();
+
+        let requestsData: JoinRequest[] = [];
+        if (reqRes.ok) {
+          requestsData = await reqRes.json();
+        }
+
+        const uniqueProjects = Array.from(
+          new Map((Array.isArray(projectsData) ? projectsData : []).map((p: any) => [p.id, p])).values()
+        );
+        const uniqueRequests = Array.from(
+          new Map((Array.isArray(requestsData) ? requestsData : []).map((r: any) => [r.id, r])).values()
+        );
+
+        set({
+          projects: uniqueProjects,
+          joinRequests: uniqueRequests,
+          lastFetchedAt: Date.now(),
+          isLoading: false,
+        });
+      } catch (err: any) {
+        set({ error: err.message, isLoading: false });
+      } finally {
+        projFetchPromise = null;
+      }
+    })();
+
+    return projFetchPromise;
   },
 
   createProjectAsync: async (projectData) => {
