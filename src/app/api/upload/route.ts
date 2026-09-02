@@ -17,6 +17,7 @@ export async function POST(request: Request) {
     if (contentType.includes("multipart/form-data")) {
       const formData = await request.formData();
       const file = formData.get("file") as File | null;
+      const category = (formData.get("category") as string) || "avatars";
 
       if (!file) {
         return NextResponse.json({ error: "No file provided" }, { status: 400 });
@@ -35,7 +36,7 @@ export async function POST(request: Request) {
       const buffer = Buffer.from(bytes);
 
       // Sanitize extension and file name
-      const originalName = file.name || "certificate.png";
+      const originalName = file.name || "image.png";
       const ext = path.extname(originalName).toLowerCase() || ".png";
       const allowedExts = [".png", ".jpg", ".jpeg", ".webp", ".pdf", ".svg"];
 
@@ -46,17 +47,18 @@ export async function POST(request: Request) {
         );
       }
 
+      const safeFolder = category === "certificates" ? "certificates" : "avatars";
       const safeId = `${session.user.id.slice(0, 8)}-${Date.now()}`;
-      const fileName = `cert-${safeId}${ext}`;
+      const fileName = `${safeFolder.slice(0, 4)}-${safeId}${ext}`;
 
-      // Ensure directory exists in public/uploads/certificates
-      const uploadDir = path.join(process.cwd(), "public", "uploads", "certificates");
+      // Ensure directory exists in public/uploads/${safeFolder}
+      const uploadDir = path.join(process.cwd(), "public", "uploads", safeFolder);
       try {
         await fs.mkdir(uploadDir, { recursive: true });
         const filePath = path.join(uploadDir, fileName);
         await fs.writeFile(filePath, buffer);
 
-        const publicUrl = `/uploads/certificates/${fileName}`;
+        const publicUrl = `/uploads/${safeFolder}/${fileName}`;
         return NextResponse.json({
           url: publicUrl,
           fileName: originalName,
@@ -81,7 +83,7 @@ export async function POST(request: Request) {
     if (body.dataUrl) {
       return NextResponse.json({
         url: body.dataUrl,
-        fileName: body.fileName || "certificate.png",
+        fileName: body.fileName || "avatar.png",
       });
     }
 

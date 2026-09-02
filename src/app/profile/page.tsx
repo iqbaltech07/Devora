@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Shell } from "@/components/layout/Shell";
 import { Card } from "@/components/ui/card";
@@ -59,6 +59,9 @@ import {
   Maximize2,
   FileCheck,
   Users,
+  Camera,
+  Image as ImageIcon,
+  Loader2,
 } from "lucide-react";
 import { FollowListModal } from "@/components/social/FollowListModal";
 import { ProfilePageSkeleton } from "@/components/ui/ProfileSkeleton";
@@ -221,6 +224,8 @@ export default function ProfilePage() {
   const [title, setTitle] = useState(currentUser.title || "");
   const [bio, setBio] = useState(currentUser.bio || "");
   const [avatarUrlInput, setAvatarUrlInput] = useState(currentUser.image || currentUser.avatarUrl || "");
+  const avatarFileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [location, setLocation] = useState(currentUser.location || "");
   const [timezone, setTimezone] = useState(currentUser.timezone || "");
   const [availabilityHrs, setAvailabilityHrs] = useState<number>(currentUser.availabilityHrs ?? 10);
@@ -441,6 +446,72 @@ export default function ProfilePage() {
       setTechStack([...techStack, trimmed]);
     }
     setCustomSkillInput("");
+  };
+
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      addToast({
+        title: "Format Tidak Didukung",
+        description: "Harap pilih file gambar (JPG, PNG, WEBP).",
+        type: "error",
+      });
+      return;
+    }
+
+    try {
+      setIsUploadingAvatar(true);
+
+      // 1. Client-side Image Compression (max 800x800, quality 0.85)
+      const { file: compressedFile, dataUrl: compressedDataUrl } = await compressImageFile(file, 800, 800, 0.85);
+
+      // 2. Upload to Server via Multipart FormData
+      const formData = new FormData();
+      formData.append("file", compressedFile);
+      formData.append("category", "avatars");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setAvatarUrlInput(data.url);
+      } else {
+        // Fallback to compressed base64
+        setAvatarUrlInput(compressedDataUrl);
+      }
+
+      addToast({
+        title: "Foto Profil Berhasil Dipilih",
+        description: "Jangan lupa tekan tombol 'Simpan Semua Perubahan' untuk memperbarui profil.",
+        type: "success",
+      });
+    } catch (err: any) {
+      console.error("Avatar upload error:", err);
+      addToast({
+        title: "Gagal Mengunggah Foto",
+        description: "Terjadi kesalahan saat memproses foto profil.",
+        type: "error",
+      });
+    } finally {
+      setIsUploadingAvatar(false);
+      if (avatarFileInputRef.current) {
+        avatarFileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarUrlInput("");
+    addToast({
+      title: "Foto Profil Dihapus",
+      description: "Foto profil telah dihapus. Tekan simpan untuk menerapkan.",
+      type: "info",
+    });
   };
 
   const handleToggleDay = (day: string) => {
@@ -1334,35 +1405,105 @@ export default function ProfilePage() {
                 </Badge>
               </div>
 
-              {/* Avatar Preview & URL Input */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-3.5 sm:p-4 bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-200">
-                <Avatar
-                  src={avatarUrlInput || undefined}
-                  fallback={(name || "DV").slice(0, 2).toUpperCase()}
-                  size="lg"
-                  className="w-16 h-16 sm:w-20 sm:h-20 border-2 border-devora-brand shadow-xs shrink-0"
+              {/* Avatar Preview & Direct File Upload (HP / Desktop Gallery) */}
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-4 sm:p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                {/* Hidden File Input for Image Selection */}
+                <input
+                  ref={avatarFileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  onChange={handleAvatarFileChange}
+                  className="hidden"
                 />
-                <div className="flex-1 space-y-2 w-full min-w-0">
-                  <label className="text-[11px] font-mono uppercase font-bold text-slate-600 block">
-                    URL Foto Profil / Avatar
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="https://images.unsplash.com/... atau https://github.com/username.png"
-                    value={avatarUrlInput}
-                    onChange={(e) => setAvatarUrlInput(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-devora-ink placeholder:text-slate-400 focus:outline-none focus:border-devora-brand"
+
+                {/* Interactive Clickable Avatar with Camera Overlay */}
+                <div
+                  onClick={() => !isUploadingAvatar && avatarFileInputRef.current?.click()}
+                  className="relative group cursor-pointer shrink-0"
+                  title="Klik untuk memilih foto dari galeri HP / file manager"
+                >
+                  <Avatar
+                    src={avatarUrlInput || undefined}
+                    fallback={(name || "DV").slice(0, 2).toUpperCase()}
+                    size="lg"
+                    className="w-20 h-20 sm:w-24 sm:h-24 border-3 border-devora-brand shadow-md group-hover:opacity-90 transition-opacity"
                   />
-                  {currentUser.githubUsername && (
-                    <button
-                      type="button"
-                      onClick={() => setAvatarUrlInput(`https://github.com/${currentUser.githubUsername}.png`)}
-                      className="text-[11px] text-devora-brand font-bold hover:underline inline-flex items-center gap-1"
-                    >
-                      <GitBranch className="w-3.5 h-3.5" />
-                      <span>Gunakan foto GitHub (@{currentUser.githubUsername})</span>
-                    </button>
+
+                  {/* Camera Overlay Icon */}
+                  <div className="absolute inset-0 rounded-full bg-black/40 text-white opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity">
+                    <Camera className="w-5 h-5" />
+                    <span className="text-[9px] font-bold">Ganti</span>
+                  </div>
+
+                  {/* Uploading Spinner Overlay */}
+                  {isUploadingAvatar && (
+                    <div className="absolute inset-0 rounded-full bg-black/70 text-white flex flex-col items-center justify-center gap-1">
+                      <Loader2 className="w-6 h-6 animate-spin text-[#FF5733]" />
+                      <span className="text-[9px] font-bold">Mengunggah...</span>
+                    </div>
                   )}
+
+                  {/* Badge Camera Icon Indicator */}
+                  <span className="absolute bottom-0 right-0 p-1.5 rounded-full bg-[#FF5733] text-white shadow-md border-2 border-white">
+                    <Camera className="w-3.5 h-3.5" />
+                  </span>
+                </div>
+
+                {/* Upload Action Buttons & Information */}
+                <div className="flex-1 space-y-2.5 w-full min-w-0 text-center sm:text-left">
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-extrabold text-[#0F172A]">
+                      Foto Profil Developer
+                    </h3>
+                    <p className="text-[11px] text-[#64748B] leading-relaxed">
+                      Pilih foto formal atau santai terbaikmu dari galeri HP atau desktop. Format: PNG, JPG, WEBP.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={isUploadingAvatar}
+                      onClick={() => avatarFileInputRef.current?.click()}
+                      className="gap-1.5 text-xs font-bold bg-[#0F172A] hover:bg-[#1E293B] text-white rounded-xl shadow-xs"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{avatarUrlInput ? "Ganti Foto Profil" : "Upload dari Galeri / PC"}</span>
+                    </Button>
+
+                    {avatarUrlInput && (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        disabled={isUploadingAvatar}
+                        onClick={handleRemoveAvatar}
+                        className="gap-1.5 text-xs font-bold text-red-600 border-red-200 hover:bg-red-50 rounded-xl"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Hapus Foto</span>
+                      </Button>
+                    )}
+
+                    {currentUser.githubUsername && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAvatarUrlInput(`https://github.com/${currentUser.githubUsername}.png`);
+                          addToast({
+                            title: "Foto GitHub Terpasang",
+                            description: "Foto profil telah disinkronkan dengan akun GitHub.",
+                            type: "success",
+                          });
+                        }}
+                        className="text-[11px] text-devora-brand font-bold hover:underline inline-flex items-center gap-1 px-2 py-1"
+                      >
+                        <GitBranch className="w-3.5 h-3.5" />
+                        <span>Gunakan foto GitHub</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
