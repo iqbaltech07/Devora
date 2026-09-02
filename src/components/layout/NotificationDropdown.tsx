@@ -44,8 +44,14 @@ export function NotificationDropdown() {
   const handleNotificationClick = (notif: NotificationItem) => {
     markAsRead(notif.id);
     setIsOpen(false);
-    if (notif.linkUrl) {
+    if (notif.linkUrl && notif.linkUrl !== "/messages") {
       router.push(notif.linkUrl);
+    } else if (notif.actorId && (notif.type === "MESSAGE" || notif.type === "MATCH" || notif.type === "SYSTEM")) {
+      router.push(`/messages?userId=${notif.actorId}`);
+    } else if (notif.linkUrl) {
+      router.push(notif.linkUrl);
+    } else {
+      router.push("/dashboard");
     }
   };
 

@@ -16,46 +16,7 @@ interface ReviewState {
   };
 }
 
-const INITIAL_REVIEWS: PeerReview[] = [
-  {
-    id: "rev-1",
-    projectId: "proj-devora-1",
-    projectTitle: "Devora",
-    reviewerId: "user-sarah-2",
-    reviewerName: "Sarah Chen",
-    reviewerTitle: "Fullstack Audio Engineer",
-    revieweeId: "user-current-1",
-    revieweeName: "M Iqbal Ferdiansyah",
-    codeQualityRating: 5,
-    communicationRating: 5,
-    reliabilityRating: 5,
-    overallSynergyScore: 96,
-    wouldBuildAgain: "DEFINITELY",
-    endorsementTags: ["Clean Architecture", "Async Master", "Deep TypeScript Guru", "Fast Turnaround"],
-    writtenReview:
-      "Iqbal is one of the most disciplined builders I have collaborated with. The state management architecture and custom design token integration was executed flawlessly with zero slop. Highly recommended as a co-founder or lead builder.",
-    createdAt: "2026-08-28T10:00:00.000Z",
-  },
-  {
-    id: "rev-2",
-    projectId: "proj-resensify-2",
-    projectTitle: "Resensify",
-    reviewerId: "user-current-1",
-    reviewerName: "M Iqbal Ferdiansyah",
-    reviewerTitle: "Senior Fullstack Engineer",
-    revieweeId: "user-alex-1",
-    revieweeName: "Alex Rivera",
-    codeQualityRating: 5,
-    communicationRating: 4,
-    reliabilityRating: 5,
-    overallSynergyScore: 92,
-    wouldBuildAgain: "DEFINITELY",
-    endorsementTags: ["Postgres Wizard", "Redis Streams", "High Reliability"],
-    writtenReview:
-      "Alex delivered the relational schema and Redis caching pipeline ahead of sprint deadline. High rigor on database indexing and SQL query performance.",
-    createdAt: "2026-08-25T14:30:00.000Z",
-  },
-];
+const INITIAL_REVIEWS: PeerReview[] = [];
 
 export const useReviewStore = create<ReviewState>((set, get) => ({
   reviews: INITIAL_REVIEWS,

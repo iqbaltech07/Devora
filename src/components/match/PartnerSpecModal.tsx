@@ -311,8 +311,13 @@ export function PartnerSpecModal() {
                 size="md"
                 className="gap-2 bg-devora-ink text-white hover:bg-devora-ink-soft font-bold"
                 onClick={() => {
+                  const targetId = inspectingCandidate?.id;
                   setInspectingCandidate(null);
-                  window.location.href = "/messages";
+                  if (targetId) {
+                    window.location.href = `/messages?userId=${targetId}`;
+                  } else {
+                    window.location.href = "/messages";
+                  }
                 }}
               >
                 <MessageSquare className="w-4 h-4" />

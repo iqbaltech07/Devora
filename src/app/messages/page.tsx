@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo, Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Shell } from "@/components/layout/Shell";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -77,6 +77,7 @@ interface ConversationItem {
 }
 
 function MessagesContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const queryUserId = searchParams.get("userId") || searchParams.get("targetId");
 
@@ -390,7 +391,10 @@ function MessagesContent() {
                     return (
                       <div
                         key={conv.id}
-                        onClick={() => setActiveConversation(conv.id)}
+                        onClick={() => {
+                          setActiveConversation(conv.id);
+                          router.replace(`/messages?userId=${conv.id}`, { scroll: false });
+                        }}
                         className={cn(
                           "p-3 rounded-2xl cursor-pointer transition-all flex items-start gap-3 text-left relative",
                           isSelected

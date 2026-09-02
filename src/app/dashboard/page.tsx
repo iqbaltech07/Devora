@@ -226,15 +226,19 @@ export default function DashboardPage() {
                   className="bg-white border border-[#E2E8F0] rounded-[24px] p-4 sm:p-5 shadow-xs hover:shadow-md transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-center gap-3.5">
-                    <Avatar
-                      src={candidate.avatarUrl}
-                      fallback={candidate.name.slice(0, 2).toUpperCase()}
-                      size="lg"
-                      className="border border-[#E2E8F0] shrink-0"
-                    />
+                    <Link href={`/profile/${candidate.id}`}>
+                      <Avatar
+                        src={candidate.avatarUrl}
+                        fallback={candidate.name.slice(0, 2).toUpperCase()}
+                        size="lg"
+                        className="border border-[#E2E8F0] shrink-0 hover:border-[#FF5733] transition-colors cursor-pointer"
+                      />
+                    </Link>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-bold text-[#0F172A]">{candidate.name}</h3>
+                        <Link href={`/profile/${candidate.id}`} className="hover:text-[#FF5733] transition-colors">
+                          <h3 className="text-sm font-bold text-[#0F172A]">{candidate.name}</h3>
+                        </Link>
                         <span className="px-2 py-0.5 rounded-full bg-[#FFF1EE] text-[#FF5733] text-[10px] font-bold font-mono">
                           {candidate.matchScore}% Match
                         </span>
@@ -253,7 +257,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <Link href="/find-partner" className="w-full sm:w-auto shrink-0">
+                  <Link href={`/profile/${candidate.id}`} className="w-full sm:w-auto shrink-0">
                     <button
                       type="button"
                       className="w-full sm:w-auto px-4 py-2 rounded-full bg-[#0F172A] hover:bg-[#1E293B] text-white text-xs font-bold shadow-xs transition-all active:scale-95 flex items-center justify-center gap-1.5"

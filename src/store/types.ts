@@ -107,6 +107,9 @@ export interface UserProfile {
 
   certificates?: Certificate[];
   portfolios?: PortfolioProject[];
+  projects?: any[];
+  tags?: string[];
+  primaryStack?: string[];
 }
 
 export interface ProjectRole {
@@ -131,6 +134,7 @@ export interface Project {
   tags: string[];
   roadmap?: ProjectMilestone[];
   createdAt: string;
+  isRecruiting?: boolean;
 }
 
 export interface MatchReason {
@@ -189,7 +193,7 @@ export interface JoinRequest {
   skills: string[];
   hoursPerWeek: number;
   pitchNote: string;
-  status: "PENDING" | "ACCEPTED" | "REJECTED";
+  status: "PENDING" | "ACCEPTED" | "REJECTED" | "CANCELLED";
   createdAt: string;
 }
 

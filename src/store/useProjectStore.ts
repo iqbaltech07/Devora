@@ -37,6 +37,9 @@ interface ProjectState {
   error: string | null;
   fetchProjects: () => Promise<void>;
   createProjectAsync: (project: Omit<Project, "id" | "createdAt">) => Promise<Project>;
+  updateProjectAsync: (projectId: string, data: Partial<Project>) => Promise<Project | null>;
+  deleteProjectAsync: (projectId: string) => Promise<boolean>;
+  toggleProjectRecruitment: (projectId: string, isRecruiting: boolean) => Promise<void>;
   addProject: (project: Omit<Project, "id" | "createdAt">) => void;
   selectProject: (id: string | null) => void;
   updateDraft: (draft: Partial<Project>) => void;
@@ -46,6 +49,8 @@ interface ProjectState {
   clearFilters: () => void;
   toggleBookmarkProject: (projectId: string) => void;
   expressInterest: (projectId: string, roleTitle: string, pitchNote?: string) => Promise<void>;
+  cancelJoinRequest: (requestId: string) => Promise<void>;
+  editJoinRequest: (requestId: string, roleTitle: string, pitchNote: string) => Promise<void>;
   acceptJoinRequest: (requestId: string) => Promise<void>;
   rejectJoinRequest: (requestId: string) => Promise<void>;
   addRoleToDraft: (role: Omit<ProjectRole, "id">) => void;
@@ -63,51 +68,6 @@ interface ProjectState {
   cycleMilestoneStatus: (milestoneId: string) => void;
 }
 
-const INITIAL_ROLES_DEVORA: ProjectRole[] = [
-  {
-    id: "role-1",
-    roleTitle: "Backend Architect",
-    requiredSkills: ["Node.js", "PostgreSQL", "Prisma", "Redis"],
-    hoursPerWeek: 8,
-    responsibilityLevel: "LEAD",
-    urgency: "IMMEDIATE",
-    description: "Design relational data schemas and matching scoring algorithm execution engine.",
-  },
-  {
-    id: "role-2",
-    roleTitle: "AI Integration Engineer",
-    requiredSkills: ["TypeScript", "LLM APIs", "Context Caching"],
-    hoursPerWeek: 6,
-    responsibilityLevel: "CORE_BUILDER",
-    urgency: "NEXT_SPRINT",
-    description: "Build semantic resume and github profile parsing pipeline.",
-  },
-];
-
-const INITIAL_MILESTONES: ProjectMilestone[] = [
-  {
-    id: "m-1",
-    title: "System Blueprint & Token Engine",
-    description: "Design system setup, 5-store Zustand suite, and database schema specification.",
-    targetQuarter: "Q3 2026",
-    status: "COMPLETED",
-  },
-  {
-    id: "m-2",
-    title: "Partner Matching Algorithm Engine",
-    description: "Multi-dimensional scoring logic (Stack overlap + Availability overlap + Goal affinity).",
-    targetQuarter: "Q3 2026",
-    status: "IN_PROGRESS",
-  },
-  {
-    id: "m-3",
-    title: "Async Collaboration Sandbox & Beta Release",
-    description: "Direct messaging, invite workflow, and public beta onboarding.",
-    targetQuarter: "Q4 2026",
-    status: "UPCOMING",
-  },
-];
-
 export const INITIAL_PROJECTS: Project[] = [];
 export const INITIAL_JOIN_REQUESTS: JoinRequest[] = [];
 
@@ -118,9 +78,9 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     title: "",
     description: "",
     stage: "MVP",
-    roles: INITIAL_ROLES_DEVORA,
-    roadmap: INITIAL_MILESTONES,
-    tags: ["Developer Tooling", "SaaS"],
+    roles: [],
+    roadmap: [],
+    tags: [],
   },
   filters: {
     searchQuery: "",
@@ -234,9 +194,9 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         title: "",
         description: "",
         stage: "MVP",
-        roles: INITIAL_ROLES_DEVORA,
-        roadmap: INITIAL_MILESTONES,
-        tags: ["Developer Tooling", "SaaS"],
+        roles: [],
+        roadmap: [],
+        tags: [],
       },
     }),
   setFilters: (filters) =>
@@ -386,6 +346,132 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     } catch (error) {
       console.error("rejectJoinRequest error, rolling back:", error);
       set({ joinRequests: prevRequests });
+    }
+  },
+  cancelJoinRequest: async (requestId) => {
+    const prevRequests = get().joinRequests;
+    // OPTIMISTIC: remove from joinRequests list
+    set((state) => ({
+      joinRequests: state.joinRequests.filter((req) => req.id !== requestId),
+    }));
+
+    try {
+      const res = await fetch("/api/projects/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "CANCEL", requestId }),
+      });
+      if (!res.ok) throw new Error("Failed to cancel join request");
+    } catch (error) {
+      console.error("cancelJoinRequest error, rolling back:", error);
+      set({ joinRequests: prevRequests });
+      throw error;
+    }
+  },
+  editJoinRequest: async (requestId, roleTitle, pitchNote) => {
+    const prevRequests = get().joinRequests;
+    // OPTIMISTIC UPDATE
+    set((state) => ({
+      joinRequests: state.joinRequests.map((req) =>
+        req.id === requestId ? { ...req, roleTitle, pitchNote } : req
+      ),
+    }));
+
+    try {
+      const res = await fetch("/api/projects/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "EDIT", requestId, roleTitle, pitchNote }),
+      });
+      if (!res.ok) throw new Error("Failed to edit join request");
+      const updatedReq = await res.json();
+      set((state) => ({
+        joinRequests: state.joinRequests.map((req) =>
+          req.id === requestId ? updatedReq : req
+        ),
+      }));
+    } catch (error) {
+      console.error("editJoinRequest error, rolling back:", error);
+      set({ joinRequests: prevRequests });
+      throw error;
+    }
+  },
+  toggleProjectRecruitment: async (projectId, isRecruiting) => {
+    const prevProjects = get().projects;
+    // OPTIMISTIC UPDATE
+    set((state) => ({
+      projects: state.projects.map((p) => {
+        if (p.id !== projectId) return p;
+        const currentTags = p.tags || [];
+        let updatedTags = [...currentTags];
+        if (!isRecruiting) {
+          if (!updatedTags.includes("RECRUITMENT_CLOSED")) updatedTags.push("RECRUITMENT_CLOSED");
+        } else {
+          updatedTags = updatedTags.filter((t) => t !== "RECRUITMENT_CLOSED");
+        }
+        return { ...p, isRecruiting, tags: updatedTags };
+      }),
+    }));
+
+    try {
+      const res = await fetch("/api/projects", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: projectId, isRecruiting }),
+      });
+      if (!res.ok) throw new Error("Failed to update project recruitment status");
+      const updated = await res.json();
+      set((state) => ({
+        projects: state.projects.map((p) => (p.id === projectId ? updated : p)),
+      }));
+    } catch (error) {
+      console.error("toggleProjectRecruitment error, rolling back:", error);
+      set({ projects: prevProjects });
+      throw error;
+    }
+  },
+  updateProjectAsync: async (projectId, data) => {
+    const prevProjects = get().projects;
+    // Optimistic update
+    set((state) => ({
+      projects: state.projects.map((p) => (p.id === projectId ? { ...p, ...data } : p)),
+    }));
+
+    try {
+      const res = await fetch("/api/projects", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: projectId, ...data }),
+      });
+      if (!res.ok) throw new Error("Failed to update project");
+      const updated = await res.json();
+      set((state) => ({
+        projects: state.projects.map((p) => (p.id === projectId ? updated : p)),
+      }));
+      return updated;
+    } catch (error) {
+      console.error("updateProjectAsync error, rolling back:", error);
+      set({ projects: prevProjects });
+      return null;
+    }
+  },
+  deleteProjectAsync: async (projectId) => {
+    const prevProjects = get().projects;
+    // Optimistic update
+    set((state) => ({
+      projects: state.projects.filter((p) => p.id !== projectId),
+    }));
+
+    try {
+      const res = await fetch(`/api/projects?id=${projectId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete project");
+      return true;
+    } catch (error) {
+      console.error("deleteProjectAsync error, rolling back:", error);
+      set({ projects: prevProjects });
+      return false;
     }
   },
   addRoleToDraft: (role) =>

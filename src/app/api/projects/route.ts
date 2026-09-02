@@ -56,6 +56,7 @@ export async function GET() {
       stage: p.stage,
       repoUrl: p.repoUrl || undefined,
       tags: p.tags || [],
+      isRecruiting: !p.tags?.includes("RECRUITMENT_CLOSED"),
       roles: p.roles.map((r) => ({
         id: r.id,
         roleTitle: r.roleTitle,
@@ -163,6 +164,7 @@ export async function POST(request: Request) {
       stage: newProject.stage,
       repoUrl: newProject.repoUrl || undefined,
       tags: newProject.tags,
+      isRecruiting: !newProject.tags?.includes("RECRUITMENT_CLOSED"),
       roles: newProject.roles.map((r) => ({
         id: r.id,
         roleTitle: r.roleTitle,
@@ -188,6 +190,147 @@ export async function POST(request: Request) {
     return NextResponse.json(formatted, { status: 201 });
   } catch (error) {
     console.error("POST /api/projects error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+// PATCH: Update project details or toggle recruitment status
+export async function PATCH(request: Request) {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { id, title, description, stage, repoUrl, isRecruiting, tags } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
+    }
+
+    const target = await prisma.project.findUnique({
+      where: { id },
+      include: { author: true, roles: true, roadmap: true },
+    });
+
+    if (!target || target.authorId !== session.user.id) {
+      return NextResponse.json({ error: "Unauthorized or Not Found" }, { status: 403 });
+    }
+
+    // Process tags with recruitment status
+    let updatedTags = tags !== undefined ? [...tags] : [...(target.tags || [])];
+    if (isRecruiting !== undefined) {
+      if (!isRecruiting) {
+        if (!updatedTags.includes("RECRUITMENT_CLOSED")) {
+          updatedTags.push("RECRUITMENT_CLOSED");
+        }
+      } else {
+        updatedTags = updatedTags.filter((t) => t !== "RECRUITMENT_CLOSED");
+      }
+    }
+
+    const updated = await prisma.project.update({
+      where: { id },
+      data: {
+        title: title !== undefined ? title.trim() : undefined,
+        description: description !== undefined ? description.trim() : undefined,
+        stage: stage !== undefined ? stage : undefined,
+        repoUrl: repoUrl !== undefined ? (repoUrl ? repoUrl.trim() : null) : undefined,
+        tags: updatedTags,
+      },
+      include: {
+        author: {
+          select: { id: true, name: true, image: true, title: true },
+        },
+        roles: true,
+        roadmap: true,
+      },
+    });
+
+    // Invalidate Cache
+    try {
+      await redis.del("projects:all");
+    } catch (cacheDelErr) {
+      console.warn("Redis DEL failed:", cacheDelErr);
+    }
+
+    const formatted = {
+      id: updated.id,
+      ownerId: updated.authorId,
+      ownerName: updated.author?.name || session.user.name || "Developer",
+      title: updated.title,
+      description: updated.description,
+      stage: updated.stage,
+      repoUrl: updated.repoUrl || undefined,
+      tags: updated.tags,
+      isRecruiting: !updated.tags?.includes("RECRUITMENT_CLOSED"),
+      roles: updated.roles.map((r) => ({
+        id: r.id,
+        roleTitle: r.roleTitle,
+        requiredSkills: r.requiredSkills || [],
+        hoursPerWeek: r.hoursPerWeek,
+        responsibilityLevel: r.responsibilityLevel as any,
+        urgency: r.urgency as any,
+        description: r.description || "",
+      })),
+      roadmap: updated.roadmap.map((m) => ({
+        id: m.id,
+        title: m.title,
+        description: m.description || "",
+        targetQuarter: m.targetQuarter,
+        status: m.status as any,
+      })),
+      createdAt:
+        updated.createdAt instanceof Date
+          ? updated.createdAt.toISOString()
+          : String(updated.createdAt),
+    };
+
+    return NextResponse.json(formatted);
+  } catch (error) {
+    console.error("PATCH /api/projects error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+// DELETE: Delete a project
+export async function DELETE(request: Request) {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
+    }
+
+    const target = await prisma.project.findUnique({
+      where: { id },
+    });
+
+    if (!target || target.authorId !== session.user.id) {
+      return NextResponse.json({ error: "Unauthorized or Not Found" }, { status: 403 });
+    }
+
+    await prisma.project.delete({
+      where: { id },
+    });
+
+    // Invalidate Cache
+    try {
+      await redis.del("projects:all");
+    } catch (cacheDelErr) {
+      console.warn("Redis DEL failed:", cacheDelErr);
+    }
+
+    return NextResponse.json({ success: true, message: "Proyek berhasil dihapus", id });
+  } catch (error) {
+    console.error("DELETE /api/projects error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

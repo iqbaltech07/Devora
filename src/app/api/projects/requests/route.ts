@@ -246,9 +246,131 @@ export async function POST(request: Request) {
       return NextResponse.json(formatted);
     }
 
+    // Action 3: CANCEL (Applicant cancels their own application)
+    if (action === "CANCEL") {
+      if (!requestId) {
+        return NextResponse.json({ error: "Request ID is required" }, { status: 400 });
+      }
+
+      const reqTarget = await prisma.joinRequest.findUnique({
+        where: { id: requestId },
+      });
+
+      if (!reqTarget || reqTarget.applicantId !== session.user.id) {
+        return NextResponse.json({ error: "Unauthorized or Not Found" }, { status: 403 });
+      }
+
+      await prisma.joinRequest.delete({
+        where: { id: requestId },
+      });
+
+      return NextResponse.json({ success: true, message: "Lamaran berhasil dibatalkan", requestId });
+    }
+
+    // Action 4: EDIT (Applicant updates role or pitchNote for a PENDING application)
+    if (action === "EDIT") {
+      if (!requestId) {
+        return NextResponse.json({ error: "Request ID is required" }, { status: 400 });
+      }
+
+      const reqTarget = await prisma.joinRequest.findUnique({
+        where: { id: requestId },
+      });
+
+      if (!reqTarget || reqTarget.applicantId !== session.user.id) {
+        return NextResponse.json({ error: "Unauthorized or Not Found" }, { status: 403 });
+      }
+
+      if (reqTarget.status !== "PENDING") {
+        return NextResponse.json({ error: "Hanya lamaran berstatus PENDING yang dapat diubah" }, { status: 400 });
+      }
+
+      const updatedReq = await prisma.joinRequest.update({
+        where: { id: requestId },
+        data: {
+          roleTitle: roleTitle || reqTarget.roleTitle,
+          pitchNote: pitchNote !== undefined ? pitchNote : reqTarget.pitchNote,
+        },
+        include: {
+          applicant: {
+            select: {
+              id: true,
+              name: true,
+              title: true,
+              image: true,
+              tags: true,
+              availabilityHrs: true,
+            },
+          },
+          project: {
+            select: {
+              id: true,
+              title: true,
+              authorId: true,
+            },
+          },
+        },
+      });
+
+      const formatted = {
+        id: updatedReq.id,
+        projectId: updatedReq.projectId,
+        projectTitle: updatedReq.project?.title || "Project Opportunity",
+        applicantId: updatedReq.applicantId,
+        applicantName: updatedReq.applicant?.name || session.user.name || "Developer",
+        applicantTitle: updatedReq.applicant?.title || "Software Engineer",
+        applicantAvatarUrl: updatedReq.applicant?.image || undefined,
+        roleTitle: updatedReq.roleTitle,
+        skills: updatedReq.applicant?.tags || [],
+        hoursPerWeek: updatedReq.applicant?.availabilityHrs || 5,
+        pitchNote: updatedReq.pitchNote || "",
+        status: updatedReq.status as "PENDING" | "ACCEPTED" | "REJECTED",
+        createdAt:
+          updatedReq.createdAt instanceof Date
+            ? updatedReq.createdAt.toISOString()
+            : String(updatedReq.createdAt),
+      };
+
+      return NextResponse.json(formatted);
+    }
+
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error) {
     console.error("POST /api/projects/requests error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+// DELETE: Cancel application by requestId query param
+export async function DELETE(request: Request) {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const requestId = searchParams.get("requestId");
+
+    if (!requestId) {
+      return NextResponse.json({ error: "requestId is required" }, { status: 400 });
+    }
+
+    const reqTarget = await prisma.joinRequest.findUnique({
+      where: { id: requestId },
+    });
+
+    if (!reqTarget || reqTarget.applicantId !== session.user.id) {
+      return NextResponse.json({ error: "Unauthorized or Not Found" }, { status: 403 });
+    }
+
+    await prisma.joinRequest.delete({
+      where: { id: requestId },
+    });
+
+    return NextResponse.json({ success: true, message: "Lamaran berhasil dibatalkan", requestId });
+  } catch (error) {
+    console.error("DELETE /api/projects/requests error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
