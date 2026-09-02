@@ -18,7 +18,6 @@ import {
   Rocket,
   Code2,
   FolderKanban,
-  Sparkles,
   Send,
   ExternalLink,
 } from "lucide-react";
@@ -339,7 +338,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
             </div>
           ) : (
             <p className="text-xs text-slate-400 text-center py-2 italic">
-              Belum ada komentar. Jadilah yang pertama memberikan masukan! 🚀
+              Belum ada komentar. Jadilah yang pertama memberikan masukan!
             </p>
           )}
 

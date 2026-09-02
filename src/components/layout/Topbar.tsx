@@ -93,16 +93,6 @@ export function Topbar() {
                 <span>{currentUser.name || "Profil Saya"}</span>
               </Link>
 
-              <Link href="/find-partner">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0F172A] text-white text-xs font-bold shadow-md hover:bg-[#1E293B] hover:scale-[1.02] active:scale-[0.98] transition-all"
-                >
-                  <Flame className="w-3.5 h-3.5 fill-white" />
-                  <span>Ruang Match</span>
-                </button>
-              </Link>
-
               {/* Dedicated Sign Out Button */}
               <button
                 type="button"
@@ -124,13 +114,12 @@ export function Topbar() {
                   Masuk
                 </button>
               </Link>
-              <Link href="/find-partner">
+              <Link href="/signup">
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-[#0F172A] text-white text-xs font-bold shadow-md hover:bg-[#1E293B] hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#0F172A] text-white text-xs font-bold shadow-md hover:bg-[#1E293B] hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
-                  <Flame className="w-3.5 h-3.5 fill-white" />
-                  <span>Find Partner</span>
+                  <span>Mulai Sekarang</span>
                 </button>
               </Link>
             </div>

@@ -592,7 +592,7 @@ function MessagesContent() {
                                     </div>
                                     <div className="space-y-0.5">
                                       <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
-                                        UNDANGAN KOLABORASI PROYEK 🚀
+                                        UNDANGAN KOLABORASI PROYEK
                                       </span>
                                       <p className="text-xs sm:text-sm font-extrabold text-[#FF5733]">
                                         {msg.content}

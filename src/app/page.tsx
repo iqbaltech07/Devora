@@ -11,6 +11,7 @@ import {
   ArrowRight,
   Sparkles,
   Users,
+  User,
   Code2,
   FolderKanban,
   CheckCircle2,
@@ -109,15 +110,15 @@ export default function LandingPage() {
                   href="/profile"
                   className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#E2E8F0] bg-white text-xs font-bold text-[#0F172A] hover:border-[#FF5733] transition-colors shadow-xs"
                 >
-                  <Flame className="w-3.5 h-3.5 text-[#FF5733] fill-[#FF5733]" />
+                  <User className="w-3.5 h-3.5 text-[#FF5733]" />
                   <span>{currentUser.name || "Profil Saya"}</span>
                 </Link>
-                <Link href="/find-partner">
+                <Link href="/dashboard">
                   <button
                     type="button"
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#0F172A] text-white text-xs font-bold shadow-md hover:bg-[#1E293B] hover:scale-[1.02] active:scale-[0.98] transition-all"
                   >
-                    <span>Ruang Match</span>
+                    <span>Buka Feeds</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </Link>
@@ -132,12 +133,12 @@ export default function LandingPage() {
                     Sign in
                   </button>
                 </Link>
-                <Link href="/find-partner">
+                <Link href="/signup">
                   <button
                     type="button"
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#0F172A] text-white text-xs font-bold shadow-md hover:bg-[#1E293B] hover:scale-[1.02] active:scale-[0.98] transition-all"
                   >
-                    <span>Find Partner</span>
+                    <span>Mulai Sekarang</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </Link>
@@ -564,7 +565,7 @@ export default function LandingPage() {
                       Prisma Schema &amp; Redis
                     </p>
                     <span className="text-[9px] text-amber-400 font-bold block">
-                      ⚡ In Progress
+                      In Progress
                     </span>
                   </div>
                   <div className="bg-[#0F172A] p-3 rounded-xl border border-[#334155] space-y-1">
@@ -907,10 +908,10 @@ export default function LandingPage() {
         {/* Platform Badges */}
         <div className="flex items-center justify-center gap-3 pt-4">
           <span className="px-4 py-2 rounded-full bg-white border border-[#E2E8F0] text-xs font-bold text-[#0F172A] shadow-xs">
-            🌐 Web Application
+            Web Application
           </span>
           <span className="px-4 py-2 rounded-full bg-white border border-[#E2E8F0] text-xs font-bold text-[#0F172A] shadow-xs">
-            ⚡ Direct Git Sync
+            Direct Git Sync
           </span>
         </div>
       </section>

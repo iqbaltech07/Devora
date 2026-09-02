@@ -5,6 +5,7 @@ import { useUserStore } from "@/store/useUserStore";
 import { useNotificationStore, NotificationItem } from "@/store/useNotificationStore";
 import { useUiStore } from "@/store/useUiStore";
 import { getSocket } from "@/lib/socket";
+import { playNotificationSound } from "@/lib/sound";
 
 export function useRealtimeNotifications() {
   const { currentUser, isAuthenticated } = useUserStore();
@@ -56,6 +57,7 @@ export function useRealtimeNotifications() {
     // Event: Real-time Notification received
     const handleNewNotification = (payload: NotificationItem) => {
       addNotification(payload);
+      playNotificationSound();
 
       addToast({
         title: payload.title,
@@ -71,9 +73,10 @@ export function useRealtimeNotifications() {
       senderAvatar?: string;
       senderRole?: string;
     }) => {
+      playNotificationSound();
       addNotification({
         type: "LIKE",
-        title: "Menyukai Profil Kamu!",
+        title: "Menyukai Profil Kamu",
         message: `${payload.senderName || "Seorang Developer"} (${payload.senderRole || "Developer"}) baru saja menyukai profilmu! Geser kanan untuk auto-match.`,
         actorId: payload.senderId,
         actorName: payload.senderName,
@@ -83,7 +86,7 @@ export function useRealtimeNotifications() {
       });
 
       addToast({
-        title: "❤️ Seseorang Menyukai Profilmu!",
+        title: "Seseorang Menyukai Profilmu",
         description: `${payload.senderName} (${payload.senderRole || "Developer"}) tertarik berkolaborasi denganmu.`,
         type: "info",
       });

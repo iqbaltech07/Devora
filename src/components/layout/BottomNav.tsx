@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, Flame, MessageSquare, Sparkles, User } from "lucide-react";
+import { Compass, FolderKanban, MessageSquare, Rss, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMatchStore } from "@/store/useMatchStore";
 
 const MOBILE_NAV = [
-  { label: "Feed", href: "/dashboard", icon: Sparkles },
+  { label: "Feeds", href: "/dashboard", icon: Rss },
   { label: "Eksplor", href: "/explore", icon: Compass },
-  { label: "Cari", href: "/find-partner", icon: Flame },
+  { label: "Proyek", href: "/projects", icon: FolderKanban },
   { label: "Pesan", href: "/messages", icon: MessageSquare },
   { label: "Profil", href: "/profile", icon: User },
 ];

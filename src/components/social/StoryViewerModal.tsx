@@ -157,7 +157,7 @@ export function StoryViewerModal() {
               onClick={closeStoryModal}
               className="px-3 py-1.5 rounded-full bg-[#FF5733] text-white font-bold hover:bg-[#D9411E] transition-colors"
             >
-              Balas ke DM 💬
+              Balas ke DM
             </Link>
           </div>
         </div>

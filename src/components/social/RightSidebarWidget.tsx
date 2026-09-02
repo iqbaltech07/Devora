@@ -6,10 +6,8 @@ import { Avatar } from "@/components/ui/avatar";
 import {
   Users,
   FolderKanban,
-  Flame,
+  Tag,
   ArrowRight,
-  Sparkles,
-  Zap,
 } from "lucide-react";
 import { useMatchStore } from "@/store/useMatchStore";
 import { useProjectStore } from "@/store/useProjectStore";
@@ -146,7 +144,7 @@ export function RightSidebarWidget() {
       {/* ─── 3. TOP TAGAR KOMUNITAS ─── */}
       <div className="bg-white border border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-4 sm:p-5 shadow-xs space-y-3">
         <div className="flex items-center gap-2 border-b border-[#E2E8F0] pb-2.5">
-          <Flame className="w-4 h-4 text-[#FF5733] fill-[#FF5733]" />
+          <Tag className="w-4 h-4 text-[#FF5733]" />
           <h3 className="text-xs font-bold uppercase tracking-wider text-[#0F172A]">
             Top Tagar Builder
           </h3>

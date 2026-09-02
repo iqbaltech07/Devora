@@ -14,7 +14,7 @@ function timeAgo(date: Date): string {
   return `${days} hari lalu`;
 }
 
-// GET /api/notifications: Fetch incoming likes, matches, unread messages, and project ACC/application updates
+// GET /api/notifications: Fetch social likes, comments, messages, matches, and project updates
 export async function GET() {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -24,7 +24,59 @@ export async function GET() {
 
     const currentUserId = session.user.id;
 
-    // 1. Fetch incoming likes (Users who swiped RIGHT on currentUser)
+    // 1. Fetch post likes on current user's posts
+    const postLikes = await prisma.postLike.findMany({
+      where: {
+        post: { authorId: currentUserId },
+        userId: { not: currentUserId },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            title: true,
+          },
+        },
+        post: {
+          select: {
+            id: true,
+            content: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 15,
+    });
+
+    // 2. Fetch comments on current user's posts
+    const postComments = await prisma.comment.findMany({
+      where: {
+        post: { authorId: currentUserId },
+        authorId: { not: currentUserId },
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            title: true,
+          },
+        },
+        post: {
+          select: {
+            id: true,
+            content: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 15,
+    });
+
+    // 3. Fetch incoming profile likes (Users who swiped RIGHT on currentUser)
     const incomingSwipes = await prisma.swipe.findMany({
       where: {
         swipedId: currentUserId,
@@ -36,7 +88,7 @@ export async function GET() {
 
     const swiperIds = incomingSwipes.map((s) => s.swiperId);
 
-    // 2. Fetch mutual matches
+    // 4. Fetch mutual matches
     const mutualMatches = await prisma.match.findMany({
       where: {
         OR: [{ user1Id: currentUserId }, { user2Id: currentUserId }],
@@ -49,7 +101,7 @@ export async function GET() {
       m.user1Id === currentUserId ? m.user2Id : m.user1Id
     );
 
-    // 3. Fetch unread messages
+    // 5. Fetch unread messages
     const unreadMessages = await prisma.message.findMany({
       where: {
         receiverId: currentUserId,
@@ -61,7 +113,7 @@ export async function GET() {
 
     const senderIds = unreadMessages.map((m) => m.senderId);
 
-    // 4. Fetch Join Requests where current user is the Applicant (e.g. ACC / Accepted by Project Owner)
+    // 6. Fetch Join Requests where current user is the Applicant (e.g. ACC / Accepted by Project Owner)
     const myApplications = await prisma.joinRequest.findMany({
       where: {
         applicantId: currentUserId,
@@ -87,7 +139,7 @@ export async function GET() {
       take: 15,
     });
 
-    // 5. Fetch Incoming Join Requests where current user is the Project Author
+    // 7. Fetch Incoming Join Requests where current user is the Project Author
     const incomingProjectRequests = await prisma.joinRequest.findMany({
       where: {
         project: {
@@ -135,9 +187,48 @@ export async function GET() {
 
     const userMap = new Map(relatedUsers.map((u) => [u.id, u]));
 
-    const notifications = [];
+    const notifications: any[] = [];
 
-    // Format 1: My Project Applications (ACC / Accepted or Rejected)
+    // Format A: Post Likes
+    for (const pl of postLikes) {
+      if (!pl.user || !pl.post) continue;
+      const snippet = pl.post.content ? `"${pl.post.content.slice(0, 40)}${pl.post.content.length > 40 ? "..." : ""}"` : "postingan kamu";
+      notifications.push({
+        id: `post-like-${pl.id}`,
+        type: "LIKE",
+        title: "Menyukai Postingan Kamu",
+        message: `${pl.user.name || "Developer"} memberikan reaksi pada ${snippet}.`,
+        actorId: pl.user.id,
+        actorName: pl.user.name || "Developer",
+        actorAvatar: pl.user.image || undefined,
+        actorRole: pl.user.title || "Developer",
+        linkUrl: `/dashboard`,
+        read: false,
+        createdAt: timeAgo(pl.createdAt),
+        timestamp: new Date(pl.createdAt).getTime(),
+      });
+    }
+
+    // Format B: Post Comments
+    for (const pc of postComments) {
+      if (!pc.author || !pc.post) continue;
+      notifications.push({
+        id: `post-comment-${pc.id}`,
+        type: "MESSAGE",
+        title: "Komentar Baru di Postingan",
+        message: `${pc.author.name || "Developer"}: "${pc.content.slice(0, 50)}${pc.content.length > 50 ? "..." : ""}"`,
+        actorId: pc.author.id,
+        actorName: pc.author.name || "Developer",
+        actorAvatar: pc.author.image || undefined,
+        actorRole: pc.author.title || "Developer",
+        linkUrl: `/dashboard`,
+        read: false,
+        createdAt: timeAgo(pc.createdAt),
+        timestamp: new Date(pc.createdAt).getTime(),
+      });
+    }
+
+    // Format C: My Project Applications (ACC / Accepted or Rejected)
     for (const app of myApplications) {
       if (!app.project) continue;
       const author = app.project.author;
@@ -146,7 +237,7 @@ export async function GET() {
         notifications.push({
           id: `project-acc-${app.id}`,
           type: "PROJECT_INVITE",
-          title: "🎉 Lamaran Proyek Diterima (ACC)!",
+          title: "Lamaran Proyek Diterima",
           message: `Selamat! Pengajuan kamu untuk peran "${app.roleTitle}" di proyek "${app.project.title}" telah DITERIMA oleh ${author?.name || "Pemilik Proyek"}. Kamu resmi bergabung ke tim!`,
           actorId: author?.id,
           actorName: author?.name || "Pemilik Proyek",
@@ -175,13 +266,13 @@ export async function GET() {
       }
     }
 
-    // Format 2: Incoming Applications for My Authored Projects
+    // Format D: Incoming Applications for My Authored Projects
     for (const req of incomingProjectRequests) {
       if (!req.applicant || !req.project) continue;
       notifications.push({
         id: `project-incoming-${req.id}`,
         type: "PROJECT_INVITE",
-        title: "📥 Lamaran Proyek Masuk!",
+        title: "Lamaran Proyek Masuk",
         message: `${req.applicant.name || "Developer"} (${req.applicant.title || "Developer"}) mengajukan diri untuk peran "${req.roleTitle}" di proyek "${req.project.title}".`,
         actorId: req.applicant.id,
         actorName: req.applicant.name || "Developer",
@@ -194,14 +285,14 @@ export async function GET() {
       });
     }
 
-    // Format 3: Incoming Likes
+    // Format E: Incoming Likes
     for (const swipe of incomingSwipes) {
       const swiper = userMap.get(swipe.swiperId);
       if (!swiper) continue;
       notifications.push({
         id: `swipe-like-${swipe.id}`,
         type: "LIKE",
-        title: "Menyukai Profil Kamu!",
+        title: "Menyukai Profil Kamu",
         message: `${swiper.name || "Seorang developer"} (${swiper.title || "Developer"}) tertarik dengan profilmu. Geser kanan untuk auto-match!`,
         actorId: swiper.id,
         actorName: swiper.name || "Developer",
@@ -214,7 +305,7 @@ export async function GET() {
       });
     }
 
-    // Format 4: Mutual Matches
+    // Format F: Mutual Matches
     for (const match of mutualMatches) {
       const partnerId = match.user1Id === currentUserId ? match.user2Id : match.user1Id;
       const partner = userMap.get(partnerId);
@@ -222,7 +313,7 @@ export async function GET() {
       notifications.push({
         id: `match-item-${match.id}`,
         type: "MATCH",
-        title: "Yeay, Match Baru Terbentuk!",
+        title: "Match Baru Terbentuk",
         message: `Kamu dan ${partner.name || "Partner"} saling menyukai! Mulai obrolan untuk berkolaborasi.`,
         actorId: partner.id,
         actorName: partner.name || "Partner",
@@ -235,7 +326,7 @@ export async function GET() {
       });
     }
 
-    // Format 5: Unread Messages
+    // Format G: Unread Messages
     for (const msg of unreadMessages) {
       const sender = userMap.get(msg.senderId);
       if (!sender) continue;

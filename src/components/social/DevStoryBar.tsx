@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useStoryStore } from "@/store/useStoryStore";
 import { useUserStore } from "@/store/useUserStore";
 import { Avatar } from "@/components/ui/avatar";
-import { Plus, Sparkles, Image as ImageIcon, X } from "lucide-react";
+import { Plus, Clock, Image as ImageIcon, X } from "lucide-react";
 import { StoryViewerModal } from "./StoryViewerModal";
 
 export function DevStoryBar() {
@@ -120,7 +120,7 @@ export function DevStoryBar() {
           >
             <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#FF5733]" />
+                <Clock className="w-4 h-4 text-[#FF5733]" />
                 <h3 className="text-sm font-bold text-[#0F172A]">Bagikan Daily Sprint (24 Jam)</h3>
               </div>
               <button
@@ -176,7 +176,7 @@ export function DevStoryBar() {
                   disabled={isSubmitting || (!caption.trim() && !mediaUrl)}
                   className="px-4 py-2 rounded-full bg-[#FF5733] hover:bg-[#D9411E] text-white text-xs font-bold shadow-xs disabled:opacity-50 transition-all active:scale-95"
                 >
-                  {isSubmitting ? "Membagikan..." : "Posting Story 🚀"}
+                  {isSubmitting ? "Membagikan..." : "Posting Story"}
                 </button>
               </div>
             </form>

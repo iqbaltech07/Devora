@@ -7,8 +7,10 @@ import { Avatar } from "@/components/ui/avatar";
 import {
   Code2,
   Image as ImageIcon,
-  Sparkles,
-  Flame,
+  Terminal,
+  Palette,
+  Users,
+  Lightbulb,
   Tag,
   Rocket,
   X,
@@ -27,10 +29,10 @@ const CODE_LANGUAGES = [
 ];
 
 const POST_CATEGORIES = [
-  { label: "Build In Public", value: "BUILD_IN_PUBLIC", icon: Sparkles },
-  { label: "Showcase UI/UX", value: "SHOWCASE", icon: Flame },
-  { label: "Cari Partner", value: "NEED_PARTNER", icon: Rocket },
-  { label: "Tips & Insight", value: "TECH_TIPS", icon: Code2 },
+  { label: "Build In Public", value: "BUILD_IN_PUBLIC", icon: Terminal },
+  { label: "Showcase UI/UX", value: "SHOWCASE", icon: Palette },
+  { label: "Cari Partner", value: "NEED_PARTNER", icon: Users },
+  { label: "Tips & Insight", value: "TECH_TIPS", icon: Lightbulb },
 ];
 
 export function CreatePostBox() {
@@ -315,7 +317,7 @@ export function CreatePostBox() {
           className="px-5 py-2 rounded-full bg-[#FF5733] hover:bg-[#D9411E] text-white text-xs font-bold shadow-sm shadow-[#FF5733]/30 disabled:opacity-50 transition-all active:scale-95 flex items-center gap-1.5"
         >
           <Rocket className="w-3.5 h-3.5" />
-          <span>{isSubmitting ? "Membagikan..." : "Posting Karya 🚀"}</span>
+          <span>{isSubmitting ? "Membagikan..." : "Posting Karya"}</span>
         </button>
       </div>
     </div>

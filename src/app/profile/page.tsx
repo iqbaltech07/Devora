@@ -529,7 +529,7 @@ export default function ProfilePage() {
     const url = `${window.location.origin}/user/${currentUser.id || "me"}`;
     navigator.clipboard.writeText(url);
     addToast({
-      title: "Link Profil Disalin! 🚀",
+      title: "Link Profil Disalin!",
       description: "Link publik profilmu sudah disalin ke clipboard. Siap dibagikan ke LinkedIn, Twitter/X, atau WhatsApp!",
       type: "success",
     });
@@ -631,7 +631,7 @@ export default function ProfilePage() {
       handleClearCertFile();
       setIsAddingCert(false);
       addToast({
-        title: "Sertifikat Berhasil Ditambahkan 🎉",
+        title: "Sertifikat Berhasil Ditambahkan",
         description: `Sertifikat "${created.title}" berhasil disimpan di profil kamu.`,
         type: "success",
       });
@@ -866,7 +866,7 @@ export default function ProfilePage() {
                   {completeness.isMatchReady ? (
                     <Badge variant="default" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-bold gap-1 py-0.5">
                       <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                      <span>Siap Matching 🚀</span>
+                      <span>Siap Matching</span>
                     </Badge>
                   ) : (
                     <Badge variant="default" className="bg-amber-50 text-amber-700 border-amber-200 text-[10px] font-bold gap-1 py-0.5">
@@ -1627,7 +1627,7 @@ export default function ProfilePage() {
                 {/* Categories */}
                 <div className="space-y-2.5 pt-1">
                   <span className="text-[11px] font-mono text-slate-600 font-bold block uppercase tracking-wide">
-                    ⚡ Pilihan Cepat Stack Populer:
+                    Pilihan Cepat Stack Populer:
                   </span>
                   <div className="space-y-2">
                     {POPULAR_TECH_PRESETS.map((cat) => (

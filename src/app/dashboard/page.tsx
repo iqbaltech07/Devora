@@ -10,23 +10,22 @@ import { CreatePostBox } from "@/components/social/CreatePostBox";
 import { DevPostCard } from "@/components/social/DevPostCard";
 import { RightSidebarWidget } from "@/components/social/RightSidebarWidget";
 import {
-  Sparkles,
-  Flame,
-  Rocket,
-  Code2,
-  Filter,
-  Loader2,
-  FolderKanban,
+  Rss,
   Layers,
+  Terminal,
+  Palette,
+  Users,
+  Lightbulb,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FEED_CATEGORIES = [
   { label: "Semua Postingan", key: "ALL", icon: Layers },
-  { label: "Build In Public", key: "BUILD_IN_PUBLIC", icon: Sparkles },
-  { label: "Showcase UI/UX", key: "SHOWCASE", icon: Flame },
-  { label: "Cari Partner", key: "NEED_PARTNER", icon: Rocket },
-  { label: "Tips & Insight", key: "TECH_TIPS", icon: Code2 },
+  { label: "Build In Public", key: "BUILD_IN_PUBLIC", icon: Terminal },
+  { label: "Showcase UI/UX", key: "SHOWCASE", icon: Palette },
+  { label: "Cari Partner", key: "NEED_PARTNER", icon: Users },
+  { label: "Tips & Insight", key: "TECH_TIPS", icon: Lightbulb },
 ];
 
 export default function DashboardPage() {
@@ -91,7 +90,7 @@ export default function DashboardPage() {
             ) : (
               <div className="bg-white border-2 border-dashed border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-10 sm:p-14 text-center space-y-4 shadow-xs">
                 <div className="w-14 h-14 rounded-full bg-[#FFF1EE] text-[#FF5733] flex items-center justify-center mx-auto shadow-xs">
-                  <Sparkles className="w-7 h-7" />
+                  <Rss className="w-7 h-7" />
                 </div>
                 <div className="space-y-1.5 max-w-sm mx-auto">
                   <h3 className="text-base sm:text-lg font-bold text-[#0F172A]">

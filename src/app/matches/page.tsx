@@ -124,7 +124,7 @@ export default function MatchesPage() {
     try {
       await acceptIncomingLike(candidateId);
       addToast({
-        title: "Match Berhasil! 🎉",
+        title: "Match Berhasil!",
         description: `Kamu dan ${name} sekarang sudah saling cocok! Silakan kirim pesan di ruang obrolan.`,
         type: "success",
       });

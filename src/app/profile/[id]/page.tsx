@@ -131,7 +131,7 @@ export default function PublicProfilePage() {
     if (!profile) return;
     swipeRight(profile.id);
     addToast({
-      title: "Menyukai Partner! 🔥",
+      title: "Menyukai Partner!",
       description: `Kamu menyukai ${profile.name}. Jika saling cocok, kalian akan langsung match!`,
       type: "success",
     });

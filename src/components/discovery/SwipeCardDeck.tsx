@@ -117,7 +117,7 @@ export function SwipeCardDeck() {
     await sendMessageAsync(candidate.id, inviteMsg);
 
     addToast({
-      title: "Undangan Kolaborasi Terkirim! 🚀",
+      title: "Undangan Kolaborasi Terkirim!",
       description: `Undangan proyek "${inviteProjectTitle || "Kolaborasi"}" telah dikirimkan ke chat ${candidate.name}.`,
       type: "success",
     });
@@ -377,7 +377,7 @@ export function SwipeCardDeck() {
                 Mode Undang ke Proyek: &ldquo;{inviteProjectTitle || "Proyek Anda"}&rdquo;
               </span>
               <p className="text-[10px] text-devora-muted leading-tight">
-                Pilih calon partner dan klik tombol &quot;Undang ke Proyek 🚀&quot; untuk mengirimkan undangan langsung ke chat mereka!
+                Pilih calon partner dan klik tombol &quot;Undang ke Proyek&quot; untuk mengirimkan undangan langsung ke chat mereka!
               </p>
             </div>
           </div>
@@ -920,7 +920,7 @@ export function SwipeCardDeck() {
                     className="px-5 py-2.5 rounded-full bg-devora-brand text-white hover:bg-devora-brand-dark flex items-center gap-1.5 font-bold text-xs shadow-lg shadow-devora-brand/35 hover:scale-105 active:scale-95 transition-all duration-150"
                   >
                     <Rocket className="w-4 h-4 fill-white" />
-                    <span>Undang ke Proyek 🚀</span>
+                    <span>Undang ke Proyek</span>
                   </button>
                 ) : (
                   <button
@@ -1243,7 +1243,7 @@ export function SwipeCardDeck() {
                   className="gap-1.5 bg-devora-brand text-white hover:bg-devora-brand-dark font-bold text-xs order-1 sm:order-2 justify-center shadow-md"
                 >
                   <Rocket className="w-3.5 h-3.5" />
-                  <span>Undang ke Proyek 🚀</span>
+                  <span>Undang ke Proyek</span>
                 </Button>
               ) : (
                 <Button

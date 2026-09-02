@@ -8,7 +8,6 @@ import {
   Search,
   Flame,
   MessageSquare,
-  Sparkles,
   Code2,
   Users,
   Compass,
@@ -108,7 +107,7 @@ export default function ExplorePage() {
               <span>Eksplorasi Karya Komunitas</span>
             </div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight">
-              Inspirasi & Portofolio Teman Sejawat ✨
+              Inspirasi & Portofolio Teman Sejawat
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
               Jelajahi karya UI/UX, arsitektur kode, update build in public, dan temukan builder dengan keahlian yang saling melengkapi.
@@ -139,7 +138,7 @@ export default function ExplorePage() {
                 : "bg-white border border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A]"
             )}
           >
-            🔥 Semua Trending
+            Semua Trending
           </button>
           {tags.map((t) => (
             <button
@@ -167,8 +166,8 @@ export default function ExplorePage() {
                   Developer Aktif Minggu Ini
                 </h2>
               </div>
-              <Link href="/find-partner" className="text-xs font-bold text-[#FF5733] hover:underline">
-                Cari Match →
+              <Link href="/find-partner" className="text-xs font-bold text-[#FF5733] hover:underline flex items-center gap-1">
+                <span>Cari Match</span>
               </Link>
             </div>
 
@@ -201,8 +200,8 @@ export default function ExplorePage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-[#0F172A] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#FF5733]" />
-              <span>Showcase Feed</span>
+              <Compass className="w-4 h-4 text-[#FF5733]" />
+              <span>Showcase Karya</span>
             </h2>
             <span className="text-xs text-[#64748B]">{posts.length} Postingan Ditemukan</span>
           </div>
@@ -409,7 +408,7 @@ export default function ExplorePage() {
                   className="px-4 py-2 rounded-full bg-[#FF5733] hover:bg-[#D9411E] text-white text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all"
                 >
                   <Rocket className="w-3.5 h-3.5" />
-                  <span>Ajak Kolaborasi 🚀</span>
+                  <span>Ajak Kolaborasi</span>
                 </button>
               </Link>
             </div>
