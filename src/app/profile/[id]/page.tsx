@@ -28,6 +28,8 @@ import {
   ArrowLeft,
   Sparkles,
   UserPlus,
+  UserCheck,
+  Users,
   Eye,
   X,
   Send,
@@ -36,6 +38,9 @@ import {
   Layers,
 } from "lucide-react";
 import { formatExperienceLabel, formatWorkPreferenceLabel } from "@/lib/profile-utils";
+import { FollowListModal } from "@/components/social/FollowListModal";
+import { playNotificationSound } from "@/lib/sound";
+import { cn } from "@/lib/utils";
 
 export default function PublicProfilePage() {
   const params = useParams();
@@ -51,6 +56,21 @@ export default function PublicProfilePage() {
   const [userPosts, setUserPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Follow State
+  const [followStats, setFollowStats] = useState<{
+    followersCount: number;
+    followingCount: number;
+    isFollowing: boolean;
+    isFollowedBy: boolean;
+  }>({
+    followersCount: 0,
+    followingCount: 0,
+    isFollowing: false,
+    isFollowedBy: false,
+  });
+  const [followModalType, setFollowModalType] = useState<"followers" | "following" | null>(null);
+  const [isTogglingFollow, setIsTogglingFollow] = useState(false);
 
   // Modal States
   const [selectedCertPreview, setSelectedCertPreview] = useState<string | null>(null);
@@ -70,6 +90,19 @@ export default function PublicProfilePage() {
     fetchProjects();
   }, [fetchProfile, fetchMatches, fetchProjects]);
 
+  const loadFollowStats = async () => {
+    if (!userId) return;
+    try {
+      const res = await fetch(`/api/users/${userId}/follow`);
+      if (res.ok) {
+        const data = await res.json();
+        setFollowStats(data);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
   useEffect(() => {
     if (!userId) return;
 
@@ -77,9 +110,10 @@ export default function PublicProfilePage() {
       setIsLoading(true);
       setError(null);
       try {
-        const [profileRes, postsRes] = await Promise.all([
+        const [profileRes, postsRes, followRes] = await Promise.all([
           fetch(`/api/users/${userId}`),
           fetch(`/api/posts?authorId=${userId}`),
+          fetch(`/api/users/${userId}/follow`),
         ]);
 
         if (!profileRes.ok) {
@@ -95,6 +129,11 @@ export default function PublicProfilePage() {
           const postsData = await postsRes.json();
           setUserPosts(postsData.posts || []);
         }
+
+        if (followRes.ok) {
+          const followData = await followRes.json();
+          setFollowStats(followData);
+        }
       } catch (err: any) {
         setError(err.message || "Terjadi kesalahan saat memuat profil.");
       } finally {
@@ -104,6 +143,37 @@ export default function PublicProfilePage() {
 
     loadUserProfile();
   }, [userId]);
+
+  const handleToggleFollow = async () => {
+    if (!profile || isTogglingFollow) return;
+    setIsTogglingFollow(true);
+    try {
+      const res = await fetch(`/api/users/${profile.id}/follow`, { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        setFollowStats((prev) => ({
+          ...prev,
+          isFollowing: data.isFollowing,
+          followersCount: data.followersCount,
+          followingCount: data.followingCount,
+        }));
+        playNotificationSound();
+        addToast({
+          title: data.isFollowing
+            ? data.isFollowBack
+              ? "Mengikuti Balik!"
+              : "Mengikuti Developer"
+            : "Batal Mengikuti",
+          description: data.isFollowing
+            ? `Kamu sekarang mengikuti ${profile.name}. Update karya terbaru akan muncul di feeds kamu.`
+            : `Kamu telah berhenti mengikuti ${profile.name}.`,
+          type: "success",
+        });
+      }
+    } finally {
+      setIsTogglingFollow(false);
+    }
+  };
 
   // Calculate skill overlap with current user
   const mySkills: string[] = currentUser.skills || currentUser.techStack || [];
@@ -279,12 +349,64 @@ export default function PublicProfilePage() {
                     </>
                   )}
                 </div>
+
+                {/* Followers & Following Stats */}
+                <div className="flex items-center gap-4 pt-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setFollowModalType("followers")}
+                    className="flex items-center gap-1.5 text-xs font-bold text-[#0F172A] hover:text-[#FF5733] transition-colors p-1 rounded-lg hover:bg-slate-100"
+                  >
+                    <span className="text-sm font-extrabold text-[#FF5733]">{followStats.followersCount}</span>
+                    <span className="text-slate-500 font-medium">Pengikut</span>
+                  </button>
+
+                  <span className="text-slate-300">•</span>
+
+                  <button
+                    type="button"
+                    onClick={() => setFollowModalType("following")}
+                    className="flex items-center gap-1.5 text-xs font-bold text-[#0F172A] hover:text-[#FF5733] transition-colors p-1 rounded-lg hover:bg-slate-100"
+                  >
+                    <span className="text-sm font-extrabold text-[#0F172A]">{followStats.followingCount}</span>
+                    <span className="text-slate-500 font-medium">Mengikuti</span>
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Quick Action Button Group */}
             {!isOwnProfile && (
               <div className="flex flex-wrap sm:flex-col items-stretch gap-2.5 w-full sm:w-auto shrink-0 z-10">
+                {/* Follow / Following / Follow Back Button */}
+                <Button
+                  onClick={handleToggleFollow}
+                  disabled={isTogglingFollow}
+                  className={cn(
+                    "w-full gap-2 font-bold text-xs shadow-sm transition-all",
+                    followStats.isFollowing
+                      ? "bg-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-[#0F172A] border border-slate-300"
+                      : "bg-[#FF5733] hover:bg-[#D9411E] text-white shadow-sm shadow-[#FF5733]/25"
+                  )}
+                >
+                  {followStats.isFollowing ? (
+                    <>
+                      <UserCheck className="w-4 h-4 text-emerald-600" />
+                      <span>Mengikuti</span>
+                    </>
+                  ) : followStats.isFollowedBy ? (
+                    <>
+                      <UserPlus className="w-4 h-4" />
+                      <span>Ikuti Balik</span>
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4" />
+                      <span>Ikuti Profil</span>
+                    </>
+                  )}
+                </Button>
+
                 <Link href={`/messages?userId=${profile.id}`} className="w-full">
                   <Button className="w-full gap-2 bg-devora-ink hover:bg-devora-ink-soft text-white font-bold text-xs shadow-sm">
                     <MessageSquare className="w-4 h-4" />
@@ -294,9 +416,9 @@ export default function PublicProfilePage() {
 
                 <Button
                   onClick={handleLikePartner}
-                  className="w-full gap-2 bg-devora-brand hover:bg-devora-brand-dark text-white font-bold text-xs shadow-sm"
+                  className="w-full gap-2 bg-slate-100 hover:bg-slate-200 text-[#0F172A] font-bold text-xs border border-slate-200"
                 >
-                  <Flame className="w-4 h-4 fill-white" />
+                  <Flame className="w-4 h-4 text-[#FF5733]" />
                   <span>Sukai Partner</span>
                 </Button>
 
@@ -895,6 +1017,18 @@ export default function PublicProfilePage() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* ─── FOLLOWERS / FOLLOWING LIST MODAL ─── */}
+      {followModalType && profile && (
+        <FollowListModal
+          userId={profile.id}
+          userName={profile.name}
+          type={followModalType}
+          isOpen={Boolean(followModalType)}
+          onClose={() => setFollowModalType(null)}
+          onFollowToggle={loadFollowStats}
+        />
       )}
     </Shell>
   );

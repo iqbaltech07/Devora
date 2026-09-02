@@ -14,7 +14,7 @@ function timeAgo(date: Date): string {
   return `${days} hari lalu`;
 }
 
-// GET /api/notifications: Fetch social likes, comments, messages, matches, and project updates
+// GET /api/notifications: Fetch social likes, comments, follows, messages, matches, and project updates
 export async function GET() {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -24,7 +24,37 @@ export async function GET() {
 
     const currentUserId = session.user.id;
 
-    // 1. Fetch post likes on current user's posts
+    // 1. Fetch incoming follows (who followed currentUser)
+    const incomingFollows = await prisma.follow.findMany({
+      where: {
+        followingId: currentUserId,
+      },
+      include: {
+        follower: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
+
+    // Check mutual follows
+    const followerIds = incomingFollows.map((f) => f.follower.id);
+    const myFollows = await prisma.follow.findMany({
+      where: {
+        followerId: currentUserId,
+        followingId: { in: followerIds },
+      },
+      select: { followingId: true },
+    });
+    const myFollowSet = new Set(myFollows.map((mf) => mf.followingId));
+
+    // 2. Fetch post likes on current user's posts
     const postLikes = await prisma.postLike.findMany({
       where: {
         post: { authorId: currentUserId },
@@ -50,7 +80,7 @@ export async function GET() {
       take: 15,
     });
 
-    // 2. Fetch comments on current user's posts
+    // 3. Fetch comments on current user's posts
     const postComments = await prisma.comment.findMany({
       where: {
         post: { authorId: currentUserId },
@@ -76,7 +106,7 @@ export async function GET() {
       take: 15,
     });
 
-    // 3. Fetch incoming profile likes (Users who swiped RIGHT on currentUser)
+    // 4. Fetch incoming profile likes (Users who swiped RIGHT on currentUser)
     const incomingSwipes = await prisma.swipe.findMany({
       where: {
         swipedId: currentUserId,
@@ -88,7 +118,7 @@ export async function GET() {
 
     const swiperIds = incomingSwipes.map((s) => s.swiperId);
 
-    // 4. Fetch mutual matches
+    // 5. Fetch mutual matches
     const mutualMatches = await prisma.match.findMany({
       where: {
         OR: [{ user1Id: currentUserId }, { user2Id: currentUserId }],
@@ -101,7 +131,7 @@ export async function GET() {
       m.user1Id === currentUserId ? m.user2Id : m.user1Id
     );
 
-    // 5. Fetch unread messages
+    // 6. Fetch unread messages
     const unreadMessages = await prisma.message.findMany({
       where: {
         receiverId: currentUserId,
@@ -113,7 +143,7 @@ export async function GET() {
 
     const senderIds = unreadMessages.map((m) => m.senderId);
 
-    // 6. Fetch Join Requests where current user is the Applicant (e.g. ACC / Accepted by Project Owner)
+    // 7. Fetch Join Requests where current user is the Applicant (e.g. ACC / Accepted by Project Owner)
     const myApplications = await prisma.joinRequest.findMany({
       where: {
         applicantId: currentUserId,
@@ -139,7 +169,7 @@ export async function GET() {
       take: 15,
     });
 
-    // 7. Fetch Incoming Join Requests where current user is the Project Author
+    // 8. Fetch Incoming Join Requests where current user is the Project Author
     const incomingProjectRequests = await prisma.joinRequest.findMany({
       where: {
         project: {
@@ -188,6 +218,28 @@ export async function GET() {
     const userMap = new Map(relatedUsers.map((u) => [u.id, u]));
 
     const notifications: any[] = [];
+
+    // Format 0: Follow & Follow Back Notifications
+    for (const f of incomingFollows) {
+      if (!f.follower) continue;
+      const isFollowBack = myFollowSet.has(f.follower.id);
+      notifications.push({
+        id: `follow-${f.id}`,
+        type: isFollowBack ? "FOLLOW_BACK" : "FOLLOW",
+        title: isFollowBack ? "Mengikuti Kamu Balik" : "Pengikut Baru",
+        message: isFollowBack
+          ? `${f.follower.name || "Developer"} telah mengikuti kamu balik.`
+          : `${f.follower.name || "Developer"} (${f.follower.title || "Developer"}) mulai mengikuti profil kamu.`,
+        actorId: f.follower.id,
+        actorName: f.follower.name || "Developer",
+        actorAvatar: f.follower.image || undefined,
+        actorRole: f.follower.title || "Developer",
+        linkUrl: `/profile/${f.follower.id}`,
+        read: false,
+        createdAt: timeAgo(f.createdAt),
+        timestamp: new Date(f.createdAt).getTime(),
+      });
+    }
 
     // Format A: Post Likes
     for (const pl of postLikes) {

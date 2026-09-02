@@ -58,7 +58,9 @@ import {
   FileText,
   Maximize2,
   FileCheck,
+  Users,
 } from "lucide-react";
+import { FollowListModal } from "@/components/social/FollowListModal";
 import { ProfilePageSkeleton } from "@/components/ui/ProfileSkeleton";
 import { COMPLETE_INDONESIA_REGIONS, GeoLocationGroup } from "@/lib/geo-data";
 import {
@@ -280,9 +282,42 @@ export default function ProfilePage() {
   const [timezonesList, setTimezonesList] = useState<any[]>([]);
   const [citySearch, setCitySearch] = useState("");
 
+  // Follow Stats State
+  const [followStats, setFollowStats] = useState<{
+    followersCount: number;
+    followingCount: number;
+    isFollowing: boolean;
+    isFollowedBy: boolean;
+  }>({
+    followersCount: 0,
+    followingCount: 0,
+    isFollowing: false,
+    isFollowedBy: false,
+  });
+  const [followModalType, setFollowModalType] = useState<"followers" | "following" | null>(null);
+
+  const loadFollowStats = async () => {
+    if (!currentUser.id) return;
+    try {
+      const res = await fetch(`/api/users/${currentUser.id}/follow`);
+      if (res.ok) {
+        const data = await res.json();
+        setFollowStats(data);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
+
+  useEffect(() => {
+    if (currentUser.id) {
+      loadFollowStats();
+    }
+  }, [currentUser.id]);
 
   useEffect(() => {
     if (currentUser.id && !isInitialized) {
@@ -810,17 +845,39 @@ export default function ProfilePage() {
               </button>
             </div>
 
-            {/* Mobile Share Button */}
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={handleCopyProfileLink}
-              className="sm:hidden w-full gap-2 text-xs font-bold bg-white border-devora-border hover:border-devora-brand hover:text-devora-brand py-2 shadow-xs"
-            >
-              <Share2 className="w-3.5 h-3.5 text-devora-brand" />
-              <span>Salin Link Profil Publik</span>
-            </Button>
+            {/* Followers & Following Stats for Own Profile */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setFollowModalType("followers")}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 border border-devora-border rounded-xl text-xs font-bold text-[#0F172A] shadow-xs transition-colors"
+              >
+                <Users className="w-3.5 h-3.5 text-[#FF5733]" />
+                <span className="font-extrabold text-[#FF5733]">{followStats.followersCount}</span>
+                <span className="text-slate-500 font-medium">Pengikut</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFollowModalType("following")}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 border border-devora-border rounded-xl text-xs font-bold text-[#0F172A] shadow-xs transition-colors"
+              >
+                <span className="font-extrabold text-[#0F172A]">{followStats.followingCount}</span>
+                <span className="text-slate-500 font-medium">Mengikuti</span>
+              </button>
+
+              {/* Mobile Share Button */}
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleCopyProfileLink}
+                className="sm:hidden gap-1.5 text-xs font-bold bg-white border-devora-border hover:border-devora-brand hover:text-devora-brand shadow-xs"
+              >
+                <Share2 className="w-3.5 h-3.5 text-devora-brand" />
+                <span>Salin</span>
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -2610,6 +2667,18 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* ─── FOLLOWERS / FOLLOWING LIST MODAL ─── */}
+        {followModalType && currentUser.id && (
+          <FollowListModal
+            userId={currentUser.id}
+            userName={currentUser.name || "Saya"}
+            type={followModalType}
+            isOpen={Boolean(followModalType)}
+            onClose={() => setFollowModalType(null)}
+            onFollowToggle={loadFollowStats}
+          />
         )}
       </div>
     </Shell>
