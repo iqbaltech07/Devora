@@ -937,7 +937,7 @@ export function SwipeCardDeck() {
         ) : (
           /* Empty Deck State */
           <div className="absolute inset-x-0 inset-y-2 bg-devora-surface rounded-container flex flex-col items-center justify-center p-6 text-center space-y-4 shadow-sm border-2 border-dashed border-devora-border">
-            <div className="w-13 h-13 rounded-full bg-devora-surface-strong flex items-center justify-center text-devora-brand shadow-xs">
+            <div className="w-14 h-14 rounded-full bg-devora-surface-strong flex items-center justify-center text-devora-brand shadow-xs">
               <CheckCircle2 className="w-7 h-7 text-devora-brand" />
             </div>
 

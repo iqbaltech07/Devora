@@ -61,22 +61,25 @@ export function DevStoryBar() {
   return (
     <>
       <div className="w-full bg-white border border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-3 sm:p-4 shadow-xs overflow-hidden">
-        <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto no-scrollbar py-1">
+        <div className="flex items-center gap-3.5 sm:gap-4 overflow-x-auto no-scrollbar py-1">
           {/* 1. Add My Story Button */}
-          <div className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group" onClick={() => setIsCreateModalOpen(true)}>
-            <div className="relative">
+          <div
+            className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group"
+            onClick={() => setIsCreateModalOpen(true)}
+          >
+            <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center shrink-0">
               <Avatar
                 src={myAvatar}
                 fallback={currentUser?.name ? currentUser.name.slice(0, 2).toUpperCase() : "ME"}
-                size="md"
-                className="w-13 h-13 sm:w-14 sm:h-14 border-2 border-[#E2E8F0] group-hover:border-[#FF5733] transition-colors"
+                shape="circle"
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-slate-200 group-hover:border-[#FF5733] transition-colors shadow-xs"
               />
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#FF5733] text-white flex items-center justify-center border-2 border-white shadow-xs group-hover:scale-110 transition-transform">
+              <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-[#FF5733] text-white flex items-center justify-center border-2 border-white shadow-xs group-hover:scale-110 transition-transform z-10">
                 <Plus className="w-3 h-3 stroke-[3]" />
               </div>
             </div>
-            <span className="text-[11px] font-bold text-[#0F172A] truncate max-w-[64px]">
-              Cerita Kamu
+            <span className="text-[11px] font-bold text-[#0F172A] truncate max-w-[64px] text-center">
+              Cerita Anda
             </span>
           </div>
 
@@ -88,15 +91,17 @@ export function DevStoryBar() {
                 className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group"
                 onClick={() => openStoryModal(groupIdx, 0)}
               >
-                <div className="p-0.5 rounded-full bg-gradient-to-tr from-[#FF5733] via-amber-500 to-[#FF5733] group-hover:scale-105 transition-transform shadow-xs">
-                  <Avatar
-                    src={group.author.avatarUrl}
-                    fallback={group.author.name.slice(0, 2).toUpperCase()}
-                    size="md"
-                    className="w-12 h-12 sm:w-13 sm:h-13 border-2 border-white"
-                  />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-[#FF5733] via-amber-500 to-[#FF5733] group-hover:scale-105 transition-transform shadow-xs shrink-0 flex items-center justify-center">
+                  <div className="w-full h-full rounded-full bg-white p-[2px] flex items-center justify-center overflow-hidden">
+                    <Avatar
+                      src={group.author.avatarUrl}
+                      fallback={group.author.name.slice(0, 2).toUpperCase()}
+                      shape="circle"
+                      className="w-full h-full rounded-full border-0 object-cover"
+                    />
+                  </div>
                 </div>
-                <span className="text-[11px] font-semibold text-[#475569] group-hover:text-[#0F172A] truncate max-w-[68px]">
+                <span className="text-[11px] font-semibold text-[#475569] group-hover:text-[#0F172A] truncate max-w-[68px] text-center">
                   {group.author.name.split(" ")[0]}
                 </span>
               </div>

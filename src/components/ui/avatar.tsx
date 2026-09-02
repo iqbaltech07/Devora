@@ -8,6 +8,7 @@ export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   alt?: string;
   fallback?: string;
   size?: "sm" | "md" | "lg";
+  shape?: "rounded" | "circle";
 }
 
 export function Avatar({
@@ -15,6 +16,7 @@ export function Avatar({
   alt = "User avatar",
   fallback = "DEV",
   size = "md",
+  shape = "rounded",
   className,
   ...props
 }: AvatarProps) {
@@ -30,10 +32,13 @@ export function Avatar({
     lg: "w-12 h-12 text-base",
   };
 
+  const isCircle = shape === "circle" || className?.includes("rounded-full");
+
   return (
     <div
       className={cn(
-        "relative inline-flex items-center justify-center rounded-button overflow-hidden border border-devora-border bg-devora-surface-strong font-mono font-medium text-devora-ink select-none",
+        "relative inline-flex items-center justify-center shrink-0 aspect-square overflow-hidden border border-devora-border bg-devora-surface-strong font-mono font-medium text-devora-ink select-none",
+        isCircle ? "rounded-full" : "rounded-button",
         sizeStyles[size],
         className
       )}
@@ -45,7 +50,7 @@ export function Avatar({
           src={src}
           alt={alt}
           onError={() => setHasError(true)}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover block"
         />
       ) : (
         <span>{fallback}</span>
