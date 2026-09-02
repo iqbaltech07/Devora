@@ -45,7 +45,7 @@ export function Navigation({ className }: { className?: string }) {
             <Icon className={cn("w-3.5 h-3.5", isActive ? "text-[#FF5733]" : "text-[#64748B]")} />
             <span>{item.label}</span>
             {hasBadge && (
-              <span className="ml-0.5 px-1.5 py-0.2 text-[10px] font-bold bg-rose-500 text-white rounded-full leading-none animate-pulse">
+              <span className="ml-0.5 px-1.5 py-0.5 text-[10px] font-bold bg-[#FF5733] text-white rounded-full leading-none shadow-xs">
                 {incomingLikes.length}
               </span>
             )}

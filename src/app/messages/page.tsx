@@ -32,6 +32,7 @@ import {
   Sparkles,
   ExternalLink,
   MapPin,
+  ArrowLeft,
 } from "lucide-react";
 import { ChatPageSkeleton } from "@/components/ui/ChatSkeleton";
 import { cn } from "@/lib/utils";
@@ -107,6 +108,7 @@ function MessagesContent() {
   const [activeTab, setActiveTab] = useState<"CHATS" | "INVITATIONS">("CHATS");
   const [inputText, setInputText] = useState("");
   const [directPartner, setDirectPartner] = useState<ConversationItem | null>(null);
+  const [mobileView, setMobileView] = useState<"ROSTER" | "CHAT">(queryUserId ? "CHAT" : "ROSTER");
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -131,6 +133,7 @@ function MessagesContent() {
   useEffect(() => {
     if (!queryUserId) return;
     setActiveConversation(queryUserId);
+    setMobileView("CHAT");
 
     const exists = matchedCandidates.find((c) => c.id === queryUserId);
     if (exists) {
@@ -347,11 +350,14 @@ function MessagesContent() {
         {isLoadingMatches && conversations.length === 0 ? (
           <ChatPageSkeleton />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-12 bg-white border border-[#E2E8F0] rounded-[24px] overflow-hidden shadow-sm h-[740px]">
+          <div className="flex flex-col md:grid md:grid-cols-12 bg-white border border-[#E2E8F0] rounded-2xl md:rounded-[24px] overflow-hidden shadow-sm h-[calc(100dvh-130px)] min-h-[580px] md:h-[750px]">
             {/* ─── LEFT SIDEBAR (CHATS & INVITATIONS ROSTER) ─── */}
-            <div className="md:col-span-5 lg:col-span-4 border-r border-[#E2E8F0] flex flex-col bg-[#FAF9F5]/40 h-full overflow-hidden">
+            <div className={cn(
+              "md:col-span-5 lg:col-span-4 border-r border-[#E2E8F0] flex flex-col bg-[#FAF9F5]/40 h-full overflow-hidden",
+              mobileView === "ROSTER" ? "flex flex-1" : "hidden md:flex"
+            )}>
               {/* Search Bar Header */}
-              <div className="p-4 pb-2 space-y-3 shrink-0">
+              <div className="p-3.5 sm:p-4 pb-2 space-y-3 shrink-0">
                 <div className="relative">
                   <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -393,6 +399,7 @@ function MessagesContent() {
                         key={conv.id}
                         onClick={() => {
                           setActiveConversation(conv.id);
+                          setMobileView("CHAT");
                           router.replace(`/messages?userId=${conv.id}`, { scroll: false });
                         }}
                         className={cn(
@@ -461,12 +468,28 @@ function MessagesContent() {
             </div>
 
             {/* ─── RIGHT MAIN CHAT AREA ─── */}
-            <div className="md:col-span-7 lg:col-span-8 flex flex-col h-full bg-white overflow-hidden">
+            <div className={cn(
+              "md:col-span-7 lg:col-span-8 flex flex-col h-full bg-white overflow-hidden",
+              mobileView === "CHAT" ? "flex flex-1" : "hidden md:flex"
+            )}>
               {activePartner ? (
                 <>
                   {/* Active Header */}
-                  <div className="p-3.5 sm:p-4 border-b border-[#E2E8F0] bg-white flex items-center justify-between gap-3 shrink-0">
-                    <div className="flex items-center gap-3">
+                  <div className="p-3 sm:p-4 border-b border-[#E2E8F0] bg-white flex items-center justify-between gap-2 sm:gap-3 shrink-0">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                      {/* Mobile Back Button to Roster */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMobileView("ROSTER");
+                          router.replace("/messages", { scroll: false });
+                        }}
+                        className="md:hidden p-1.5 -ml-1 text-[#0F172A] hover:bg-[#F1F5F9] rounded-full transition-colors shrink-0"
+                        title="Kembali ke Daftar Obrolan"
+                      >
+                        <ArrowLeft className="w-5 h-5" />
+                      </button>
+
                       <div className="relative shrink-0">
                         <Avatar
                           src={activePartner.avatarUrl}
@@ -479,29 +502,38 @@ function MessagesContent() {
                         )}
                       </div>
 
-                      <div className="space-y-0.5">
-                        <h3 className="text-xs sm:text-sm font-bold text-[#0F172A]">
+                      <div className="space-y-0.5 min-w-0">
+                        <h3 className="text-xs sm:text-sm font-bold text-[#0F172A] truncate">
                           {activePartner.name}
                         </h3>
-                        <div className="flex items-center gap-1.5 text-[11px]">
+                        <div className="flex items-center gap-1.5 text-[11px] truncate">
                           {activePartnerPresence.isTyping ? (
                             <span className="font-semibold text-[#FF5733] animate-pulse">Sedang mengetik...</span>
                           ) : isPartnerOnline ? (
                             <>
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                               <span className="font-semibold text-emerald-600">Online</span>
                             </>
                           ) : (
                             <span className="text-[#64748B]">{formatLastSeen(activePartnerPresence.lastSeen)}</span>
                           )}
-                          <span className="text-[#94A3B8]">•</span>
-                          <span className="text-[#64748B]">{activePartner.title}</span>
+                          <span className="text-[#94A3B8] shrink-0">•</span>
+                          <span className="text-[#64748B] truncate">{activePartner.title}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Right Top Header Actions */}
-                    <div className="flex items-center gap-1 text-[#64748B]">
+                    <div className="flex items-center gap-1 text-[#64748B] shrink-0">
+                      <Link href={`/profile/${activePartner.id}`}>
+                        <button
+                          type="button"
+                          title="Lihat Profil Lengkap"
+                          className="px-2.5 py-1 text-xs font-bold rounded-full border border-[#E2E8F0] hover:border-[#FF5733] text-[#0F172A] hover:text-[#FF5733] transition-colors"
+                        >
+                          Profil
+                        </button>
+                      </Link>
                       <Link href={`/find-partner?roles=${encodeURIComponent(activePartner.title)}`}>
                         <button
                           type="button"

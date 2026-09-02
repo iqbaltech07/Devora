@@ -109,7 +109,7 @@ export default function LandingPage() {
                   href="/profile"
                   className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#E2E8F0] bg-white text-xs font-bold text-[#0F172A] hover:border-[#FF5733] transition-colors shadow-xs"
                 >
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <Flame className="w-3.5 h-3.5 text-[#FF5733] fill-[#FF5733]" />
                   <span>{currentUser.name || "Profil Saya"}</span>
                 </Link>
                 <Link href="/find-partner">

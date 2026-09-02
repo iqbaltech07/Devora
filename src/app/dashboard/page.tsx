@@ -51,13 +51,12 @@ export default function DashboardPage() {
     <Shell>
       <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
         {/* ─── 1. HERO GREETING BANNER ─── */}
-        <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] p-6 sm:p-8 text-white shadow-xl">
-          {/* Ambient Glows */}
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#FF5733]/25 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-[24px] bg-[#0F172A] text-white p-5 sm:p-8 shadow-sm">
+          {/* Subtle Ambient Glow */}
+          <div className="absolute top-0 right-0 w-72 h-72 bg-[#FF5733]/15 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
 
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5 sm:gap-6">
+            <div className="flex items-start sm:items-center gap-3.5 sm:gap-4">
               <Avatar
                 src={
                   currentUser.image ||
@@ -68,25 +67,25 @@ export default function DashboardPage() {
                 }
                 fallback={currentUser.name ? currentUser.name.slice(0, 2).toUpperCase() : "DV"}
                 size="lg"
-                className="w-16 h-16 border-2 border-white/20 shadow-lg"
+                className="w-14 h-14 sm:w-16 sm:h-16 border-2 border-white/20 shadow-lg shrink-0 mt-0.5 sm:mt-0"
               />
-              <div className="space-y-1">
-                <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-medium text-white/90">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Developer Workspace</span>
+              <div className="space-y-1 min-w-0">
+                <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] font-semibold text-white">
+                  <Sparkles className="w-3.5 h-3.5 text-[#FF5733]" />
+                  <span>Sistem Aktif & Terhubung</span>
                 </div>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight">
+                <h1 className="text-lg sm:text-2xl md:text-3xl font-extrabold tracking-tight truncate">
                   Halo, {currentUser.name || "Developer"}! 👋
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-300">
+                <p className="text-xs sm:text-sm text-slate-300 line-clamp-2">
                   {currentUser.title || "Siap menemukan partner ngoding dan bangun proyek impianmu hari ini?"}
                 </p>
               </div>
             </div>
 
             {/* Quick Action CTA Buttons */}
-            <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
-              <Link href="/find-partner" className="flex-1 sm:flex-initial">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 w-full sm:w-auto">
+              <Link href="/find-partner" className="w-full sm:w-auto">
                 <button
                   type="button"
                   className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#FF5733] hover:bg-[#D9411E] text-white text-xs font-bold shadow-md shadow-[#FF5733]/30 flex items-center justify-center gap-2 transition-all active:scale-95"
@@ -96,7 +95,7 @@ export default function DashboardPage() {
                 </button>
               </Link>
 
-              <Link href="/projects/new" className="flex-1 sm:flex-initial">
+              <Link href="/projects/new" className="w-full sm:w-auto">
                 <button
                   type="button"
                   className="w-full sm:w-auto px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all"

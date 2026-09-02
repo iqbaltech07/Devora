@@ -750,9 +750,9 @@ export default function ProfilePage() {
         <div className="space-y-3 border-b border-devora-border pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-devora-brand/10 border border-devora-brand/20">
-                <span className="w-2 h-2 rounded-full bg-devora-brand animate-pulse" />
-                <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-devora-brand-dark">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-devora-surface border border-devora-border">
+                <Sparkles className="w-3.5 h-3.5 text-[#FF5733]" />
+                <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-devora-ink">
                   Pengaturan Profil Developer
                 </span>
               </div>

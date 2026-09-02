@@ -49,6 +49,7 @@ import {
   Check,
   MapPin,
   Sparkles,
+  Zap,
 } from "lucide-react";
 import { ProjectBoardSkeletonList } from "@/components/ui/ProjectCardSkeleton";
 import { cn } from "@/lib/utils";
@@ -873,14 +874,14 @@ export default function ProjectsPage() {
                         <div className="flex flex-wrap items-center gap-2">
                           {/* RECRUITMENT STATUS BADGE */}
                           {isRecruiting ? (
-                            <Badge variant="default" className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 text-[10px] font-bold gap-1 py-0.5 px-2">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            <Badge variant="brand" className="text-[10px] font-bold gap-1.5 py-0.5 px-2.5">
+                              <Zap className="w-3 h-3 fill-white text-white" />
                               <span>Merekrut Kolaborator</span>
                             </Badge>
                           ) : (
-                            <Badge variant="default" className="bg-slate-200 text-slate-700 border-slate-300 text-[10px] font-bold gap-1 py-0.5 px-2">
+                            <Badge variant="outline" className="bg-slate-100 text-slate-600 border-slate-300 text-[10px] font-bold gap-1.5 py-0.5 px-2.5">
                               <Lock className="w-3 h-3 text-slate-500" />
-                              <span>Rekrutmen Ditutup (Posisi Terpenuhi)</span>
+                              <span>Rekrutmen Ditutup</span>
                             </Badge>
                           )}
 
@@ -1917,25 +1918,25 @@ export default function ProjectsPage() {
               )}
 
               {/* Footer Modal Actions */}
-              <div className="flex items-center justify-between gap-2 pt-3 border-t border-devora-border">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-3 border-t border-devora-border">
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
                   onClick={() => handleRejectApplicant(inspectingRequest)}
-                  className="text-xs text-red-600 hover:bg-red-500/10 border-red-200 gap-1 font-semibold"
+                  className="text-xs text-red-600 hover:bg-red-500/10 border-red-200 gap-1 font-semibold justify-center order-3 sm:order-1"
                 >
                   <UserX className="w-3.5 h-3.5" />
                   <span>Tolak Lamaran</span>
                 </Button>
 
-                <div className="flex items-center gap-2">
-                  <Link href={`/messages?userId=${inspectingRequest.applicantId}`}>
+                <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 order-1 sm:order-2">
+                  <Link href={`/messages?userId=${inspectingRequest.applicantId}`} className="flex-1 sm:flex-initial">
                     <Button
                       type="button"
                       variant="secondary"
                       size="sm"
-                      className="text-xs font-bold gap-1 bg-devora-surface border-devora-border hover:border-devora-ink text-devora-ink"
+                      className="w-full sm:w-auto text-xs font-bold gap-1 bg-devora-surface border-devora-border hover:border-devora-ink text-devora-ink justify-center"
                     >
                       <MessageSquare className="w-3.5 h-3.5" />
                       <span>Chat Langsung</span>
@@ -1946,7 +1947,7 @@ export default function ProjectsPage() {
                     type="button"
                     size="sm"
                     onClick={() => handleAcceptApplicant(inspectingRequest)}
-                    className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-1.5 shadow-md"
+                    className="flex-1 sm:flex-initial text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-1.5 shadow-md justify-center"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Terima Partner (ACC)</span>

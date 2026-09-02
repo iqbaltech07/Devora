@@ -237,8 +237,8 @@ export default function PublicProfilePage() {
                     </Badge>
                   )}
                   {profile.profileCompleteness && profile.profileCompleteness >= 80 && (
-                    <Badge variant="default" className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30 text-[11px] font-bold gap-1 py-0.5 px-2">
-                      <ShieldCheck className="w-3.5 h-3.5" />
+                    <Badge variant="brand" className="text-[11px] font-bold gap-1 py-0.5 px-2">
+                      <ShieldCheck className="w-3.5 h-3.5 text-white" />
                       <span>Terverifikasi</span>
                     </Badge>
                   )}
@@ -501,7 +501,7 @@ export default function PublicProfilePage() {
                       <Badge
                         key={dIdx}
                         variant="default"
-                        className="text-[10px] py-0 px-2 bg-emerald-500/10 text-emerald-700 border-emerald-500/20 font-bold"
+                        className="text-[10px] py-0 px-2 bg-devora-surface-strong text-devora-ink border-devora-border font-bold"
                       >
                         {day}
                       </Badge>

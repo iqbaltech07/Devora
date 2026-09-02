@@ -1221,12 +1221,13 @@ export function SwipeCardDeck() {
             </div>
 
             {/* Modal Actions */}
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-devora-border">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-3 border-t border-devora-border">
               <Button
                 type="button"
                 variant="secondary"
                 size="sm"
                 onClick={() => setInspectingCandidate(null)}
+                className="order-2 sm:order-1 justify-center"
               >
                 Tutup
               </Button>
@@ -1239,7 +1240,7 @@ export function SwipeCardDeck() {
                     setInspectingCandidate(null);
                     handleInviteCandidate(cand);
                   }}
-                  className="gap-1.5 bg-devora-brand text-white hover:bg-devora-brand-dark font-bold text-xs"
+                  className="gap-1.5 bg-devora-brand text-white hover:bg-devora-brand-dark font-bold text-xs order-1 sm:order-2 justify-center shadow-md"
                 >
                   <Rocket className="w-3.5 h-3.5" />
                   <span>Undang ke Proyek 🚀</span>
@@ -1254,7 +1255,7 @@ export function SwipeCardDeck() {
                     swipeRight(cand.id);
                     router.push(`/messages?userId=${cand.id}`);
                   }}
-                  className="gap-1.5 bg-devora-brand text-white hover:bg-devora-brand-dark font-bold text-xs"
+                  className="gap-1.5 bg-devora-brand text-white hover:bg-devora-brand-dark font-bold text-xs order-1 sm:order-2 justify-center shadow-md"
                 >
                   <Heart className="w-3.5 h-3.5 fill-white" />
                   <span>Match & Kirim Pesan</span>

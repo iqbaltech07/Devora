@@ -208,7 +208,7 @@ export default function MatchesPage() {
             <Heart className={cn("w-4 h-4", activeMainTab === "LIKES_RECEIVED" ? "text-rose-500 fill-rose-500" : "text-rose-400")} />
             <span>Menyukai Kamu</span>
             {uniqueIncomingLikes.length > 0 ? (
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-rose-500 text-white font-bold animate-pulse">
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-[#FF5733] text-white font-bold shadow-xs">
                 {uniqueIncomingLikes.length}
               </span>
             ) : (
@@ -344,21 +344,21 @@ export default function MatchesPage() {
                     </div>
 
                     {/* Bottom Action buttons */}
-                    <div className="pt-3 border-t border-devora-border flex items-center justify-between gap-2">
+                    <div className="pt-3 border-t border-devora-border flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <Button
                         variant="secondary"
                         size="sm"
-                        className="text-xs gap-1.5"
+                        className="w-full sm:w-auto text-xs gap-1.5 justify-center"
                         onClick={() => setInspectingCandidate(candidate)}
                       >
                         <Info className="w-3.5 h-3.5 text-devora-brand" />
                         <span>Lihat Spec Lengkap</span>
                       </Button>
 
-                      <Link href={`/messages?userId=${candidate.id}`}>
+                      <Link href={`/messages?userId=${candidate.id}`} className="w-full sm:w-auto">
                         <Button
                           size="sm"
-                          className="text-xs gap-1.5 bg-devora-brand text-white hover:bg-devora-brand-dark font-bold shadow-xs"
+                          className="w-full sm:w-auto text-xs gap-1.5 bg-devora-brand text-white hover:bg-devora-brand-dark font-bold shadow-xs justify-center"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
                           <span>Sapa & Ajak Ngobrol</span>

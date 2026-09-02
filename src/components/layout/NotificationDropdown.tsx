@@ -15,6 +15,7 @@ import {
   X,
   ArrowRight,
   Sparkles,
+  Radio,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -79,8 +80,8 @@ export function NotificationDropdown() {
 
         {/* Unread Counter Badge */}
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 px-1 bg-[#FF5733] text-white text-[10px] font-bold font-mono rounded-full flex items-center justify-center shadow-md animate-pulse">
-            {unreadCount}
+          <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 px-1 bg-[#FF5733] text-white text-[10px] font-bold font-mono rounded-full flex items-center justify-center shadow-md">
+            {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
       </button>
@@ -105,8 +106,8 @@ export function NotificationDropdown() {
 
               <div className="flex items-center gap-2">
                 {/* Live Realtime Status Pill */}
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-[9px] font-semibold text-emerald-700">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FAF9F5] border border-[#E2E8F0] text-[9px] font-bold text-[#0F172A]">
+                  <Radio className="w-3 h-3 text-[#FF5733]" />
                   <span>Realtime</span>
                 </div>
 
