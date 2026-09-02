@@ -23,7 +23,11 @@ interface NotificationState {
   unreadCount: number;
   isLoading: boolean;
   isOpen: boolean;
+  activePopup: NotificationItem | null;
+  seenNotifIds: string[];
   setIsOpen: (isOpen: boolean) => void;
+  setActivePopup: (popup: NotificationItem | null) => void;
+  dismissPopup: () => void;
   fetchNotifications: () => Promise<void>;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
@@ -40,8 +44,12 @@ export const useNotificationStore = create<NotificationState>()(
       unreadCount: 0,
       isLoading: false,
       isOpen: false,
+      activePopup: null,
+      seenNotifIds: [],
 
       setIsOpen: (isOpen) => set({ isOpen }),
+      setActivePopup: (activePopup) => set({ activePopup }),
+      dismissPopup: () => set({ activePopup: null }),
 
       fetchNotifications: async () => {
         try {
@@ -53,7 +61,7 @@ export const useNotificationStore = create<NotificationState>()(
           }
           const data = await res.json();
           if (data.success && Array.isArray(data.notifications)) {
-            // Merge with local read states
+            const currentSeen = new Set(get().seenNotifIds || []);
             const existingReadIds = new Set(
               get().notifications.filter((n) => n.read).map((n) => n.id)
             );
@@ -63,9 +71,24 @@ export const useNotificationStore = create<NotificationState>()(
               read: existingReadIds.has(n.id) || n.read,
             }));
 
+            // Detect genuinely new incoming unread notifications to show in popup banner
+            const brandNewUnread = merged.filter(
+              (n: NotificationItem) => !n.read && !currentSeen.has(n.id)
+            );
+
+            if (brandNewUnread.length > 0) {
+              // Trigger popup for the most recent unread item
+              set({ activePopup: brandNewUnread[0] });
+            }
+
+            // Update seen list
+            const allFetchedIds = merged.map((n: NotificationItem) => n.id);
+            const nextSeen = Array.from(new Set([...currentSeen, ...allFetchedIds]));
+
             set({
               notifications: merged,
               unreadCount: merged.filter((n: NotificationItem) => !n.read).length,
+              seenNotifIds: nextSeen,
               isLoading: false,
             });
           } else {
@@ -104,22 +127,24 @@ export const useNotificationStore = create<NotificationState>()(
           timestamp: Date.now(),
         };
 
-        // Filter out duplicate IDs
         const filtered = get().notifications.filter((n) => n.id !== newNotif.id);
         const updated = [newNotif, ...filtered];
+        const nextSeen = Array.from(new Set([...get().seenNotifIds, newNotif.id]));
 
         set({
           notifications: updated,
           unreadCount: updated.filter((n) => !n.read).length,
+          activePopup: newNotif,
+          seenNotifIds: nextSeen,
         });
       },
 
       clearNotifications: () => {
-        set({ notifications: [], unreadCount: 0 });
+        set({ notifications: [], unreadCount: 0, activePopup: null });
       },
     }),
     {
-      name: "devora_notifications_v2",
+      name: "devora_notifications_v3",
       storage: createJSONStorage(() => localStorage),
     }
   )

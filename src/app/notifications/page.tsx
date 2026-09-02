@@ -137,7 +137,7 @@ export default function NotificationsPage() {
                 Aktivitas & Notifikasi
               </h1>
               <p className="text-xs sm:text-sm text-[#64748B]">
-                Pantau pengikut baru, mention, interaksi postingan, match developer, dan lamaran proyek kamu secara real-time.
+                Pantau pengikut baru, mention, interaksi postingan, kecocokan rekan pengembang, dan lamaran proyek Anda secara real-time.
               </p>
             </div>
 

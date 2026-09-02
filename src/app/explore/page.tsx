@@ -291,7 +291,7 @@ export default function ExplorePage() {
           ) : (
             <div className="bg-white border-2 border-dashed border-[#E2E8F0] rounded-2xl p-12 text-center space-y-3">
               <p className="text-xs font-bold text-[#64748B]">
-                Tidak ada karya yang sesuai dengan pencarian kamu.
+                Tidak ada karya yang sesuai dengan kriteria pencarian Anda.
               </p>
             </div>
           )}

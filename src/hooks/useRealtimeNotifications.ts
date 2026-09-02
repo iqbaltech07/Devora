@@ -76,8 +76,8 @@ export function useRealtimeNotifications() {
       playNotificationSound();
       addNotification({
         type: "LIKE",
-        title: "Menyukai Profil Kamu",
-        message: `${payload.senderName || "Seorang Developer"} (${payload.senderRole || "Developer"}) baru saja menyukai profilmu! Geser kanan untuk auto-match.`,
+        title: "Menyukai Profil Anda",
+        message: `${payload.senderName || "Seorang Pengembang"} (${payload.senderRole || "Pengembang"}) baru saja menyukai profil Anda! Geser ke kanan untuk mencocokkan profil.`,
         actorId: payload.senderId,
         actorName: payload.senderName,
         actorAvatar: payload.senderAvatar,
@@ -86,8 +86,8 @@ export function useRealtimeNotifications() {
       });
 
       addToast({
-        title: "Seseorang Menyukai Profilmu",
-        description: `${payload.senderName} (${payload.senderRole || "Developer"}) tertarik berkolaborasi denganmu.`,
+        title: "Seseorang Menyukai Profil Anda",
+        description: `${payload.senderName} (${payload.senderRole || "Pengembang"}) tertarik berkolaborasi dengan Anda.`,
         type: "info",
       });
     };

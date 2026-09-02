@@ -124,8 +124,8 @@ export default function MatchesPage() {
     try {
       await acceptIncomingLike(candidateId);
       addToast({
-        title: "Match Berhasil!",
-        description: `Kamu dan ${name} sekarang sudah saling cocok! Silakan kirim pesan di ruang obrolan.`,
+        title: "Kecocokan Berhasil",
+        description: `Anda dan ${name} kini telah saling terhubung. Silakan mulai percakapan di menu Pesan.`,
         type: "success",
       });
     } finally {
@@ -139,7 +139,7 @@ export default function MatchesPage() {
       await passIncomingLike(candidateId);
       addToast({
         title: "Permintaan Dilewati",
-        description: `${name} telah dihapus dari daftar peminat kamu.`,
+        description: `${name} telah dihapus dari daftar apresiasi profil Anda.`,
         type: "info",
       });
     } finally {
@@ -156,26 +156,26 @@ export default function MatchesPage() {
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-devora-brand" />
               <span className="text-xs font-mono font-semibold uppercase tracking-wider text-devora-muted">
-                Manajemen Koneksi & Partner
+                Koneksi & Rekan Kolaborasi
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-devora-ink tracking-tight mt-1">
-              Teman Ngoding ({uniqueMatchedCandidates.length + uniqueIncomingLikes.length})
+              Rekan Pengembang ({uniqueMatchedCandidates.length + uniqueIncomingLikes.length})
             </h1>
             <p className="text-xs sm:text-sm text-devora-muted mt-0.5">
-              Kelola teman yang sudah cocok dan sambut developer yang tertarik mengajakmu berkolaborasi.
+              Kelola rekan yang telah cocok dan sambut pengembang yang tertarik berkolaborasi dengan Anda.
             </p>
           </div>
 
           <Link href="/find-partner">
             <Button size="sm" className="gap-1.5 bg-devora-brand text-white hover:bg-devora-brand-dark font-semibold shadow-xs">
               <Flame className="w-4 h-4 fill-white" />
-              <span>Swipe Partner Lainnya</span>
+              <span>Eksplorasi Rekan Pengembang</span>
             </Button>
           </Link>
         </div>
 
-        {/* Dual Main Navigation Tabs: Partner Cocok vs Menyukai Kamu */}
+        {/* Dual Main Navigation Tabs: Rekan Cocok vs Apresiasi Masuk */}
         <div className="flex items-center gap-2 border-b border-devora-border pb-1">
           <button
             onClick={() => setActiveMainTab("MATCHES")}
@@ -187,7 +187,7 @@ export default function MatchesPage() {
             )}
           >
             <Users className={cn("w-4 h-4", activeMainTab === "MATCHES" ? "text-devora-brand" : "text-devora-muted")} />
-            <span>Partner Cocok</span>
+            <span>Rekan Cocok</span>
             <span className={cn(
               "px-2 py-0.5 rounded-full text-[11px] font-mono",
               activeMainTab === "MATCHES" ? "bg-devora-brand/15 text-devora-brand font-bold" : "bg-devora-surface-strong text-devora-muted"
@@ -206,7 +206,7 @@ export default function MatchesPage() {
             )}
           >
             <Heart className={cn("w-4 h-4", activeMainTab === "LIKES_RECEIVED" ? "text-rose-500 fill-rose-500" : "text-rose-400")} />
-            <span>Menyukai Kamu</span>
+            <span>Apresiasi Masuk</span>
             {uniqueIncomingLikes.length > 0 ? (
               <span className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-[#FF5733] text-white font-bold shadow-xs">
                 {uniqueIncomingLikes.length}
@@ -228,8 +228,8 @@ export default function MatchesPage() {
               type="text"
               placeholder={
                 activeMainTab === "MATCHES"
-                  ? "Cari teman cocok berdasarkan nama, skill, atau stack (misal: Postgres, Next.js)..."
-                  : "Cari developer yang menyukai kamu berdasarkan nama atau keahlian..."
+                  ? "Cari rekan cocok berdasarkan nama, keahlian, atau teknologi (misal: Postgres, Next.js)..."
+                  : "Cari pengembang yang menyukai profil Anda berdasarkan nama atau keahlian..."
               }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -297,7 +297,7 @@ export default function MatchesPage() {
                                 {candidate.name}
                               </h3>
                               <Badge variant="brand" className="text-[10px] py-0 px-1.5 font-bold">
-                                {candidate.matchScore}% Match
+                                {candidate.matchScore}% Cocok
                               </Badge>
                             </div>
                             <p className="text-xs text-devora-muted">
@@ -352,7 +352,7 @@ export default function MatchesPage() {
                         onClick={() => setInspectingCandidate(candidate)}
                       >
                         <Info className="w-3.5 h-3.5 text-devora-brand" />
-                        <span>Lihat Spec Lengkap</span>
+                        <span>Lihat Profil Lengkap</span>
                       </Button>
 
                       <Link href={`/messages?userId=${candidate.id}`} className="w-full sm:w-auto">
@@ -361,7 +361,7 @@ export default function MatchesPage() {
                           className="w-full sm:w-auto text-xs gap-1.5 bg-devora-brand text-white hover:bg-devora-brand-dark font-bold shadow-xs justify-center"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
-                          <span>Sapa & Ajak Ngobrol</span>
+                          <span>Mulai Percakapan</span>
                         </Button>
                       </Link>
                     </div>
@@ -375,17 +375,17 @@ export default function MatchesPage() {
                 </div>
                 <div className="space-y-2.5 max-w-md mx-auto">
                   <h3 className="text-xl sm:text-2xl font-bold text-devora-ink tracking-tight">
-                    Belum Ada Teman Cocok di Kategori Ini
+                    Belum Ada Rekan Cocok di Kategori Ini
                   </h3>
                   <p className="text-sm text-devora-muted leading-relaxed">
-                    Yuk mulai swipe calon partner di arena pencarian biar bisa nemuin teman ngoding impian kamu!
+                    Mulai eksplorasi kandidat rekan pengembang di menu pencarian untuk menemukan mitra kolaborasi ideal Anda.
                   </p>
                 </div>
                 <div className="pt-2">
                   <Link href="/find-partner">
                     <Button size="md" className="gap-2 px-6 py-3 bg-devora-brand hover:bg-devora-brand-dark text-white font-bold shadow-md hover:shadow-lg transition-all rounded-button text-sm">
                       <Flame className="w-4 h-4 fill-white" />
-                      <span>Mulai Swipe Sekarang</span>
+                      <span>Eksplorasi Rekan Pengembang</span>
                     </Button>
                   </Link>
                 </div>
@@ -394,7 +394,7 @@ export default function MatchesPage() {
           </>
         )}
 
-        {/* TAB 2: MENYUKAI KAMU (INCOMING LIKES) */}
+        {/* TAB 2: MENYUKAI ANDA (INCOMING LIKES) */}
         {activeMainTab === "LIKES_RECEIVED" && (
           <>
             {isLoadingIncomingLikes && uniqueIncomingLikes.length === 0 ? (
@@ -409,7 +409,7 @@ export default function MatchesPage() {
                     {/* Top heart banner tag */}
                     <div className="absolute top-0 right-0 bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[10px] font-bold px-2.5 py-1 rounded-bl-button flex items-center gap-1 border-b border-l border-rose-200/50">
                       <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
-                      <span>Menyukai Kamu</span>
+                      <span>Menyukai Anda</span>
                     </div>
 
                     {/* Header info */}
@@ -428,7 +428,7 @@ export default function MatchesPage() {
                                 {candidate.name}
                               </h3>
                               <Badge variant="brand" className="text-[10px] py-0 px-1.5 font-bold">
-                                {candidate.matchScore}% Match
+                                {candidate.matchScore}% Cocok
                               </Badge>
                             </div>
                             <p className="text-xs text-devora-muted">
@@ -505,7 +505,7 @@ export default function MatchesPage() {
                           onClick={() => handleAcceptLike(candidate.id, candidate.name)}
                         >
                           <Heart className="w-3.5 h-3.5 fill-white" />
-                          <span>Love Balik & Cocokkan</span>
+                          <span>Cocokkan Profil</span>
                         </Button>
                       </div>
                     </div>
@@ -519,10 +519,10 @@ export default function MatchesPage() {
                 </div>
                 <div className="space-y-2.5 max-w-md mx-auto">
                   <h3 className="text-xl sm:text-2xl font-bold text-devora-ink tracking-tight">
-                    Belum Ada Peminat Baru
+                    Belum Ada Apresiasi Profil Baru
                   </h3>
                   <p className="text-sm text-devora-muted leading-relaxed">
-                    Developer yang menyukai profilmu akan muncul di sini. Coba lengkapi portofolio dan proyek di profilmu agar makin dilirik calon partner!
+                    Pengembang yang menyukai profil Anda akan ditampilkan di sini. Lengkapi portofolio dan riwayat proyek di profil Anda agar semakin diminati calon rekan kolaborasi.
                   </p>
                 </div>
                 <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
@@ -534,7 +534,7 @@ export default function MatchesPage() {
                   <Link href="/find-partner">
                     <Button size="md" className="gap-2 px-5 py-2.5 bg-devora-brand hover:bg-devora-brand-dark text-white font-bold shadow-md text-xs">
                       <Flame className="w-4 h-4 fill-white" />
-                      <span>Cari Partner Duluan</span>
+                      <span>Eksplorasi Rekan Pengembang</span>
                     </Button>
                   </Link>
                 </div>

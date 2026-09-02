@@ -259,13 +259,13 @@ export default function ProjectsPage() {
       swipeRight(request.applicantId);
       sendMessageAsync(
         request.applicantId,
-        `Halo ${request.applicantName}! Permintaan gabung kamu untuk role ${request.roleTitle} di proyek "${request.projectTitle}" sudah saya terima. Senang bisa ngoding bareng kamu!`
+        `Halo ${request.applicantName}! Pengajuan bergabung Anda untuk peran ${request.roleTitle} pada proyek "${request.projectTitle}" telah saya terima. Senang dapat berkolaborasi bersama Anda!`
       );
     }
 
     addToast({
-      title: "Pelamar Diterima (ACC)",
-      description: `${request.applicantName} resmi menjadi partner proyek "${request.projectTitle}". Kamu bisa langsung mengobrol di Pesan!`,
+      title: "Pelamar Diterima",
+      description: `${request.applicantName} resmi menjadi rekan proyek "${request.projectTitle}". Anda dapat langsung memulai percakapan di Pesan!`,
       type: "success",
     });
 
@@ -1268,20 +1268,20 @@ export default function ProjectsPage() {
                 <div className="space-y-2.5 max-w-md mx-auto">
                   <h3 className="text-xl sm:text-2xl font-bold text-devora-ink tracking-tight">
                     {activeTab === "MY_PROJECTS"
-                      ? "Kamu belum memposting proyek apapun"
-                      : "Belum ada proyek yang cocok sama pencarianmu"}
+                      ? "Anda belum mempublikasikan proyek"
+                      : "Belum ada proyek yang sesuai dengan pencarian Anda"}
                   </h3>
                   <p className="text-sm text-devora-muted leading-relaxed">
                     {activeTab === "MY_PROJECTS"
-                      ? "Yuk buat postingan proyek pertama kamu untuk mencari partner impian dan bangun aplikasi bareng!"
-                      : "Coba ubah kata kunci filter atau posting proyek kamu sendiri untuk mengajak developer lain berkolaborasi!"}
+                      ? "Publikasikan proyek pertama Anda untuk mencari rekan pengembang dan membangun aplikasi bersama!"
+                      : "Ubah kata kunci filter atau publikasikan proyek Anda sendiri untuk mengajak pengembang lain berkolaborasi."}
                   </p>
                 </div>
                 <div className="pt-2">
                   <Link href="/projects/new">
                     <Button size="md" className="gap-2 px-6 py-3 bg-devora-brand hover:bg-devora-brand-dark text-white font-bold shadow-md hover:shadow-lg transition-all rounded-button text-sm">
                       <Plus className="w-4 h-4" />
-                      <span>Posting Proyek Sekarang</span>
+                      <span>Publikasikan Proyek Baru</span>
                     </Button>
                   </Link>
                 </div>
@@ -1484,7 +1484,7 @@ export default function ProjectsPage() {
                   Batalkan Lamaran Ini?
                 </h3>
                 <p className="text-xs text-devora-muted leading-relaxed">
-                  Permohonan gabung kamu ke proyek <span className="font-bold text-devora-ink">&ldquo;{cancelingApplication.projectTitle}&rdquo;</span> akan ditarik kembali. Kamu bisa melamar lagi kapan saja jika berubah pikiran.
+                  Permohonan bergabung Anda ke proyek <span className="font-bold text-devora-ink">&ldquo;{cancelingApplication.projectTitle}&rdquo;</span> akan ditarik kembali. Anda dapat melamar kembali kapan saja jika berubah pikiran.
                 </p>
               </div>
 

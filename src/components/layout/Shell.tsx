@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 
 import { useRealtimeNotifications } from "@/hooks/useRealtimeNotifications";
+import { InAppNotificationBanner } from "@/components/notifications/InAppNotificationBanner";
 
 export interface ShellProps {
   children: React.ReactNode;
@@ -47,6 +48,9 @@ export function Shell({ children, className }: ShellProps) {
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-devora-background text-devora-ink selection:bg-devora-brand-soft selection:text-devora-brand-dark">
+      {/* Global In-App Notification Banner Popup with Swipe-Up Gesture & Sound */}
+      <InAppNotificationBanner />
+
       {/* Persistent Desktop Topbar */}
       <Topbar />
 

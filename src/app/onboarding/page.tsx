@@ -169,15 +169,15 @@ export default function OnboardingPage() {
 
     if (success) {
       addToast({
-        title: "Personalisasi Profil Selesai!",
-        description: `Profil kamu sebagai "${specialtyTitle}" sudah aktif. Yuk mulai cari partner cocok!`,
+        title: "Personalisasi Profil Selesai",
+        description: `Profil Anda sebagai "${specialtyTitle}" telah aktif. Mari mulai menemukan rekan kolaborasi yang cocok!`,
         type: "success",
       });
       router.push("/find-partner");
     } else {
       addToast({
         title: "Gagal Menyimpan Profil",
-        description: "Terjadi kendala saat menyimpan. Silakan coba lagi.",
+        description: "Terjadi kendala saat menyimpan. Silakan coba kembali.",
         type: "error",
       });
     }
@@ -190,19 +190,19 @@ export default function OnboardingPage() {
         <div className="space-y-2 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-devora-surface border border-devora-border text-xs font-mono font-bold text-devora-brand">
             <Sparkles className="w-3.5 h-3.5 fill-devora-brand" />
-            <span>Personalisasi Profil Builder • Langkah {step} dari 3</span>
+            <span>Personalisasi Profil Pengembang • Langkah {step} dari 3</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold text-devora-ink tracking-tight">
-            {step === 1 && "Tentukan Spesialisasi & Peran Utama Kamu"}
-            {step === 2 && "Atur Waktu Luang & Gaya Ngoding"}
-            {step === 3 && "Profil Kamu Siap! Ayo Mulai Kolaborasi"}
+            {step === 1 && "Tentukan Spesialisasi & Peran Utama Anda"}
+            {step === 2 && "Atur Alokasi Waktu & Gaya Kerja"}
+            {step === 3 && "Profil Anda Siap! Mulai Kolaborasi"}
           </h1>
 
           <p className="text-xs sm:text-sm text-devora-muted max-w-lg mx-auto">
-            {step === 1 && "Pilih spesialisasi yang paling mewakili kamu saat membangun produk bersama developer lain."}
-            {step === 2 && "Tentukan jam luang dan ritme kerja biar kamu cuma dicocokkan sama partner yang sefrekuensi."}
-            {step === 3 && "Periksa ringkasan profil kamu sebelum masuk ke arena pencarian partner impian."}
+            {step === 1 && "Pilih spesialisasi yang paling mewakili kompetensi Anda saat membangun produk bersama pengembang lain."}
+            {step === 2 && "Tentukan alokasi jam luang dan ritme kerja agar Anda dicocokkan dengan rekan yang selaras."}
+            {step === 3 && "Periksa ringkasan profil Anda sebelum masuk ke pencarian rekan pengembang."}
           </p>
 
           {/* Progress Bar */}
@@ -430,13 +430,13 @@ export default function OnboardingPage() {
 
             <div className="space-y-1">
               <span className="text-xs font-mono uppercase font-bold text-devora-brand tracking-wider">
-                Profil Builder Siap 100%
+                Profil Pengembang Siap
               </span>
               <h2 className="text-2xl font-extrabold text-devora-ink">
-                Keren, {currentUser.name}! Profil Kamu Sudah Lengkap
+                Selamat, {currentUser.name}! Profil Anda Telah Lengkap
               </h2>
               <p className="text-xs sm:text-sm text-devora-muted max-w-md mx-auto">
-                Berikut adalah kartu profil kamu yang akan dilihat oleh calon partner ngoding di arena swipe:
+                Berikut adalah kartu profil Anda yang akan dilihat oleh calon rekan kolaborasi di pencarian rekan pengembang:
               </p>
             </div>
 

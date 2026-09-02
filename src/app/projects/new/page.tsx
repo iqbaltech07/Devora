@@ -80,8 +80,8 @@ export default function NewProjectPage() {
   const handleAddPresetRole = (preset: typeof PRESET_ROLES[0]) => {
     if (roles.some((r) => r.roleTitle.toLowerCase() === preset.title.toLowerCase())) {
       addToast({
-        title: "Role Sudah Ada",
-        description: `${preset.title} sudah ada di daftar kebutuhan partner kamu.`,
+        title: "Peran Sudah Ditambahkan",
+        description: `${preset.title} sudah ada dalam daftar kebutuhan rekan proyek Anda.`,
         type: "info",
       });
       return;
@@ -167,8 +167,8 @@ export default function NewProjectPage() {
 
     if (!title.trim()) {
       addToast({
-        title: "Judul Proyek Masih Kosong",
-        description: "Beri nama proyek keren kamu dulu ya!",
+        title: "Judul Proyek Belum Diisi",
+        description: "Mohon masukkan nama proyek Anda terlebih dahulu.",
         type: "error",
       });
       return;
@@ -176,8 +176,8 @@ export default function NewProjectPage() {
 
     if (!description.trim()) {
       addToast({
-        title: "Deskripsi Masih Kosong",
-        description: "Ceritakan sedikit tentang apa yang mau kamu bangun.",
+        title: "Deskripsi Belum Diisi",
+        description: "Jelaskan ringkasan mengenai produk atau solusi yang ingin Anda kembangkan.",
         type: "error",
       });
       return;
@@ -185,8 +185,8 @@ export default function NewProjectPage() {
 
     if (roles.length === 0) {
       addToast({
-        title: "Pilih Kebutuhan Partner",
-        description: "Tambahkan minimal 1 role partner yang kamu cari (misal: UI/UX atau Backend).",
+        title: "Tentukan Kebutuhan Rekan",
+        description: "Tambahkan minimal 1 peran rekan yang Anda butuhkan (misal: UI/UX Designer atau Backend Developer).",
         type: "error",
       });
       return;
@@ -228,16 +228,16 @@ export default function NewProjectPage() {
       });
 
       addToast({
-        title: "Proyek Berhasil Diposting",
-        description: `"${title}" sudah tersimpan dan live di papan proyek. Yuk temukan partner yang cocok!`,
+        title: "Proyek Berhasil Dipublikasikan",
+        description: "Proyek Anda kini aktif dan dapat ditemukan oleh rekan pengembang lainnya.",
         type: "success",
       });
 
       router.push("/projects");
     } catch (err: any) {
       addToast({
-        title: "Gagal Memposting Proyek",
-        description: err.message || "Terjadi kendala saat menyimpan proyek ke database.",
+        title: "Gagal Mempublikasikan Proyek",
+        description: "Terjadi kesalahan pada sistem saat menyimpan proyek. Silakan coba kembali.",
         type: "error",
       });
     } finally {
@@ -247,9 +247,9 @@ export default function NewProjectPage() {
 
   return (
     <Shell>
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="max-w-3xl mx-auto space-y-6 pb-20 md:pb-12 text-left">
         {/* Top Header */}
-        <div className="flex items-center justify-between border-b border-devora-border pb-4">
+        <div className="flex items-center justify-between">
           <div className="space-y-1">
             <Link
               href="/projects"
@@ -259,10 +259,10 @@ export default function NewProjectPage() {
               <span>Kembali ke Papan Proyek</span>
             </Link>
             <h1 className="text-2xl sm:text-3xl font-bold text-devora-ink tracking-tight">
-              Posting Proyek Baru
+              Publikasikan Proyek Baru
             </h1>
             <p className="text-xs sm:text-sm text-devora-muted">
-              Ceritain ide atau produk kamu dan tentukan partner apa saja yang kamu butuhin buat kolaborasi.
+              Jelaskan ide atau produk Anda dan tentukan kriteria rekan pengembang yang dibutuhkan untuk berkolaborasi.
             </p>
           </div>
         </div>
@@ -275,7 +275,7 @@ export default function NewProjectPage() {
                 1
               </div>
               <h2 className="text-base font-bold text-devora-ink">
-                Tentang Proyek Kamu
+                Informasi Proyek Anda
               </h2>
             </div>
 
@@ -301,7 +301,7 @@ export default function NewProjectPage() {
               </label>
               <textarea
                 rows={3}
-                placeholder="Ceritakan apa yang lagi kamu bangun, solusi apa yang ditawarkan, dan visi kolaborasi yang kamu harapkan..."
+                placeholder="Jelaskan produk yang sedang Anda bangun, solusi yang ditawarkan, serta visi kolaborasi yang diharapkan..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-devora-background border border-devora-border rounded-button text-sm text-devora-ink placeholder:text-devora-muted focus:outline-none focus:border-devora-brand resize-none"
@@ -344,10 +344,10 @@ export default function NewProjectPage() {
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-devora-ink">
-                    Cari Partner (Kebutuhan Role)
+                    Kebutuhan Rekan Kolaborasi
                   </h2>
                   <p className="text-xs text-devora-muted">
-                    Pilih posisi atau keahlian partner yang kamu butuhin buat bantu bangun proyek ini.
+                    Tentukan posisi dan keahlian rekan yang Anda butuhkan untuk membangun proyek ini.
                   </p>
                 </div>
               </div>

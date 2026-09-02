@@ -161,12 +161,12 @@ export default function PublicProfilePage() {
         addToast({
           title: data.isFollowing
             ? data.isFollowBack
-              ? "Mengikuti Balik!"
-              : "Mengikuti Developer"
+              ? "Mengikuti Balik"
+              : "Mengikuti Pengembang"
             : "Batal Mengikuti",
           description: data.isFollowing
-            ? `Kamu sekarang mengikuti ${profile.name}. Update karya terbaru akan muncul di feeds kamu.`
-            : `Kamu telah berhenti mengikuti ${profile.name}.`,
+            ? `Anda sekarang mengikuti ${profile.name}. Pembaruan karya terbaru akan muncul di feeds Anda.`
+            : `Anda telah berhenti mengikuti ${profile.name}.`,
           type: "success",
         });
       }
@@ -248,7 +248,7 @@ export default function PublicProfilePage() {
           </div>
           <h2 className="text-xl font-bold text-devora-ink">{error || "Profil Tidak Ditemukan"}</h2>
           <p className="text-sm text-devora-muted">
-            Developer yang kamu cari mungkin belum terdaftar atau tautan tidak valid.
+            Profil pengembang yang Anda cari mungkin belum terdaftar atau tautan tidak valid.
           </p>
           <div className="pt-2">
             <Button onClick={() => router.back()} variant="secondary" className="gap-2">

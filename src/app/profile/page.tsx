@@ -568,8 +568,8 @@ export default function ProfilePage() {
 
     if (!name.trim()) {
       addToast({
-        title: "Nama Wajib Diisi",
-        description: "Mohon masukkan nama lengkap atau nama panggilan kamu.",
+        title: "Nama Lengkap Wajib Diisi",
+        description: "Mohon masukkan nama lengkap atau nama panggilan Anda.",
         type: "error",
       });
       return;
@@ -618,7 +618,7 @@ export default function ProfilePage() {
     if (success) {
       addToast({
         title: "Profil Berhasil Disimpan",
-        description: "Seluruh data profil profesional kamu sudah berhasil diperbarui!",
+        description: "Seluruh data profil profesional Anda sudah berhasil diperbarui!",
         type: "success",
       });
     } else {
@@ -738,7 +738,7 @@ export default function ProfilePage() {
       setIsAddingCert(false);
       addToast({
         title: "Sertifikat Berhasil Ditambahkan",
-        description: `Sertifikat "${created.title}" berhasil disimpan di profil kamu.`,
+        description: `Sertifikat "${created.title}" berhasil disimpan di profil Anda.`,
         type: "success",
       });
     } else {
@@ -778,7 +778,7 @@ export default function ProfilePage() {
     if (!projTitle.trim()) {
       addToast({
         title: "Judul Proyek Wajib Diisi",
-        description: "Mohon isi nama atau judul proyek portofolio kamu.",
+        description: "Mohon isi nama atau judul proyek portofolio Anda.",
         type: "error",
       });
       return;
@@ -863,10 +863,10 @@ export default function ProfilePage() {
                 </span>
               </div>
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-devora-ink tracking-tight">
-                Profil Profesional Developer
+                Profil Profesional Pengembang
               </h1>
               <p className="text-xs sm:text-sm text-devora-muted leading-relaxed">
-                Lengkapi identitas, jam terbang, sertifikat, dan portofolio kamu agar calon partner melihat keahlian aslimu.
+                Lengkapi identitas, jam terbang, sertifikat, dan portofolio Anda agar calon rekan melihat keahlian autentik Anda.
               </p>
             </div>
 
@@ -1577,7 +1577,7 @@ export default function ProfilePage() {
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="Ceritakan sedikit tentang dirimu, visi proyek, atau teknologi yang sedang kamu tekuni..."
+                  placeholder="Ceritakan ringkas mengenai latar belakang profesional, visi proyek, atau teknologi yang sedang Anda tekuni..."
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-xs sm:text-sm text-devora-ink focus:bg-white focus:outline-none focus:border-devora-brand resize-none transition-colors"
@@ -1611,7 +1611,7 @@ export default function ProfilePage() {
                   required
                 >
                   <option value="" disabled>
-                    Pilih kota tempat tinggal kamu...
+                    Pilih kota domisili Anda...
                   </option>
                   {location && !geoGroups.some((g) => g.cities.includes(location)) && (
                     <option value={location}>{location} (Tersimpan)</option>
@@ -1669,7 +1669,7 @@ export default function ProfilePage() {
                     <span className="text-devora-brand">*</span>
                   </label>
                   <p className="text-xs text-slate-500">
-                    Berapa lama kamu aktif membuat website atau aplikasi web?
+                    Berapa lama Anda aktif mengembangkan website atau aplikasi web?
                   </p>
                 </div>
 
@@ -1718,7 +1718,7 @@ export default function ProfilePage() {
                     <span className="text-devora-brand">*</span>
                   </label>
                   <p className="text-xs text-slate-500">
-                    Pilih yang paling menggambarkan kemandirian ngoding kamu saat ini.
+                    Pilih opsi yang paling menggambarkan kemandirian pengembangan Anda saat ini.
                   </p>
                 </div>
 
@@ -2433,7 +2433,7 @@ export default function ProfilePage() {
                   <Award className="w-6 h-6 text-slate-400 mx-auto" />
                   <p className="text-xs font-bold text-slate-700">Belum ada sertifikat ditambahkan</p>
                   <p className="text-[11px] text-slate-400">
-                    Upload sertifikat dari HP atau PC kamu untuk membuktikan jam terbang dan kredibilitas.
+                    Unggah sertifikat dari galeri HP atau perangkat komputer Anda untuk membuktikan jam terbang dan kredibilitas.
                   </p>
                 </div>
               )}
@@ -2454,7 +2454,7 @@ export default function ProfilePage() {
                       <span>Showcase Portofolio Proyek</span>
                     </h2>
                     <p className="text-[11px] text-devora-muted">
-                      Website & aplikasi yang pernah kamu bangun
+                      Aplikasi web yang pernah Anda kembangkan
                     </p>
                   </div>
                 </div>
@@ -2500,7 +2500,7 @@ export default function ProfilePage() {
                       </label>
                       <textarea
                         rows={2}
-                        placeholder="Ceritakan fitur utama atau teknologi yang kamu gunakan di proyek ini..."
+                        placeholder="Jelaskan fitur utama atau teknologi yang Anda gunakan pada proyek ini..."
                         value={projDesc}
                         onChange={(e) => setProjDesc(e.target.value)}
                         className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl text-devora-ink focus:outline-none focus:border-devora-brand resize-none"
@@ -2681,7 +2681,7 @@ export default function ProfilePage() {
                   <FolderGit2 className="w-6 h-6 text-slate-400 mx-auto" />
                   <p className="text-xs font-bold text-slate-700">Belum ada portofolio proyek</p>
                   <p className="text-[11px] text-slate-400">
-                    Showcase proyek yang pernah kamu buat agar calon partner yakin dengan keahlianmu.
+                    Tampilkan proyek yang pernah Anda kembangkan agar calon rekan semakin yakin dengan kompetensi Anda.
                   </p>
                 </div>
               )}
