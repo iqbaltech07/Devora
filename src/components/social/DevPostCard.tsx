@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PostItem, usePostStore } from "@/store/usePostStore";
 import { Avatar } from "@/components/ui/avatar";
+import { playNotificationSound } from "@/lib/sound";
 import {
   Flame,
   Heart,
@@ -19,7 +20,8 @@ import {
   Code2,
   FolderKanban,
   Send,
-  ExternalLink,
+  CornerDownRight,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,11 +31,12 @@ interface DevPostCardProps {
 
 export function DevPostCard({ post }: DevPostCardProps) {
   const router = useRouter();
-  const { toggleLike, toggleBookmark, addComment, deletePost } = usePostStore();
+  const { toggleLike, toggleBookmark, addComment, toggleCommentLike, deletePost } = usePostStore();
 
   const [isCopied, setIsCopied] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [commentInput, setCommentInput] = useState("");
+  const [replyingTo, setReplyingTo] = useState<{ id: string; name: string } | null>(null);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -50,9 +53,11 @@ export function DevPostCard({ post }: DevPostCardProps) {
 
     try {
       setIsSubmittingComment(true);
-      const success = await addComment(post.id, commentInput.trim());
+      const success = await addComment(post.id, commentInput.trim(), replyingTo?.id);
       if (success) {
+        playNotificationSound();
         setCommentInput("");
+        setReplyingTo(null);
         setShowComments(true);
       }
     } finally {
@@ -151,39 +156,35 @@ export function DevPostCard({ post }: DevPostCardProps) {
         </p>
       )}
 
-      {/* Tags */}
       {post.tags && post.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 pt-0.5">
-          {post.tags.map((t, idx) => (
+          {post.tags.map((tag) => (
             <span
-              key={idx}
-              className="text-[11px] font-bold text-[#FF5733] hover:underline cursor-pointer"
+              key={tag}
+              className="text-[11px] font-semibold text-[#FF5733] hover:underline cursor-pointer"
             >
-              {t}
+              {tag.startsWith("#") ? tag : `#${tag}`}
             </span>
           ))}
         </div>
       )}
 
-      {/* ─── 3. RICH MEDIA CAROUSEL / LIGHTBOX ─── */}
+      {/* ─── 3. MEDIA SHOWCASE ─── */}
       {post.mediaUrls && post.mediaUrls.length > 0 && (
-        <div className="rounded-xl overflow-hidden border border-[#E2E8F0] bg-slate-900 shadow-xs">
-          {post.mediaUrls.map((url, idx) => (
-            <img
-              key={idx}
-              src={url}
-              alt={`Media ${idx + 1}`}
-              className="w-full max-h-[480px] object-contain mx-auto bg-slate-950"
-            />
-          ))}
+        <div className="rounded-xl overflow-hidden border border-[#E2E8F0] bg-slate-950">
+          <img
+            src={post.mediaUrls[0]}
+            alt="Showcase screenshot"
+            className="w-full max-h-[420px] object-cover hover:scale-[1.01] transition-transform duration-300"
+          />
         </div>
       )}
 
-      {/* ─── 4. FORMATTED CODE SNIPPET ─── */}
+      {/* ─── 4. CODE SNIPPET BLOCK ─── */}
       {post.codeSnippet && (
-        <div className="rounded-xl overflow-hidden border border-slate-800 bg-[#0F172A] text-white shadow-xs font-mono">
+        <div className="rounded-xl overflow-hidden border border-slate-800 bg-[#0B1120] font-mono text-left">
           <div className="flex items-center justify-between px-3.5 py-2 bg-slate-900/90 border-b border-slate-800">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
@@ -261,7 +262,10 @@ export function DevPostCard({ post }: DevPostCardProps) {
           <button
             type="button"
             onClick={() => setShowComments(!showComments)}
-            className="px-3 py-1.5 rounded-full text-xs font-bold text-[#64748B] hover:bg-slate-100 hover:text-[#0F172A] flex items-center gap-1.5 transition-colors"
+            className={cn(
+              "px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-colors",
+              showComments ? "bg-slate-100 text-[#0F172A]" : "text-[#64748B] hover:bg-slate-100 hover:text-[#0F172A]"
+            )}
           >
             <MessageSquare className="w-4 h-4" />
             <span>{post.commentCount}</span>
@@ -310,29 +314,104 @@ export function DevPostCard({ post }: DevPostCardProps) {
         </div>
       </div>
 
-      {/* ─── 6. COMMENTS SECTION ─── */}
+      {/* ─── 6. COMMENTS & REPLIES SECTION ─── */}
       {showComments && (
         <div className="pt-3 border-t border-[#E2E8F0] space-y-3 animate-in fade-in">
-          {/* Existing comments */}
+          {/* Existing comments thread */}
           {post.previewComments && post.previewComments.length > 0 ? (
-            <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+            <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
               {post.previewComments.map((c) => (
-                <div key={c.id} className="flex items-start gap-2.5 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                  <Avatar
-                    src={c.author.avatarUrl}
-                    fallback={c.author.name.slice(0, 2).toUpperCase()}
-                    size="sm"
-                    className="w-6 h-6 shrink-0 mt-0.5"
-                  />
-                  <div className="space-y-0.5 flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-[#0F172A] truncate">{c.author.name}</span>
-                      <span className="text-[10px] text-slate-400 font-medium">
-                        {formatTimeAgo(c.createdAt)}
-                      </span>
+                <div key={c.id} className="space-y-2">
+                  {/* Root comment card */}
+                  <div className="flex items-start gap-2.5 text-xs bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <Avatar
+                      src={c.author.avatarUrl}
+                      fallback={c.author.name.slice(0, 2).toUpperCase()}
+                      size="sm"
+                      className="w-7 h-7 shrink-0 mt-0.5"
+                    />
+                    <div className="space-y-1 flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="font-bold text-[#0F172A] truncate">{c.author.name}</span>
+                          <span className="text-[10px] text-slate-400 font-medium shrink-0">
+                            • {formatTimeAgo(c.createdAt)}
+                          </span>
+                        </div>
+
+                        {/* Like comment button */}
+                        <button
+                          type="button"
+                          onClick={() => toggleCommentLike(post.id, c.id)}
+                          className={cn(
+                            "flex items-center gap-1 text-[11px] font-bold p-1 rounded-md transition-colors",
+                            c.isLiked
+                              ? "text-[#FF5733]"
+                              : "text-slate-400 hover:text-[#0F172A]"
+                          )}
+                          title="Sukai Komentar"
+                        >
+                          <Heart className={cn("w-3.5 h-3.5", c.isLiked && "fill-[#FF5733]")} />
+                          {c.likeCount > 0 && <span>{c.likeCount}</span>}
+                        </button>
+                      </div>
+
+                      <p className="text-[#334155] leading-relaxed break-words">{c.content}</p>
+
+                      {/* Reply button */}
+                      <button
+                        type="button"
+                        onClick={() => setReplyingTo({ id: c.id, name: c.author.name })}
+                        className="text-[10px] font-bold text-slate-500 hover:text-[#FF5733] transition-colors flex items-center gap-1 pt-0.5"
+                      >
+                        <CornerDownRight className="w-3 h-3" />
+                        <span>Balas</span>
+                      </button>
                     </div>
-                    <p className="text-[#334155] leading-relaxed break-words">{c.content}</p>
                   </div>
+
+                  {/* Nested replies thread */}
+                  {c.replies && c.replies.length > 0 && (
+                    <div className="ml-6 sm:ml-8 pl-3 border-l-2 border-[#E2E8F0] space-y-2">
+                      {c.replies.map((reply) => (
+                        <div
+                          key={reply.id}
+                          className="flex items-start gap-2 text-xs bg-slate-50/70 p-2.5 rounded-xl border border-slate-100"
+                        >
+                          <Avatar
+                            src={reply.author.avatarUrl}
+                            fallback={reply.author.name.slice(0, 2).toUpperCase()}
+                            size="sm"
+                            className="w-6 h-6 shrink-0 mt-0.5"
+                          />
+                          <div className="space-y-0.5 flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span className="font-bold text-[#0F172A] truncate">{reply.author.name}</span>
+                                <span className="text-[10px] text-slate-400 font-medium shrink-0">
+                                  • {formatTimeAgo(reply.createdAt)}
+                                </span>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => toggleCommentLike(post.id, reply.id)}
+                                className={cn(
+                                  "flex items-center gap-1 text-[10px] font-bold p-0.5 rounded transition-colors",
+                                  reply.isLiked ? "text-[#FF5733]" : "text-slate-400 hover:text-[#0F172A]"
+                                )}
+                              >
+                                <Heart className={cn("w-3 h-3", reply.isLiked && "fill-[#FF5733]")} />
+                                {reply.likeCount > 0 && <span>{reply.likeCount}</span>}
+                              </button>
+                            </div>
+
+                            <p className="text-[#334155] leading-relaxed break-words">{reply.content}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -342,19 +421,41 @@ export function DevPostCard({ post }: DevPostCardProps) {
             </p>
           )}
 
-          {/* Write comment input */}
+          {/* Active Reply Banner */}
+          {replyingTo && (
+            <div className="flex items-center justify-between px-3 py-1.5 bg-[#FFF1EE] text-[#FF5733] rounded-lg text-xs font-semibold animate-in fade-in">
+              <span className="flex items-center gap-1.5 truncate">
+                <CornerDownRight className="w-3.5 h-3.5 shrink-0" />
+                <span>Membalas @{replyingTo.name}</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setReplyingTo(null)}
+                className="p-1 hover:bg-[#FF5733]/15 rounded-full"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
+          {/* Write comment / reply input */}
           <form onSubmit={handleSendComment} className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="Tulis komentar atau diskusi teknis..."
+              placeholder={
+                replyingTo
+                  ? `Tulis balasan untuk ${replyingTo.name}...`
+                  : "Tulis komentar atau diskusi teknis..."
+              }
               value={commentInput}
               onChange={(e) => setCommentInput(e.target.value)}
-              className="flex-1 px-3 py-2 text-xs bg-slate-50 border border-[#E2E8F0] rounded-xl focus:outline-none focus:border-[#FF5733] text-[#0F172A] placeholder:text-slate-400"
+              className="flex-1 px-3.5 py-2 text-xs bg-slate-50 border border-[#E2E8F0] rounded-xl focus:outline-none focus:border-[#FF5733] text-[#0F172A] placeholder:text-slate-400"
             />
             <button
               type="submit"
               disabled={isSubmittingComment || !commentInput.trim()}
               className="p-2 rounded-xl bg-[#FF5733] text-white hover:bg-[#D9411E] disabled:opacity-50 transition-colors shadow-xs"
+              title="Kirim Komentar"
             >
               <Send className="w-3.5 h-3.5" />
             </button>

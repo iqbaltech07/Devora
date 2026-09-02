@@ -1,11 +1,22 @@
 import { create } from "zustand";
 
+export interface StoryViewerItem {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  title?: string;
+  viewedAt: string;
+}
+
 export interface StoryItem {
   id: string;
   mediaUrl?: string | null;
   caption?: string | null;
   createdAt: string;
   expiresAt: string;
+  viewsCount?: number;
+  isViewed?: boolean;
+  viewers?: StoryViewerItem[];
 }
 
 export interface UserStoryGroup {
@@ -16,6 +27,7 @@ export interface UserStoryGroup {
     title: string;
     isMe: boolean;
   };
+  hasUnviewed?: boolean;
   stories: StoryItem[];
 }
 
@@ -28,6 +40,8 @@ interface StoryState {
 
   fetchStories: () => Promise<void>;
   createStory: (mediaUrl?: string, caption?: string) => Promise<boolean>;
+  recordView: (storyId: string) => Promise<void>;
+  replyStory: (storyId: string, message: string) => Promise<{ success: boolean; receiverId?: string }>;
   openStoryModal: (groupIndex: number, storyIndex?: number) => void;
   closeStoryModal: () => void;
   nextStory: () => void;
@@ -68,6 +82,29 @@ export const useStoryStore = create<StoryState>((set, get) => ({
     } catch {
       set({ isSubmitting: false });
       return false;
+    }
+  },
+
+  recordView: async (storyId: string) => {
+    try {
+      await fetch(`/api/stories/${storyId}/view`, { method: "POST" });
+    } catch {
+      // ignore
+    }
+  },
+
+  replyStory: async (storyId: string, message: string) => {
+    try {
+      const res = await fetch(`/api/stories/${storyId}/reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+      if (!res.ok) return { success: false };
+      const data = await res.json();
+      return { success: true, receiverId: data.receiverId };
+    } catch {
+      return { success: false };
     }
   },
 

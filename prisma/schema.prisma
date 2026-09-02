@@ -67,8 +67,10 @@ model User {
   posts         Post[]             @relation("UserPosts")
   postLikes     PostLike[]         @relation("UserPostLikes")
   comments      Comment[]          @relation("UserComments")
+  commentLikes  CommentLike[]      @relation("UserCommentLikes")
   bookmarks     Bookmark[]         @relation("UserBookmarks")
   stories       Story[]            @relation("UserStories")
+  storyViews    StoryView[]        @relation("UserStoryViews")
 
   @@unique([email])
   @@map("user")
@@ -318,16 +320,32 @@ model PostLike {
 }
 
 model Comment {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
   postId    String
   authorId  String
   content   String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author    User     @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  parentId  String?
+  parent    Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[]     @relation("CommentReplies")
+  likes     CommentLike[]
+  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User          @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
   @@map("comment")
+}
+
+model CommentLike {
+  id        String   @id @default(cuid())
+  commentId String
+  userId    String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserCommentLikes", fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, userId])
+  @@map("comment_like")
 }
 
 model Bookmark {
@@ -343,13 +361,26 @@ model Bookmark {
 }
 
 model Story {
-  id        String   @id @default(cuid())
+  id        String      @id @default(cuid())
   authorId  String
-  author    User     @relation("UserStories", fields: [authorId], references: [id], onDelete: Cascade)
+  author    User        @relation("UserStories", fields: [authorId], references: [id], onDelete: Cascade)
   mediaUrl  String?
   caption   String?
+  views     StoryView[]
   expiresAt DateTime
-  createdAt DateTime @default(now())
+  createdAt DateTime    @default(now())
 
   @@map("story")
+}
+
+model StoryView {
+  id        String   @id @default(cuid())
+  storyId   String
+  viewerId  String
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  viewer    User     @relation("UserStoryViews", fields: [viewerId], references: [id], onDelete: Cascade)
+  viewedAt  DateTime @default(now())
+
+  @@unique([storyId, viewerId])
+  @@map("story_view")
 }

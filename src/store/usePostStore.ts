@@ -19,7 +19,10 @@ export interface PostComment {
     avatarUrl?: string;
     title?: string;
   };
+  likeCount: number;
+  isLiked: boolean;
   isOwner?: boolean;
+  replies?: PostComment[];
 }
 
 export interface PostItem {
@@ -70,7 +73,8 @@ interface PostState {
   fetchPosts: (category?: string, tag?: string) => Promise<void>;
   createPost: (payload: CreatePostPayload) => Promise<boolean>;
   toggleLike: (postId: string) => Promise<void>;
-  addComment: (postId: string, content: string) => Promise<boolean>;
+  addComment: (postId: string, content: string, parentId?: string) => Promise<boolean>;
+  toggleCommentLike: (postId: string, commentId: string) => Promise<void>;
   toggleBookmark: (postId: string) => Promise<void>;
   deletePost: (postId: string) => Promise<boolean>;
 }
@@ -162,7 +166,6 @@ export const usePostStore = create<PostState>((set, get) => ({
     try {
       const res = await fetch(`/api/posts/${postId}/like`, { method: "POST" });
       if (!res.ok) {
-        // Rollback on failure
         set({ posts: currentPosts });
       }
     } catch {
@@ -170,32 +173,88 @@ export const usePostStore = create<PostState>((set, get) => ({
     }
   },
 
-  addComment: async (postId, content) => {
+  addComment: async (postId, content, parentId) => {
     try {
       const res = await fetch(`/api/posts/${postId}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content, parentId }),
       });
 
       if (!res.ok) return false;
 
       const newComment = await res.json();
+
       set((state) => ({
-        posts: state.posts.map((p) =>
-          p.id === postId
-            ? {
-                ...p,
-                commentCount: p.commentCount + 1,
-                previewComments: [...p.previewComments, newComment],
-              }
-            : p
-        ),
+        posts: state.posts.map((p) => {
+          if (p.id !== postId) return p;
+
+          if (parentId) {
+            // Append as nested reply
+            return {
+              ...p,
+              commentCount: p.commentCount + 1,
+              previewComments: p.previewComments.map((c) =>
+                c.id === parentId
+                  ? { ...c, replies: [...(c.replies || []), newComment] }
+                  : c
+              ),
+            };
+          }
+
+          // Append as root comment
+          return {
+            ...p,
+            commentCount: p.commentCount + 1,
+            previewComments: [...(p.previewComments || []), newComment],
+          };
+        }),
       }));
       return true;
     } catch (err) {
       console.error("addComment error:", err);
       return false;
+    }
+  },
+
+  toggleCommentLike: async (postId, commentId) => {
+    const currentPosts = get().posts;
+    const post = currentPosts.find((p) => p.id === postId);
+    if (!post) return;
+
+    const updateCommentLike = (comment: PostComment): PostComment => {
+      if (comment.id === commentId) {
+        const nextIsLiked = !comment.isLiked;
+        return {
+          ...comment,
+          isLiked: nextIsLiked,
+          likeCount: nextIsLiked ? comment.likeCount + 1 : Math.max(0, comment.likeCount - 1),
+        };
+      }
+      if (comment.replies && comment.replies.length > 0) {
+        return {
+          ...comment,
+          replies: comment.replies.map(updateCommentLike),
+        };
+      }
+      return comment;
+    };
+
+    set((state) => ({
+      posts: state.posts.map((p) =>
+        p.id === postId
+          ? {
+              ...p,
+              previewComments: p.previewComments.map(updateCommentLike),
+            }
+          : p
+      ),
+    }));
+
+    try {
+      await fetch(`/api/comments/${commentId}/like`, { method: "POST" });
+    } catch {
+      set({ posts: currentPosts });
     }
   },
 

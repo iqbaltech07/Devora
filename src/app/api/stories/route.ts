@@ -27,6 +27,19 @@ export async function GET() {
             githubUsername: true,
           },
         },
+        views: {
+          include: {
+            viewer: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                title: true,
+              },
+            },
+          },
+          orderBy: { viewedAt: "desc" },
+        },
       },
       orderBy: { createdAt: "asc" },
     });
@@ -36,6 +49,9 @@ export async function GET() {
 
     stories.forEach((story) => {
       const authorId = story.authorId;
+      const isOwner = currentUserId === story.authorId;
+      const isViewed = story.views.some((v) => v.viewerId === currentUserId);
+
       if (!authorMap.has(authorId)) {
         authorMap.set(authorId, {
           author: {
@@ -43,17 +59,34 @@ export async function GET() {
             name: story.author.name,
             avatarUrl: story.author.image || (story.author.githubUsername ? `https://github.com/${story.author.githubUsername}.png` : undefined),
             title: story.author.title || "Web Developer",
-            isMe: currentUserId === story.author.id,
+            isMe: isOwner,
           },
+          hasUnviewed: false,
           stories: [],
         });
       }
+
+      if (!isViewed && !isOwner) {
+        authorMap.get(authorId).hasUnviewed = true;
+      }
+
       authorMap.get(authorId).stories.push({
         id: story.id,
         mediaUrl: story.mediaUrl,
         caption: story.caption,
         createdAt: story.createdAt.toISOString(),
         expiresAt: story.expiresAt.toISOString(),
+        viewsCount: story.views.length,
+        isViewed,
+        viewers: isOwner
+          ? story.views.map((v) => ({
+              id: v.viewer.id,
+              name: v.viewer.name,
+              avatarUrl: v.viewer.image,
+              title: v.viewer.title || "Developer",
+              viewedAt: v.viewedAt.toISOString(),
+            }))
+          : [],
       });
     });
 

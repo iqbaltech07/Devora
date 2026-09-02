@@ -56,6 +56,7 @@ export async function GET(request: Request) {
             },
           },
           comments: {
+            where: { parentId: null }, // Only root comments
             include: {
               author: {
                 select: {
@@ -63,11 +64,28 @@ export async function GET(request: Request) {
                   name: true,
                   image: true,
                   title: true,
+                  githubUsername: true,
                 },
+              },
+              likes: true,
+              replies: {
+                include: {
+                  author: {
+                    select: {
+                      id: true,
+                      name: true,
+                      image: true,
+                      title: true,
+                      githubUsername: true,
+                    },
+                  },
+                  likes: true,
+                },
+                orderBy: { createdAt: "asc" },
               },
             },
             orderBy: { createdAt: "asc" },
-            take: 3, // Preview 3 comments
+            take: 5,
           },
           bookmarks: {
             select: {
@@ -129,9 +147,26 @@ export async function GET(request: Request) {
           author: {
             id: c.author.id,
             name: c.author.name,
-            avatarUrl: c.author.image,
+            avatarUrl: c.author.image || (c.author.githubUsername ? `https://github.com/${c.author.githubUsername}.png` : undefined),
             title: c.author.title || "Developer",
           },
+          likeCount: c.likes.length,
+          isLiked: currentUserId ? c.likes.some((l) => l.userId === currentUserId) : false,
+          isOwner: currentUserId === c.authorId,
+          replies: c.replies.map((r) => ({
+            id: r.id,
+            content: r.content,
+            createdAt: r.createdAt.toISOString(),
+            author: {
+              id: r.author.id,
+              name: r.author.name,
+              avatarUrl: r.author.image || (r.author.githubUsername ? `https://github.com/${r.author.githubUsername}.png` : undefined),
+              title: r.author.title || "Developer",
+            },
+            likeCount: r.likes.length,
+            isLiked: currentUserId ? r.likes.some((l) => l.userId === currentUserId) : false,
+            isOwner: currentUserId === r.authorId,
+          })),
         })),
       };
     });
