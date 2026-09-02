@@ -14,7 +14,7 @@ function timeAgo(date: Date): string {
   return `${days} hari lalu`;
 }
 
-// GET /api/notifications: Fetch social likes, comments, follows, messages, matches, and project updates
+// GET /api/notifications: Fetch social likes, comments, comment likes/replies, follows, messages, matches, and project updates
 export async function GET() {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -80,11 +80,12 @@ export async function GET() {
       take: 15,
     });
 
-    // 3. Fetch comments on current user's posts
+    // 3. Fetch root comments on current user's posts
     const postComments = await prisma.comment.findMany({
       where: {
         post: { authorId: currentUserId },
         authorId: { not: currentUserId },
+        parentId: null, // Only root comments
       },
       include: {
         author: {
@@ -106,7 +107,62 @@ export async function GET() {
       take: 15,
     });
 
-    // 4. Fetch incoming profile likes (Users who swiped RIGHT on currentUser)
+    // 4. Fetch Comment Likes (Likes on comments authored by current user)
+    const commentLikes = await prisma.commentLike.findMany({
+      where: {
+        comment: { authorId: currentUserId },
+        userId: { not: currentUserId },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            title: true,
+          },
+        },
+        comment: {
+          select: {
+            id: true,
+            content: true,
+            postId: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 15,
+    });
+
+    // 5. Fetch Nested Comment Replies (Replies to comments authored by current user)
+    const commentReplies = await prisma.comment.findMany({
+      where: {
+        parent: { authorId: currentUserId },
+        authorId: { not: currentUserId },
+        parentId: { not: null },
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            title: true,
+          },
+        },
+        parent: {
+          select: {
+            id: true,
+            content: true,
+            postId: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 15,
+    });
+
+    // 6. Fetch incoming profile likes (Users who swiped RIGHT on currentUser)
     const incomingSwipes = await prisma.swipe.findMany({
       where: {
         swipedId: currentUserId,
@@ -118,7 +174,7 @@ export async function GET() {
 
     const swiperIds = incomingSwipes.map((s) => s.swiperId);
 
-    // 5. Fetch mutual matches
+    // 7. Fetch mutual matches
     const mutualMatches = await prisma.match.findMany({
       where: {
         OR: [{ user1Id: currentUserId }, { user2Id: currentUserId }],
@@ -131,7 +187,7 @@ export async function GET() {
       m.user1Id === currentUserId ? m.user2Id : m.user1Id
     );
 
-    // 6. Fetch unread messages
+    // 8. Fetch unread messages
     const unreadMessages = await prisma.message.findMany({
       where: {
         receiverId: currentUserId,
@@ -143,7 +199,7 @@ export async function GET() {
 
     const senderIds = unreadMessages.map((m) => m.senderId);
 
-    // 7. Fetch Join Requests where current user is the Applicant (e.g. ACC / Accepted by Project Owner)
+    // 9. Fetch Join Requests where current user is the Applicant (e.g. ACC / Accepted by Project Owner)
     const myApplications = await prisma.joinRequest.findMany({
       where: {
         applicantId: currentUserId,
@@ -169,7 +225,7 @@ export async function GET() {
       take: 15,
     });
 
-    // 8. Fetch Incoming Join Requests where current user is the Project Author
+    // 10. Fetch Incoming Join Requests where current user is the Project Author
     const incomingProjectRequests = await prisma.joinRequest.findMany({
       where: {
         project: {
@@ -280,7 +336,47 @@ export async function GET() {
       });
     }
 
-    // Format C: My Project Applications (ACC / Accepted or Rejected)
+    // Format C: Comment Likes
+    for (const cl of commentLikes) {
+      if (!cl.user || !cl.comment) continue;
+      const snippet = cl.comment.content ? `"${cl.comment.content.slice(0, 35)}${cl.comment.content.length > 35 ? "..." : ""}"` : "komentar kamu";
+      notifications.push({
+        id: `comment-like-${cl.id}`,
+        type: "LIKE",
+        title: "Menyukai Komentar Kamu",
+        message: `${cl.user.name || "Developer"} menyukai komentar kamu: ${snippet}`,
+        actorId: cl.user.id,
+        actorName: cl.user.name || "Developer",
+        actorAvatar: cl.user.image || undefined,
+        actorRole: cl.user.title || "Developer",
+        linkUrl: `/dashboard`,
+        read: false,
+        createdAt: timeAgo(cl.createdAt),
+        timestamp: new Date(cl.createdAt).getTime(),
+      });
+    }
+
+    // Format D: Comment Replies (Nested replies to my comments)
+    for (const cr of commentReplies) {
+      if (!cr.author || !cr.parent) continue;
+      const parentSnippet = cr.parent.content ? `"${cr.parent.content.slice(0, 30)}${cr.parent.content.length > 30 ? "..." : ""}"` : "komentar kamu";
+      notifications.push({
+        id: `comment-reply-${cr.id}`,
+        type: "MESSAGE",
+        title: "Membalas Komentar Kamu",
+        message: `${cr.author.name || "Developer"} membalas ${parentSnippet}: "${cr.content.slice(0, 45)}${cr.content.length > 45 ? "..." : ""}"`,
+        actorId: cr.author.id,
+        actorName: cr.author.name || "Developer",
+        actorAvatar: cr.author.image || undefined,
+        actorRole: cr.author.title || "Developer",
+        linkUrl: `/dashboard`,
+        read: false,
+        createdAt: timeAgo(cr.createdAt),
+        timestamp: new Date(cr.createdAt).getTime(),
+      });
+    }
+
+    // Format E: My Project Applications (ACC / Accepted or Rejected)
     for (const app of myApplications) {
       if (!app.project) continue;
       const author = app.project.author;
@@ -318,7 +414,7 @@ export async function GET() {
       }
     }
 
-    // Format D: Incoming Applications for My Authored Projects
+    // Format F: Incoming Applications for My Authored Projects
     for (const req of incomingProjectRequests) {
       if (!req.applicant || !req.project) continue;
       notifications.push({
@@ -337,7 +433,7 @@ export async function GET() {
       });
     }
 
-    // Format E: Incoming Likes
+    // Format G: Incoming Likes
     for (const swipe of incomingSwipes) {
       const swiper = userMap.get(swipe.swiperId);
       if (!swiper) continue;
@@ -357,7 +453,7 @@ export async function GET() {
       });
     }
 
-    // Format F: Mutual Matches
+    // Format H: Mutual Matches
     for (const match of mutualMatches) {
       const partnerId = match.user1Id === currentUserId ? match.user2Id : match.user1Id;
       const partner = userMap.get(partnerId);
@@ -378,7 +474,7 @@ export async function GET() {
       });
     }
 
-    // Format G: Unread Messages
+    // Format I: Unread Messages
     for (const msg of unreadMessages) {
       const sender = userMap.get(msg.senderId);
       if (!sender) continue;

@@ -81,7 +81,10 @@ export default function NotificationsPage() {
     if (activeFilter === "FEED") {
       return (
         notif.type === "LIKE" ||
-        (notif.type === "MESSAGE" && notif.id.startsWith("post-comment"))
+        (notif.type === "MESSAGE" &&
+          (notif.id.startsWith("post-comment") ||
+            notif.id.startsWith("comment-reply") ||
+            notif.id.startsWith("comment-like")))
       );
     }
     if (activeFilter === "CHAT_MATCH") {
@@ -100,7 +103,12 @@ export default function NotificationsPage() {
     (n) => n.type === "FOLLOW" || n.type === "FOLLOW_BACK"
   ).length;
   const feedCount = notifications.filter(
-    (n) => n.type === "LIKE" || (n.type === "MESSAGE" && n.id.startsWith("post-comment"))
+    (n) =>
+      n.type === "LIKE" ||
+      (n.type === "MESSAGE" &&
+        (n.id.startsWith("post-comment") ||
+          n.id.startsWith("comment-reply") ||
+          n.id.startsWith("comment-like")))
   ).length;
   const chatCount = notifications.filter(
     (n) => n.type === "MATCH" || (n.type === "MESSAGE" && n.id.startsWith("msg-item"))
