@@ -61,17 +61,14 @@ export function InAppNotificationBanner() {
     markAsRead(activePopup.id);
     handleDismiss();
 
-    if (activePopup.linkUrl && activePopup.linkUrl !== "/messages") {
+    if (activePopup.linkUrl) {
       router.push(activePopup.linkUrl);
-    } else if (
-      activePopup.actorId &&
-      (activePopup.type === "MESSAGE" ||
-        activePopup.type === "MATCH" ||
-        activePopup.type === "SYSTEM")
-    ) {
-      router.push(`/messages?userId=${activePopup.actorId}`);
-    } else if (activePopup.linkUrl) {
-      router.push(activePopup.linkUrl);
+    } else if (activePopup.actorId) {
+      if (activePopup.type === "FOLLOW" || activePopup.type === "FOLLOW_BACK") {
+        router.push(`/profile/${activePopup.actorId}`);
+      } else {
+        router.push(`/messages?userId=${activePopup.actorId}`);
+      }
     } else {
       router.push("/dashboard");
     }

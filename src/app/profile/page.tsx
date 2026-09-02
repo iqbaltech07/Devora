@@ -315,14 +315,15 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    fetchProfile();
+    fetchProfile(true);
   }, [fetchProfile]);
 
   useEffect(() => {
     if (currentUser.id) {
       loadFollowStats();
+      setAvatarUrlInput(currentUser.image || currentUser.avatarUrl || "");
     }
-  }, [currentUser.id]);
+  }, [currentUser.id, currentUser.image, currentUser.avatarUrl]);
 
   useEffect(() => {
     if (currentUser.id && !isInitialized) {
@@ -372,8 +373,8 @@ export default function ProfilePage() {
           const tzData = await tzRes.json();
           if (tzData.timezones) setTimezonesList(tzData.timezones);
         }
-      } catch (err) {
-        console.error("Failed to load geo data:", err);
+      } catch {
+        // Fallback already in place
       }
     }
     loadGeoData();
@@ -435,6 +436,12 @@ export default function ProfilePage() {
     }
   };
 
+  const handleAddSuggestedTech = (tech: string) => {
+    if (!techStack.includes(tech)) {
+      setTechStack([...techStack, tech]);
+    }
+  };
+
   const handleRemoveTech = (tech: string) => {
     setTechStack(techStack.filter((t) => t !== tech));
   };
@@ -477,17 +484,23 @@ export default function ProfilePage() {
         body: formData,
       });
 
+      let finalUrl = compressedDataUrl;
       if (res.ok) {
         const data = await res.json();
-        setAvatarUrlInput(data.url);
-      } else {
-        // Fallback to compressed base64
-        setAvatarUrlInput(compressedDataUrl);
+        if (data.url) finalUrl = data.url;
       }
 
+      setAvatarUrlInput(finalUrl);
+
+      // 3. IMMEDIATELY AUTO-SAVE to database & user store
+      await updateProfileApi({
+        image: finalUrl,
+        avatarUrl: finalUrl,
+      });
+
       addToast({
-        title: "Foto Profil Berhasil Dipilih",
-        description: "Jangan lupa tekan tombol 'Simpan Semua Perubahan' untuk memperbarui profil.",
+        title: "Foto Profil Berhasil Diperbarui",
+        description: "Foto profil Anda telah disimpan secara permanen.",
         type: "success",
       });
     } catch (err: any) {
@@ -505,11 +518,15 @@ export default function ProfilePage() {
     }
   };
 
-  const handleRemoveAvatar = () => {
+  const handleRemoveAvatar = async () => {
     setAvatarUrlInput("");
+    await updateProfileApi({
+      image: "",
+      avatarUrl: "",
+    });
     addToast({
       title: "Foto Profil Dihapus",
-      description: "Foto profil telah dihapus. Tekan simpan untuk menerapkan.",
+      description: "Foto profil Anda telah dihapus.",
       type: "info",
     });
   };

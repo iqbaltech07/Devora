@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { PostItem, usePostStore } from "@/store/usePostStore";
 import { Avatar } from "@/components/ui/avatar";
 import { playNotificationSound } from "@/lib/sound";
@@ -59,14 +59,31 @@ function renderFormattedContent(text: string) {
 
 export function DevPostCard({ post }: DevPostCardProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toggleLike, toggleBookmark, addComment, toggleCommentLike, deletePost } = usePostStore();
 
+  const targetPostId = searchParams.get("postId");
+  const isTargetPost = targetPostId === post.id;
+
   const [isCopied, setIsCopied] = useState(false);
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(isTargetPost);
   const [commentInput, setCommentInput] = useState("");
   const [replyingTo, setReplyingTo] = useState<{ id: string; name: string } | null>(null);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    if (isTargetPost) {
+      setShowComments(true);
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`post-${post.id}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [isTargetPost, post.id]);
 
   const handleCopyCode = () => {
     if (!post.codeSnippet) return;
@@ -109,7 +126,15 @@ export function DevPostCard({ post }: DevPostCardProps) {
   };
 
   return (
-    <article className="bg-white border border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-4 sm:p-5 shadow-xs hover:border-slate-300 transition-all space-y-3.5">
+    <article
+      id={`post-${post.id}`}
+      className={cn(
+        "bg-white border rounded-2xl sm:rounded-[24px] p-4 sm:p-5 shadow-xs transition-all space-y-3.5",
+        isTargetPost
+          ? "border-2 border-[#FF5733] ring-4 ring-[#FF5733]/15 shadow-md"
+          : "border-[#E2E8F0] hover:border-slate-300"
+      )}
+    >
       {/* ─── 1. CARD HEADER ─── */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">

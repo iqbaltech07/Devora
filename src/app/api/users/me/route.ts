@@ -66,13 +66,13 @@ export async function GET() {
             githubUrl = ghData.html_url || `https://github.com/${ghData.login}`;
             avatarUrl = ghData.avatar_url || avatarUrl;
 
-            // Persist synced info to database
+            // Persist synced info to database without overwriting custom uploaded avatar
             user = await prisma.user.update({
               where: { id: user.id },
               data: {
                 githubUsername,
                 githubUrl,
-                image: avatarUrl,
+                image: user.image || avatarUrl,
                 bio: user.bio || ghData.bio || undefined,
                 location: user.location || ghData.location || undefined,
               },
@@ -134,7 +134,7 @@ export async function GET() {
           connected: true,
           username: githubUsername || "GitHub User",
           profileUrl: githubUrl || `https://github.com/${githubUsername || ""}`,
-          avatarUrl: avatarUrl || undefined,
+          avatarUrl: user.image || avatarUrl || undefined,
           lastSyncedAt: new Date().toISOString(),
           totalRepos: gitRepos.length,
           repositories: gitRepos,
@@ -180,6 +180,8 @@ export async function GET() {
 
     return NextResponse.json({
       ...user,
+      image: user.image || avatarUrl || "",
+      avatarUrl: user.image || avatarUrl || "",
       goals: parsedGoals,
       githubUsername,
       githubUrl,
