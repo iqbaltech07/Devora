@@ -29,7 +29,7 @@ export function NotificationDropdown() {
   const [activeTab, setActiveTab] = useState<"ALL" | "FOLLOW" | "LIKE" | "MATCH" | "PROJECT_INVITE">("ALL");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
+  // Close dropdown on outside click & Auto-mark all as read on open
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -38,11 +38,15 @@ export function NotificationDropdown() {
     };
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
+      // Automatically mark all as read when popup opens
+      if (unreadCount > 0) {
+        markAllAsRead();
+      }
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, unreadCount, markAllAsRead]);
 
   const handleNotificationClick = (notif: NotificationItem) => {
     markAsRead(notif.id);
@@ -104,25 +108,10 @@ export function NotificationDropdown() {
                   <Bell className="w-3.5 h-3.5" />
                 </div>
                 <h3 className="text-xs font-bold text-[#0F172A]">Notifikasi</h3>
-                {unreadCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-full bg-[#FFF1EE] text-[#FF5733] text-[10px] font-bold font-mono">
-                    {unreadCount} baru
-                  </span>
-                )}
+                <span className="text-[10px] font-mono text-[#64748B]">Otomatis Terbaca</span>
               </Link>
 
               <div className="flex items-center gap-2">
-                {unreadCount > 0 && (
-                  <button
-                    type="button"
-                    onClick={markAllAsRead}
-                    className="text-[11px] font-semibold text-[#64748B] hover:text-[#FF5733] flex items-center gap-1 transition-colors"
-                  >
-                    <CheckCheck className="w-3 h-3" />
-                    <span>Tandai dibaca</span>
-                  </button>
-                )}
-
                 <Link
                   href="/notifications"
                   onClick={() => setIsOpen(false)}

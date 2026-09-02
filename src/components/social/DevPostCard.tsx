@@ -29,6 +29,34 @@ interface DevPostCardProps {
   post: PostItem;
 }
 
+function renderFormattedContent(text: string) {
+  const parts = text.split(/(@[a-zA-Z0-9_\.\-]+|#[a-zA-Z0-9_]+)/g);
+
+  return parts.map((part, idx) => {
+    if (part.startsWith("@")) {
+      return (
+        <span
+          key={idx}
+          className="text-[#FF5733] font-bold hover:underline cursor-pointer"
+        >
+          {part}
+        </span>
+      );
+    }
+    if (part.startsWith("#")) {
+      return (
+        <span
+          key={idx}
+          className="text-[#FF5733] font-semibold hover:underline cursor-pointer"
+        >
+          {part}
+        </span>
+      );
+    }
+    return part;
+  });
+}
+
 export function DevPostCard({ post }: DevPostCardProps) {
   const router = useRouter();
   const { toggleLike, toggleBookmark, addComment, toggleCommentLike, deletePost } = usePostStore();
@@ -152,7 +180,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
       {/* ─── 2. CAPTION & HASHTAGS ─── */}
       {post.content && (
         <p className="text-xs sm:text-sm text-[#0F172A] leading-relaxed whitespace-pre-line font-normal">
-          {post.content}
+          {renderFormattedContent(post.content)}
         </p>
       )}
 
@@ -356,7 +384,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
                         </button>
                       </div>
 
-                      <p className="text-[#334155] leading-relaxed break-words">{c.content}</p>
+                      <p className="text-[#334155] leading-relaxed break-words">{renderFormattedContent(c.content)}</p>
 
                       {/* Reply button */}
                       <button
@@ -406,7 +434,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
                               </button>
                             </div>
 
-                            <p className="text-[#334155] leading-relaxed break-words">{reply.content}</p>
+                            <p className="text-[#334155] leading-relaxed break-words">{renderFormattedContent(reply.content)}</p>
                           </div>
                         </div>
                       ))}

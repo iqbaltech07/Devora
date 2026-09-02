@@ -47,12 +47,15 @@ export default function NotificationsPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    fetchNotifications().then(() => {
+      markAllAsRead();
+    });
+  }, [fetchNotifications, markAllAsRead]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await fetchNotifications();
+    markAllAsRead();
     playNotificationSound();
     setIsRefreshing(false);
   };
@@ -134,7 +137,7 @@ export default function NotificationsPage() {
                 Aktivitas & Notifikasi
               </h1>
               <p className="text-xs sm:text-sm text-[#64748B]">
-                Pantau pengikut baru, interaksi postingan, match developer, dan lamaran proyek kamu secara real-time.
+                Pantau pengikut baru, mention, interaksi postingan, match developer, dan lamaran proyek kamu secara real-time.
               </p>
             </div>
 
@@ -151,18 +154,6 @@ export default function NotificationsPage() {
                 <RefreshCw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} />
                 <span>Segarkan</span>
               </Button>
-
-              {unreadCount > 0 && (
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={markAllAsRead}
-                  className="gap-1.5 text-xs font-bold bg-[#0F172A] text-white hover:bg-[#1E293B] shadow-xs"
-                >
-                  <CheckCheck className="w-3.5 h-3.5" />
-                  <span>Tandai Semua Dibaca ({unreadCount})</span>
-                </Button>
-              )}
             </div>
           </div>
 

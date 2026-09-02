@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { usePostStore } from "@/store/usePostStore";
 import { useUserStore } from "@/store/useUserStore";
 import { Avatar } from "@/components/ui/avatar";
@@ -15,6 +15,7 @@ import {
   Rocket,
   X,
   Plus,
+  AtSign,
 } from "lucide-react";
 
 const CODE_LANGUAGES = [
@@ -35,6 +36,15 @@ const POST_CATEGORIES = [
   { label: "Tips & Insight", value: "TECH_TIPS", icon: Lightbulb },
 ];
 
+interface CandidateUser {
+  id: string;
+  name: string;
+  image?: string;
+  title?: string;
+  githubUsername?: string;
+  handle: string;
+}
+
 export function CreatePostBox() {
   const { createPost, isSubmitting } = usePostStore();
   const { currentUser } = useUserStore();
@@ -49,7 +59,98 @@ export function CreatePostBox() {
   const [customTagInput, setCustomTagInput] = useState("");
   const [tags, setTags] = useState<string[]>(["#BuildInPublic"]);
 
+  // Mention (@) System State
+  const [candidates, setCandidates] = useState<CandidateUser[]>([]);
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [cursorPos, setCursorPos] = useState<number>(0);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const mentionBoxRef = useRef<HTMLDivElement>(null);
+
+  // Fetch candidates for mention autocomplete
+  useEffect(() => {
+    async function loadCandidates() {
+      try {
+        const res = await fetch("/api/explore");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.developers)) {
+            const list: CandidateUser[] = data.developers.map((d: any) => ({
+              id: d.id,
+              name: d.name || "Developer",
+              image: d.image || d.avatarUrl,
+              title: d.title || "Web Developer",
+              githubUsername: d.githubUsername,
+              handle: d.githubUsername || d.name?.replace(/\s+/g, "_").toLowerCase() || d.id.slice(0, 8),
+            }));
+            setCandidates(list);
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load mention candidates:", e);
+      }
+    }
+    loadCandidates();
+  }, []);
+
+  // Detect "@" while typing in content textarea
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    const pos = e.target.selectionStart || 0;
+    setContent(val);
+    setCursorPos(pos);
+
+    // Extract word before cursor
+    const textBeforeCursor = val.slice(0, pos);
+    const match = textBeforeCursor.match(/@([a-zA-Z0-9_\.\-]*)$/);
+
+    if (match) {
+      setMentionQuery(match[1].toLowerCase());
+    } else {
+      setMentionQuery(null);
+    }
+  };
+
+  // Insert selected candidate handle
+  const handleSelectMention = (candidate: CandidateUser) => {
+    if (!textareaRef.current) return;
+    const textBeforeCursor = content.slice(0, cursorPos);
+    const textAfterCursor = content.slice(cursorPos);
+    const atIndex = textBeforeCursor.lastIndexOf("@");
+
+    if (atIndex !== -1) {
+      const newTextBefore = textBeforeCursor.slice(0, atIndex) + `@${candidate.handle} `;
+      const newContent = newTextBefore + textAfterCursor;
+      setContent(newContent);
+      setMentionQuery(null);
+
+      // Restore focus
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          const nextPos = newTextBefore.length;
+          textareaRef.current.setSelectionRange(nextPos, nextPos);
+        }
+      }, 50);
+    }
+  };
+
+  const handleOpenMentionPicker = () => {
+    if (textareaRef.current) {
+      const pos = textareaRef.current.selectionStart || content.length;
+      const newContent = content.slice(0, pos) + "@" + content.slice(pos);
+      setContent(newContent);
+      setCursorPos(pos + 1);
+      setMentionQuery("");
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          textareaRef.current.setSelectionRange(pos + 1, pos + 1);
+        }
+      }, 50);
+    }
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -111,6 +212,7 @@ export function CreatePostBox() {
       setShowCodeInput(false);
       setMediaUrls([]);
       setTags(["#BuildInPublic"]);
+      setMentionQuery(null);
     }
   };
 
@@ -121,9 +223,21 @@ export function CreatePostBox() {
       ? `https://github.com/${currentUser.githubUsername}.png`
       : undefined);
 
+  // Filter mention candidates based on query
+  const filteredCandidates =
+    mentionQuery !== null
+      ? candidates.filter(
+          (c) =>
+            c.id !== currentUser?.id &&
+            (c.name.toLowerCase().includes(mentionQuery) ||
+              c.handle.toLowerCase().includes(mentionQuery) ||
+              c.title?.toLowerCase().includes(mentionQuery))
+        ).slice(0, 6)
+      : [];
+
   return (
-    <div className="bg-white border border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-4 sm:p-5 shadow-xs space-y-4">
-      {/* Top Header Author info */}
+    <div className="bg-white border border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-4 sm:p-5 shadow-xs space-y-4 relative">
+      {/* Top Header Author info & Textarea */}
       <div className="flex items-start gap-3">
         <Avatar
           src={myAvatar}
@@ -131,14 +245,59 @@ export function CreatePostBox() {
           size="md"
           className="w-10 h-10 sm:w-11 sm:h-11 border border-[#E2E8F0] shrink-0 mt-1"
         />
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 relative">
           <textarea
-            placeholder="Bagikan progres ngoding, showcase UI, arsitektur kode, atau ide proyek..."
+            ref={textareaRef}
+            placeholder="Bagikan progres ngoding, showcase UI, arsitektur kode, atau ide proyek... (Ketik @ untuk mention teman)"
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={handleContentChange}
+            onKeyUp={(e) => setCursorPos(e.currentTarget.selectionStart || 0)}
+            onClick={(e) => setCursorPos(e.currentTarget.selectionStart || 0)}
             rows={3}
             className="w-full text-xs sm:text-sm bg-transparent border-0 focus:outline-none focus:ring-0 text-[#0F172A] placeholder:text-slate-400 resize-none leading-relaxed"
           />
+
+          {/* ─── INSTAGRAM STYLE MENTION AUTOCOMPLETE DROPDOWN ─── */}
+          {mentionQuery !== null && filteredCandidates.length > 0 && (
+            <div
+              ref={mentionBoxRef}
+              className="absolute left-0 top-full mt-1 w-72 sm:w-80 bg-white border border-[#E2E8F0] rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1"
+            >
+              <div className="px-3 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-500">
+                <span className="flex items-center gap-1">
+                  <AtSign className="w-3 h-3 text-[#FF5733]" />
+                  <span>Sebut Teman Developer</span>
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono">Pilih untuk tag</span>
+              </div>
+
+              <div className="max-h-48 overflow-y-auto divide-y divide-slate-100">
+                {filteredCandidates.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => handleSelectMention(c)}
+                    className="w-full p-2.5 flex items-center gap-2.5 hover:bg-[#FFF8F6] text-left transition-colors group"
+                  >
+                    <Avatar
+                      src={c.image}
+                      fallback={c.name.slice(0, 2).toUpperCase()}
+                      size="sm"
+                      className="border border-[#E2E8F0]"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-[#0F172A] group-hover:text-[#FF5733] truncate">
+                        {c.name}
+                      </p>
+                      <p className="text-[10px] font-mono text-slate-400 truncate">
+                        @{c.handle} • {c.title}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -290,8 +449,19 @@ export function CreatePostBox() {
           >
             <ImageIcon className="w-3.5 h-3.5 text-[#FF5733]" />
             <span className="hidden sm:inline">
-              {isUploading ? "Mengunggah..." : "Gambar / Screenshot"}
+              {isUploading ? "Mengunggah..." : "Gambar"}
             </span>
+          </button>
+
+          {/* Mention / Tag Friend Button */}
+          <button
+            type="button"
+            onClick={handleOpenMentionPicker}
+            className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] hover:border-[#FF5733] text-xs font-semibold text-[#475569] hover:text-[#0F172A] flex items-center gap-1.5 transition-colors"
+            title="Tag atau sebut teman developer (@)"
+          >
+            <AtSign className="w-3.5 h-3.5 text-[#FF5733]" />
+            <span className="hidden sm:inline">Tag Teman</span>
           </button>
 
           {/* Add Code Block Button */}

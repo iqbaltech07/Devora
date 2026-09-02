@@ -14,7 +14,7 @@ function timeAgo(date: Date): string {
   return `${days} hari lalu`;
 }
 
-// GET /api/notifications: Fetch social likes, comments, comment likes/replies, follows, messages, matches, and project updates
+// GET /api/notifications: Fetch social likes, comments, comment likes/replies, mentions, follows, messages, matches, and project updates
 export async function GET() {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -23,6 +23,12 @@ export async function GET() {
     }
 
     const currentUserId = session.user.id;
+
+    // Get current user details for precise mention matching
+    const currentUserRecord = await prisma.user.findUnique({
+      where: { id: currentUserId },
+      select: { id: true, name: true, githubUsername: true },
+    });
 
     // 1. Fetch incoming follows (who followed currentUser)
     const incomingFollows = await prisma.follow.findMany({
@@ -162,7 +168,46 @@ export async function GET() {
       take: 15,
     });
 
-    // 6. Fetch incoming profile likes (Users who swiped RIGHT on currentUser)
+    // 6. Fetch Post Mentions / Tag Teman (@)
+    const mentionTerms: string[] = [];
+    if (currentUserRecord?.githubUsername) {
+      mentionTerms.push(`@${currentUserRecord.githubUsername}`);
+    }
+    if (currentUserRecord?.name) {
+      mentionTerms.push(`@${currentUserRecord.name}`);
+      mentionTerms.push(`@${currentUserRecord.name.replace(/\s+/g, "_")}`);
+      mentionTerms.push(`@${currentUserRecord.name.replace(/\s+/g, "")}`);
+    }
+    mentionTerms.push(`@${currentUserId.slice(0, 8)}`);
+
+    const mentionOrClauses = Array.from(new Set(mentionTerms)).map((term) => ({
+      content: { contains: term, mode: "insensitive" as const },
+    }));
+
+    const mentionedPosts =
+      mentionOrClauses.length > 0
+        ? await prisma.post.findMany({
+            where: {
+              authorId: { not: currentUserId },
+              OR: mentionOrClauses,
+            },
+            include: {
+              author: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                  title: true,
+                  githubUsername: true,
+                },
+              },
+            },
+            orderBy: { createdAt: "desc" },
+            take: 15,
+          })
+        : [];
+
+    // 7. Fetch incoming profile likes (Users who swiped RIGHT on currentUser)
     const incomingSwipes = await prisma.swipe.findMany({
       where: {
         swipedId: currentUserId,
@@ -174,7 +219,7 @@ export async function GET() {
 
     const swiperIds = incomingSwipes.map((s) => s.swiperId);
 
-    // 7. Fetch mutual matches
+    // 8. Fetch mutual matches
     const mutualMatches = await prisma.match.findMany({
       where: {
         OR: [{ user1Id: currentUserId }, { user2Id: currentUserId }],
@@ -187,7 +232,7 @@ export async function GET() {
       m.user1Id === currentUserId ? m.user2Id : m.user1Id
     );
 
-    // 8. Fetch unread messages
+    // 9. Fetch unread messages
     const unreadMessages = await prisma.message.findMany({
       where: {
         receiverId: currentUserId,
@@ -199,7 +244,7 @@ export async function GET() {
 
     const senderIds = unreadMessages.map((m) => m.senderId);
 
-    // 9. Fetch Join Requests where current user is the Applicant (e.g. ACC / Accepted by Project Owner)
+    // 10. Fetch Join Requests where current user is the Applicant (e.g. ACC / Accepted by Project Owner)
     const myApplications = await prisma.joinRequest.findMany({
       where: {
         applicantId: currentUserId,
@@ -225,7 +270,7 @@ export async function GET() {
       take: 15,
     });
 
-    // 10. Fetch Incoming Join Requests where current user is the Project Author
+    // 11. Fetch Incoming Join Requests where current user is the Project Author
     const incomingProjectRequests = await prisma.joinRequest.findMany({
       where: {
         project: {
@@ -376,7 +421,27 @@ export async function GET() {
       });
     }
 
-    // Format E: My Project Applications (ACC / Accepted or Rejected)
+    // Format E: Mentions in Community Posts (@)
+    for (const mp of mentionedPosts) {
+      if (!mp.author) continue;
+      const snippet = mp.content ? `"${mp.content.slice(0, 50)}${mp.content.length > 50 ? "..." : ""}"` : "sebuah postingan";
+      notifications.push({
+        id: `post-mention-${mp.id}`,
+        type: "MESSAGE",
+        title: "Menyebut Kamu dalam Postingan",
+        message: `${mp.author.name || "Developer"} menandai / menyebut akunmu di feeds: ${snippet}`,
+        actorId: mp.author.id,
+        actorName: mp.author.name || "Developer",
+        actorAvatar: mp.author.image || (mp.author.githubUsername ? `https://github.com/${mp.author.githubUsername}.png` : undefined),
+        actorRole: mp.author.title || "Developer",
+        linkUrl: `/dashboard`,
+        read: false,
+        createdAt: timeAgo(mp.createdAt),
+        timestamp: new Date(mp.createdAt).getTime(),
+      });
+    }
+
+    // Format F: My Project Applications (ACC / Accepted or Rejected)
     for (const app of myApplications) {
       if (!app.project) continue;
       const author = app.project.author;
@@ -414,7 +479,7 @@ export async function GET() {
       }
     }
 
-    // Format F: Incoming Applications for My Authored Projects
+    // Format G: Incoming Applications for My Authored Projects
     for (const req of incomingProjectRequests) {
       if (!req.applicant || !req.project) continue;
       notifications.push({
@@ -433,7 +498,7 @@ export async function GET() {
       });
     }
 
-    // Format G: Incoming Likes
+    // Format H: Incoming Likes
     for (const swipe of incomingSwipes) {
       const swiper = userMap.get(swipe.swiperId);
       if (!swiper) continue;
@@ -453,7 +518,7 @@ export async function GET() {
       });
     }
 
-    // Format H: Mutual Matches
+    // Format I: Mutual Matches
     for (const match of mutualMatches) {
       const partnerId = match.user1Id === currentUserId ? match.user2Id : match.user1Id;
       const partner = userMap.get(partnerId);
@@ -474,7 +539,7 @@ export async function GET() {
       });
     }
 
-    // Format I: Unread Messages
+    // Format J: Unread Messages
     for (const msg of unreadMessages) {
       const sender = userMap.get(msg.senderId);
       if (!sender) continue;
