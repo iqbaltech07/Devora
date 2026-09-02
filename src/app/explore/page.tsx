@@ -219,9 +219,9 @@ export default function ExplorePage() {
                 const hasCode = Boolean(post.codeSnippet);
 
                 return (
-                  <div
+                  <Link
                     key={post.id}
-                    onClick={() => setInspectingPost(post)}
+                    href={`/posts/${post.id}`}
                     className="group relative rounded-2xl overflow-hidden border border-[#E2E8F0] bg-white shadow-xs hover:shadow-md hover:border-[#FF5733] transition-all cursor-pointer flex flex-col justify-between"
                   >
                     {/* Visual Media Header or Code Preview */}
@@ -284,7 +284,7 @@ export default function ExplorePage() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
