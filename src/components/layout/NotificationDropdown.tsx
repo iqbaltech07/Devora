@@ -15,7 +15,6 @@ import {
   CheckCheck,
   X,
   ArrowRight,
-  Sparkles,
   Radio,
   ExternalLink,
 } from "lucide-react";
@@ -202,7 +201,7 @@ export function NotificationDropdown() {
                       {notif.type === "MATCH" && <Flame className="w-2.5 h-2.5 text-emerald-500 fill-emerald-500" />}
                       {notif.type === "PROJECT_INVITE" && <FolderKanban className="w-2.5 h-2.5 text-blue-500" />}
                       {notif.type === "MESSAGE" && <MessageSquare className="w-2.5 h-2.5 text-violet-500" />}
-                      {notif.type === "SYSTEM" && <Sparkles className="w-2.5 h-2.5 text-amber-500" />}
+                      {notif.type === "SYSTEM" && <Bell className="w-2.5 h-2.5 text-amber-500" />}
                     </span>
                   </div>
 

@@ -9,7 +9,6 @@ import { useProjectStore } from "@/store/useProjectStore";
 import {
   Flame,
   ArrowRight,
-  Sparkles,
   Users,
   User,
   Code2,

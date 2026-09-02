@@ -14,7 +14,7 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
-  Sparkles,
+  Sliders,
   Palette,
   Layers,
   Server,
@@ -189,7 +189,7 @@ export default function OnboardingPage() {
         {/* Step Progress Tracker */}
         <div className="space-y-2 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-devora-surface border border-devora-border text-xs font-mono font-bold text-devora-brand">
-            <Sparkles className="w-3.5 h-3.5 fill-devora-brand" />
+            <Sliders className="w-3.5 h-3.5 text-devora-brand" />
             <span>Personalisasi Profil Pengembang • Langkah {step} dari 3</span>
           </div>
 

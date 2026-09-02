@@ -26,7 +26,7 @@ import {
   MoreHorizontal,
   Trash2,
   Code2,
-  Sparkles,
+  Quote,
   Rocket,
   UserPlus,
   UserCheck,
@@ -344,7 +344,7 @@ export default function PostDetailPage({
             ) : (
               <div className="p-8 text-center text-white space-y-4 max-w-md">
                 <div className="w-12 h-12 rounded-full bg-[#FF5733]/20 text-[#FF5733] flex items-center justify-center mx-auto">
-                  <Sparkles className="w-6 h-6" />
+                  <Quote className="w-6 h-6" />
                 </div>
                 <p className="text-base sm:text-lg font-medium italic leading-relaxed text-slate-200">
                   &ldquo;{post.content}&rdquo;

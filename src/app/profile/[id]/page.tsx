@@ -26,7 +26,7 @@ import {
   ExternalLink,
   GitBranch,
   ArrowLeft,
-  Sparkles,
+  Layers,
   UserPlus,
   UserCheck,
   Users,
@@ -35,7 +35,6 @@ import {
   Send,
   ShieldCheck,
   Zap,
-  Layers,
 } from "lucide-react";
 import { formatExperienceLabel, formatWorkPreferenceLabel } from "@/lib/profile-utils";
 import { FollowListModal } from "@/components/social/FollowListModal";
@@ -499,11 +498,11 @@ export default function PublicProfilePage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-full bg-devora-brand text-white flex items-center justify-center shadow-xs">
-                  <Sparkles className="w-5 h-5" />
+                  <Flame className="w-5 h-5 fill-white" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-devora-ink">
-                    Tingkat Kecocokan denganmu
+                    Tingkat Kecocokan dengan Anda
                   </h3>
                   <p className="text-xs text-devora-muted">
                     Dihitung dari keahlian yang saling melengkapi & ketersediaan waktu
@@ -650,24 +649,25 @@ export default function PublicProfilePage() {
           <Card className="p-5 sm:p-6 bg-devora-surface border-2 border-devora-border rounded-container space-y-4">
             <div className="flex items-center justify-between border-b border-devora-border pb-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-devora-brand" />
+                <Layers className="w-4 h-4 text-devora-brand" />
                 <h2 className="text-sm font-mono uppercase font-bold text-devora-ink tracking-wider">
                   Postingan & Update Karya ({userPosts.length})
                 </h2>
               </div>
-              <span className="text-xs text-devora-muted">Feed Sejawat</span>
+              <span className="text-xs text-devora-muted font-medium">Feeds Komunitas</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {userPosts.map((post: any) => (
-                <div
+                <Link
                   key={post.id}
-                  className="p-3.5 bg-devora-background border border-devora-border rounded-container space-y-2 flex flex-col justify-between hover:border-devora-brand transition-colors"
+                  href={`/posts/${post.id}`}
+                  className="p-3.5 bg-devora-background border border-devora-border rounded-container space-y-2 flex flex-col justify-between hover:border-devora-brand transition-all group"
                 >
                   <div className="space-y-1.5">
                     {post.mediaUrls && post.mediaUrls.length > 0 && (
                       <div className="rounded-lg overflow-hidden aspect-video bg-slate-900 mb-2">
-                        <img src={post.mediaUrls[0]} alt="Post" className="w-full h-full object-cover" />
+                        <img src={post.mediaUrls[0]} alt="Post" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       </div>
                     )}
                     <p className="text-xs text-devora-ink line-clamp-3 leading-relaxed">
@@ -682,7 +682,7 @@ export default function PublicProfilePage() {
                     </span>
                     <span>{post.commentCount} Komentar</span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </Card>

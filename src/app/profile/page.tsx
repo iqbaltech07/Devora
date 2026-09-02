@@ -28,7 +28,8 @@ import {
   Bot,
   Smartphone,
   Cloud,
-  Sparkles,
+  Sliders,
+  FolderKanban,
   MapPin,
   Globe,
   Compass,
@@ -874,7 +875,7 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-devora-surface border border-devora-border">
-                <Sparkles className="w-3.5 h-3.5 text-[#FF5733]" />
+                <Sliders className="w-3.5 h-3.5 text-[#FF5733]" />
                 <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-devora-ink">
                   Pengaturan Profil Developer
                 </span>
@@ -1546,7 +1547,7 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <label className="text-[11px] font-mono uppercase font-bold text-slate-700 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-devora-brand" />
+                    <Briefcase className="w-3.5 h-3.5 text-devora-brand" />
                     <span>Headline / Posisi Andalan</span>
                   </label>
                   <span className="text-[10px] text-slate-400">
@@ -2224,7 +2225,7 @@ export default function ProfilePage() {
                 <div className="p-3.5 sm:p-5 bg-amber-50/40 rounded-xl sm:rounded-2xl border-2 border-amber-500/30 space-y-4 animate-in fade-in duration-200">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xs font-extrabold uppercase font-mono text-amber-700 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5" />
+                      <Award className="w-3.5 h-3.5 text-amber-700" />
                       <span>Upload Sertifikat Baru</span>
                     </h3>
                     <span className="text-[10px] font-mono text-amber-700 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">
@@ -2492,7 +2493,7 @@ export default function ProfilePage() {
               {isAddingProj && (
                 <div className="p-3.5 sm:p-4 bg-devora-brand-soft/30 rounded-xl sm:rounded-2xl border-2 border-devora-brand/30 space-y-3 animate-in fade-in duration-200">
                   <h3 className="text-xs font-extrabold uppercase font-mono text-devora-brand-dark flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-devora-brand" />
+                    <FolderKanban className="w-3.5 h-3.5 text-devora-brand" />
                     <span>Formulir Proyek Portofolio Baru</span>
                   </h3>
 

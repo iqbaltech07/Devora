@@ -29,7 +29,6 @@ import {
   Zap,
   Radio,
   Clock,
-  Sparkles,
   ExternalLink,
   MapPin,
   ArrowLeft,

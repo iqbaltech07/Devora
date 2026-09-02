@@ -11,7 +11,7 @@ import {
   Users,
   MessageSquare,
   FolderKanban,
-  Sparkles,
+  Bell,
   X,
   ChevronUp,
 } from "lucide-react";
@@ -151,7 +151,7 @@ export function InAppNotificationBanner() {
               <MessageSquare className="w-2.5 h-2.5 text-violet-400" />
             )}
             {activePopup.type === "SYSTEM" && (
-              <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+              <Bell className="w-2.5 h-2.5 text-amber-400" />
             )}
           </span>
         </div>

@@ -11,7 +11,6 @@ import { authClient } from "@/lib/auth-client";
 import {
   Flame,
   CheckCircle2,
-  Sparkles,
   GitBranch,
   ShieldCheck,
   Zap,

@@ -48,7 +48,6 @@ import {
   Filter,
   Check,
   MapPin,
-  Sparkles,
   Zap,
 } from "lucide-react";
 import { ProjectBoardSkeletonList } from "@/components/ui/ProjectCardSkeleton";

@@ -21,7 +21,6 @@ import {
   UserCheck,
   CheckCheck,
   ArrowRight,
-  Sparkles,
   Radio,
   Clock,
   RefreshCw,
@@ -273,7 +272,7 @@ export default function NotificationsPage() {
                         {isProjectType && <FolderKanban className="w-3 h-3 text-blue-500" />}
                         {isChatType && <MessageSquare className="w-3 h-3 text-emerald-500" />}
                         {!isFollowType && !isLikeType && !isProjectType && !isChatType && (
-                          <Sparkles className="w-3 h-3 text-amber-500" />
+                          <Bell className="w-3 h-3 text-amber-500" />
                         )}
                       </span>
                     </div>

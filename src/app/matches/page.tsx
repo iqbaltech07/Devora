@@ -20,7 +20,7 @@ import {
   Info,
   Heart,
   X,
-  Sparkles,
+  HeartHandshake,
   Palette,
   Server,
   Layout,
@@ -515,7 +515,7 @@ export default function MatchesPage() {
             ) : (
               <Card className="py-16 px-6 sm:py-24 sm:px-10 text-center bg-devora-surface border-2 border-dashed border-devora-border rounded-container flex flex-col items-center justify-center space-y-6 shadow-xs">
                 <div className="w-16 h-16 rounded-full bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-500 shadow-xs">
-                  <Sparkles className="w-8 h-8" />
+                  <HeartHandshake className="w-8 h-8" />
                 </div>
                 <div className="space-y-2.5 max-w-md mx-auto">
                   <h3 className="text-xl sm:text-2xl font-bold text-devora-ink tracking-tight">
