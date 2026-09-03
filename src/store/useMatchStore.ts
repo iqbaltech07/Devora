@@ -34,7 +34,8 @@ interface MatchState {
   selectMatch: (id: string | null) => void;
   
   // Async Data Fetching
-  fetchCandidates: (force?: boolean) => Promise<void>;
+  loadedProjectId: string | null;
+  fetchCandidates: (force?: boolean, projectId?: string) => Promise<void>;
   fetchMatches: (force?: boolean) => Promise<void>;
   fetchIncomingLikes: (force?: boolean) => Promise<void>;
 }
@@ -51,6 +52,7 @@ export const useMatchStore = create<MatchState>((set, get) => ({
   showMatchCelebration: false,
   matches: INITIAL_MATCHES,
   selectedMatchId: null,
+  loadedProjectId: null,
   isLoadingMatches: false,
   isLoadingCandidates: false,
   isLoadingIncomingLikes: false,
@@ -223,7 +225,7 @@ export const useMatchStore = create<MatchState>((set, get) => ({
       if (!res.ok && res.status === 429) {
         console.warn("Deck reset rate limited. Please wait.");
       }
-      await get().fetchCandidates(true);
+      await get().fetchCandidates(true, get().loadedProjectId || undefined);
       await get().fetchIncomingLikes(true);
     } catch (err) {
       console.error("resetDeck error:", err);
@@ -241,14 +243,18 @@ export const useMatchStore = create<MatchState>((set, get) => ({
   selectMatch: (id) =>
     set({ selectedMatchId: id }),
 
-  fetchCandidates: async (force = false) => {
+  fetchCandidates: async (force = false, projectId?: string) => {
     if (get().isLoadingCandidates) return;
-    if (!force && get().candidates.length > 0) {
+    const isDifferentProject = projectId !== undefined && projectId !== get().loadedProjectId;
+    if (!force && !isDifferentProject && get().candidates.length > 0) {
       return;
     }
-    set({ isLoadingCandidates: true });
+    set({ isLoadingCandidates: true, loadedProjectId: projectId || null });
     try {
-      const res = await fetch(`/api/candidates?t=${Date.now()}`, {
+      const url = projectId
+        ? `/api/candidates?projectId=${encodeURIComponent(projectId)}&t=${Date.now()}`
+        : `/api/candidates?t=${Date.now()}`;
+      const res = await fetch(url, {
         cache: "no-store",
       });
       if (res.ok) {

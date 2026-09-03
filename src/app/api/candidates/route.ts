@@ -3,8 +3,9 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redis } from "@/lib/redis";
 import { headers } from "next/headers";
-import { SkillItem, CandidatePartner } from "@/store/types";
+import { SkillItem, CandidatePartner, MatchReason } from "@/store/types";
 import { candidatesLimiter, checkRateLimit } from "@/lib/ratelimit";
+import { calculateProjectCandidateMatch, ProjectMatchTarget } from "@/lib/matchmaking";
 
 function deriveTagsAndStack(title?: string | null, tags?: string[], primaryStack?: string[]) {
   const t = (title || "").toLowerCase();
@@ -73,7 +74,7 @@ function buildSkillItems(tags: string[], primaryStack: string[]): SkillItem[] {
   });
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
     
@@ -82,6 +83,8 @@ export async function GET() {
     }
 
     const currentUserId = session.user.id;
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get("projectId");
 
     // Rate Limiting: max 30 candidate fetches / minute per user
     const rateLimit = await checkRateLimit(candidatesLimiter, currentUserId);
@@ -102,7 +105,9 @@ export async function GET() {
       );
     }
 
-    const cacheKey = `candidates:${currentUserId}`;
+    const cacheKey = projectId
+      ? `candidates:${currentUserId}:proj:${projectId}`
+      : `candidates:${currentUserId}:general`;
 
     // 1. Check Redis Cache
     try {
@@ -137,7 +142,35 @@ export async function GET() {
     const matchedUserIds = matches.map((m) => (m.user1Id === currentUserId ? m.user2Id : m.user1Id));
     const excludedUserIds = Array.from(new Set([currentUserId, ...swipedIds, ...matchedUserIds]));
 
-    // 2. Fetch Candidates (Not self, not already swiped, not already matched)
+    // 2. Fetch Project if projectId query parameter is provided
+    let projectTarget: ProjectMatchTarget | null = null;
+    if (projectId) {
+      const dbProject = await prisma.project.findUnique({
+        where: { id: projectId },
+        include: { roles: true },
+      });
+      if (dbProject) {
+        projectTarget = {
+          id: dbProject.id,
+          title: dbProject.title,
+          description: dbProject.description,
+          tags: dbProject.tags,
+          lookingFor: dbProject.lookingFor,
+          stage: dbProject.stage,
+          roles: dbProject.roles.map((r) => ({
+            id: r.id,
+            roleTitle: r.roleTitle,
+            requiredSkills: r.requiredSkills,
+            hoursPerWeek: r.hoursPerWeek,
+            responsibilityLevel: r.responsibilityLevel,
+            urgency: r.urgency,
+            description: r.description,
+          })),
+        };
+      }
+    }
+
+    // 3. Fetch Candidates (Not self, not already swiped, not already matched)
     const rawCandidates = await prisma.user.findMany({
       where: {
         id: {
@@ -202,10 +235,10 @@ export async function GET() {
       orderBy: {
         createdAt: "desc",
       },
-      take: 50,
+      take: 60,
     });
 
-    // 3. Format & Enrich candidates to match CandidatePartner schema (Strict deduplication by user.id)
+    // 4. Format, Score & Enrich candidates (Strict deduplication by user.id)
     const candidateMap = new Map<string, CandidatePartner>();
 
     rawCandidates.forEach((user, index) => {
@@ -213,7 +246,46 @@ export async function GET() {
 
       const { tags, primaryStack } = deriveTagsAndStack(user.title, user.tags, user.primaryStack);
       const skills = buildSkillItems(tags, primaryStack);
-      const score = 90 + ((index * 3) % 9); // Consistent high match score (90-98%)
+
+      let score = 90 + ((index * 3) % 9); // Consistent general fallback score (90-98%)
+      let matchTier: "EXCELLENT" | "STRONG" | "GOOD" = score >= 95 ? "EXCELLENT" : "STRONG";
+      let matchReasons: MatchReason[] = [
+        {
+          title: "Spesialisasi Saling Melengkapi",
+          description: `${user.name} memiliki keahlian ${tags.slice(0, 3).join(", ")} yang saling mengisi roadmap proyek.`,
+          type: "role" as const,
+        },
+        {
+          title: "Waktu Luang Selaras",
+          description: `Ketersediaan ${user.availabilityHrs || 10} jam/minggu dengan gaya kolaborasi ${user.workStyle || "Async-First"}.`,
+          type: "availability" as const,
+        },
+      ];
+
+      // Dynamic Project Match calculation when in Project Invite Mode
+      if (projectTarget) {
+        const matchResult = calculateProjectCandidateMatch(projectTarget, {
+          id: user.id,
+          name: user.name || "Developer",
+          title: user.title,
+          tags,
+          primaryStack,
+          skills,
+          availabilityHrs: user.availabilityHrs,
+          workStyle: user.workStyle,
+          experienceYears: user.experienceYears !== null && user.experienceYears !== undefined ? Number(user.experienceYears) : undefined,
+          experienceLevel: user.experienceLevel,
+        });
+
+        // Strict Requirement: Sembunyikan kandidat dengan skor kecocokan di bawah 76% (< 76%)
+        if (!matchResult.isEligible) {
+          return;
+        }
+
+        score = matchResult.score;
+        matchTier = matchResult.matchTier;
+        matchReasons = matchResult.matchReasons;
+      }
 
       const avatarUrl =
         user.image ||
@@ -244,19 +316,8 @@ export async function GET() {
         linkedinUrl: user.linkedinUrl || undefined,
         websiteUrl: user.websiteUrl || undefined,
         matchScore: score,
-        matchTier: score >= 95 ? ("EXCELLENT" as const) : ("STRONG" as const),
-        matchReasons: [
-          {
-            title: "Spesialisasi Saling Melengkapi",
-            description: `${user.name} memiliki keahlian ${tags.slice(0, 3).join(", ")} yang saling mengisi roadmap proyek.`,
-            type: "role" as const,
-          },
-          {
-            title: "Waktu Luang Selaras",
-            description: `Ketersediaan ${user.availabilityHrs || 10} jam/minggu dengan gaya kolaborasi ${user.workStyle || "Async-First"}.`,
-            type: "availability" as const,
-          },
-        ],
+        matchTier,
+        matchReasons,
         tags,
         primaryStack,
         skills,
@@ -279,11 +340,16 @@ export async function GET() {
       });
     });
 
-    const formattedCandidates = Array.from(candidateMap.values());
+    let formattedCandidates = Array.from(candidateMap.values());
 
-    // 4. Cache candidates for 5 minutes (300 seconds)
+    // When in Project Invite Mode, rank candidates from highest match score (90%+) to lowest
+    if (projectTarget) {
+      formattedCandidates.sort((a, b) => b.matchScore - a.matchScore);
+    }
+
+    // 5. Cache candidates for 3 minutes (180 seconds)
     try {
-      await redis.setex(cacheKey, 300, formattedCandidates);
+      await redis.setex(cacheKey, 180, formattedCandidates);
     } catch (cacheSetErr) {
       console.warn("Redis SETEX candidates error:", cacheSetErr);
     }

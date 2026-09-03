@@ -90,9 +90,9 @@ export function SwipeCardDeck() {
   } = useMatchStore();
 
   useEffect(() => {
-    fetchCandidates();
+    fetchCandidates(true, inviteProjectId || undefined);
     fetchMatches();
-  }, [fetchCandidates, fetchMatches]);
+  }, [fetchCandidates, fetchMatches, inviteProjectId]);
 
   const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -132,8 +132,13 @@ export function SwipeCardDeck() {
     // 1. Swiped & Already Matched filter (prevent redundant likes)
     if (swipedIds.includes(c.id) || matchedUserIds.includes(c.id)) return false;
 
-    // 2. Project roles filter (from project shortcut)
-    if (projectRolesFilter.length > 0) {
+    // 2. Strict Requirement: Sembunyikan kandidat dengan kecocokan di bawah 76% pada Mode Undang Proyek
+    if (isInviteMode && typeof c.matchScore === "number" && c.matchScore < 76) {
+      return false;
+    }
+
+    // 3. Project roles filter (from project shortcut if not in direct project invite mode)
+    if (!isInviteMode && projectRolesFilter.length > 0) {
       const matchesAnyProjectRole = projectRolesFilter.some((pRole) => {
         const pLow = pRole.toLowerCase();
         return (
@@ -943,10 +948,14 @@ export function SwipeCardDeck() {
 
             <div className="space-y-1 max-w-xs">
               <h3 className="text-base font-bold text-devora-ink">
-                Kartu Calon Partner Udah Habis
+                {isInviteMode
+                  ? "Semua Kandidat (≥ 76%) Telah Ditinjau"
+                  : "Kartu Calon Partner Udah Habis"}
               </h3>
               <p className="text-xs text-devora-muted">
-                {selectedProfession !== "ALL" || projectRolesFilter.length > 0
+                {isInviteMode
+                  ? "Tidak ada lagi calon partner dengan kecocokan ≥ 76% untuk proyek ini saat ini. Coba sesuaikan kriteria role atau undang developer lain langsung lewat profil."
+                  : selectedProfession !== "ALL" || projectRolesFilter.length > 0
                   ? "Belum ada partner lain di kategori ini. Coba cek kategori profesi lain atau reset deck yuk!"
                   : "Kamu udah liat semua calon partner yang tersedia saat ini. Keren!"}
               </p>
