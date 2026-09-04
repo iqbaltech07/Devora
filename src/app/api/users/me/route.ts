@@ -189,6 +189,16 @@ export async function GET() {
       githubUsername: githubUsername || "",
     });
 
+    const [followingCount, followersCount, matchesCount] = await Promise.all([
+      prisma.follow.count({ where: { followerId: user.id } }),
+      prisma.follow.count({ where: { followingId: user.id } }),
+      prisma.match.count({
+        where: {
+          OR: [{ user1Id: user.id }, { user2Id: user.id }],
+        },
+      }),
+    ]);
+
     return NextResponse.json({
       ...user,
       image: user.image || avatarUrl || "",
@@ -199,6 +209,9 @@ export async function GET() {
       gitAccounts,
       profileCompleteness: completeness.score,
       completenessBreakdown: completeness,
+      followingCount,
+      followersCount,
+      connectionsCount: followingCount + matchesCount,
     });
   } catch (error) {
     console.error("GET /api/users/me error:", error);

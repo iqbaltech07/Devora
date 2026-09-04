@@ -28,9 +28,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body
         className={`${plusJakartaSans.variable} ${outfit.variable} min-h-[100dvh] bg-devora-background font-sans text-devora-ink antialiased`}
+        suppressHydrationWarning
       >
         {children}
       </body>

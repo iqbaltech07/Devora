@@ -110,6 +110,9 @@ export interface UserProfile {
   projects?: any[];
   tags?: string[];
   primaryStack?: string[];
+  followingCount?: number;
+  followersCount?: number;
+  connectionsCount?: number;
 }
 
 export interface ProjectRole {

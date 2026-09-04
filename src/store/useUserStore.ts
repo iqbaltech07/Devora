@@ -137,6 +137,9 @@ export const useUserStore = create<UserState>((set, get) => ({
             profileCompleteness: typeof data.profileCompleteness === "number" ? data.profileCompleteness : 0,
             certificates: Array.isArray(data.certificates) ? data.certificates : [],
             portfolios: Array.isArray(data.portfolios) ? data.portfolios : [],
+            followingCount: typeof data.followingCount === "number" ? data.followingCount : 0,
+            followersCount: typeof data.followersCount === "number" ? data.followersCount : 0,
+            connectionsCount: typeof data.connectionsCount === "number" ? data.connectionsCount : 0,
           },
         }));
       } else {

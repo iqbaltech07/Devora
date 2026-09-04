@@ -30,9 +30,9 @@ const CODE_LANGUAGES = [
 ];
 
 const POST_CATEGORIES = [
+  { label: "Cari Partner Proyek", value: "NEED_PARTNER", icon: Users },
   { label: "Build In Public", value: "BUILD_IN_PUBLIC", icon: Terminal },
   { label: "Showcase UI/UX", value: "SHOWCASE", icon: Palette },
-  { label: "Cari Partner", value: "NEED_PARTNER", icon: Users },
   { label: "Tips & Insight", value: "TECH_TIPS", icon: Lightbulb },
 ];
 
@@ -50,14 +50,14 @@ export function CreatePostBox() {
   const { currentUser } = useUserStore();
 
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState("BUILD_IN_PUBLIC");
+  const [category, setCategory] = useState("NEED_PARTNER");
   const [showCodeInput, setShowCodeInput] = useState(false);
   const [codeSnippet, setCodeSnippet] = useState("");
   const [codeLanguage, setCodeLanguage] = useState("typescript");
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [customTagInput, setCustomTagInput] = useState("");
-  const [tags, setTags] = useState<string[]>(["#BuildInPublic"]);
+  const [tags, setTags] = useState<string[]>(["#NeedPartner"]);
 
   // Mention (@) System State
   const [candidates, setCandidates] = useState<CandidateUser[]>([]);
@@ -248,7 +248,7 @@ export function CreatePostBox() {
         <div className="flex-1 min-w-0 relative">
           <textarea
             ref={textareaRef}
-            placeholder="Bagikan progres ngoding, showcase UI, arsitektur kode, atau ide proyek... (Ketik @ untuk mention teman)"
+            placeholder="Lagi butuh partner untuk proyek apa? Bagikan peran yang dicari, tech stack, atau ide produkmu... (Ketik @ untuk mention rekan)"
             value={content}
             onChange={handleContentChange}
             onKeyUp={(e) => setCursorPos(e.currentTarget.selectionStart || 0)}
