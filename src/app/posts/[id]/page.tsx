@@ -393,7 +393,7 @@ export default function PostDetailPage({
                     onClick={handleFollowToggle}
                     disabled={isFollowLoading}
                     className={cn(
-                      "text-[11px] h-8 px-3 rounded-full font-bold",
+                      "text-[11px] h-8 px-3 rounded-xl font-bold",
                       !isFollowingAuthor && "bg-[#FF5733] hover:bg-[#D9411E] text-white"
                     )}
                   >
@@ -414,7 +414,7 @@ export default function PostDetailPage({
                 <div className="relative">
                   <button
                     onClick={() => setShowDropdown(!showDropdown)}
-                    className="p-1.5 text-slate-400 hover:text-[#0F172A] rounded-full hover:bg-slate-200"
+                    className="p-1.5 text-slate-400 hover:text-[#0F172A] rounded-lg hover:bg-slate-200"
                   >
                     <MoreHorizontal className="w-4 h-4" />
                   </button>

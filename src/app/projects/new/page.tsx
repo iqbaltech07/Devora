@@ -522,7 +522,7 @@ export default function NewProjectPage() {
                               disabled={isAlreadyAdded}
                               onClick={() => handleQuickAddSkillToRole(role.id, preset)}
                               className={cn(
-                                "text-[10px] px-2 py-0.5 rounded-full border transition-all",
+                                "text-[10px] px-2 py-0.5 rounded-md border transition-all",
                                 isAlreadyAdded
                                   ? "bg-devora-surface-strong text-devora-muted border-transparent opacity-50 cursor-not-allowed"
                                   : "bg-devora-surface hover:bg-devora-brand/10 hover:border-devora-brand hover:text-devora-brand text-devora-ink border-devora-border cursor-pointer font-medium"

@@ -174,7 +174,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
           <button
             type="button"
             onClick={() => setShowDropdown(!showDropdown)}
-            className="p-1.5 text-slate-400 hover:text-[#0F172A] rounded-full hover:bg-slate-100 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-[#0F172A] rounded-lg hover:bg-slate-100 transition-colors"
           >
             <MoreHorizontal className="w-4 h-4" />
           </button>
@@ -309,7 +309,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
             type="button"
             onClick={() => toggleLike(post.id)}
             className={cn(
-              "px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all active:scale-90",
+              "px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-90",
               post.isLiked
                 ? "bg-[#FFF1EE] text-[#FF5733]"
                 : "text-[#64748B] hover:bg-slate-100 hover:text-[#0F172A]"
@@ -329,7 +329,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
             type="button"
             onClick={() => setShowComments(!showComments)}
             className={cn(
-              "px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-colors",
+              "px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors",
               showComments ? "bg-slate-100 text-[#0F172A]" : "text-[#64748B] hover:bg-slate-100 hover:text-[#0F172A]"
             )}
           >
@@ -341,7 +341,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
           <button
             type="button"
             onClick={handleShareToDM}
-            className="px-3 py-1.5 rounded-full text-xs font-bold text-[#64748B] hover:bg-slate-100 hover:text-[#0F172A] flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-xl text-xs font-bold text-[#64748B] hover:bg-slate-100 hover:text-[#0F172A] flex items-center gap-1.5 transition-colors"
             title="Bagikan ke Pesan DM"
           >
             <Share2 className="w-4 h-4" />
@@ -355,7 +355,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
             type="button"
             onClick={() => toggleBookmark(post.id)}
             className={cn(
-              "p-2 rounded-full transition-colors",
+              "p-2 rounded-xl transition-colors",
               post.isBookmarked
                 ? "text-[#FF5733] bg-[#FFF1EE]"
                 : "text-slate-400 hover:text-[#0F172A] hover:bg-slate-100"
@@ -370,7 +370,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
             <Link href={`/messages?userId=${post.author.id}`}>
               <button
                 type="button"
-                className="px-3 py-1.5 rounded-full bg-[#0F172A] hover:bg-[#1E293B] text-white text-[11px] font-bold flex items-center gap-1 shadow-xs transition-all active:scale-95"
+                className="px-3 py-1.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-[11px] font-bold flex items-center gap-1 shadow-xs transition-all active:scale-95"
               >
                 <Rocket className="w-3 h-3 text-[#FF5733]" />
                 <span>Ajak Kolaborasi</span>
@@ -497,7 +497,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
               <button
                 type="button"
                 onClick={() => setReplyingTo(null)}
-                className="p-1 hover:bg-[#FF5733]/15 rounded-full"
+                className="p-1 hover:bg-[#FF5733]/15 rounded-md"
               >
                 <X className="w-3.5 h-3.5" />
               </button>

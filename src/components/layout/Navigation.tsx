@@ -36,16 +36,16 @@ export function Navigation({ className }: { className?: string }) {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all duration-150 relative",
+              "flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl transition-all duration-150 relative",
               isActive
-                ? "bg-white text-[#0F172A] border border-[#E2E8F0] font-bold shadow-xs"
-                : "text-[#64748B] hover:text-[#0F172A] hover:bg-white/60"
+                ? "bg-white text-[#0F172A] border border-[#CBD5E1] font-bold shadow-xs"
+                : "text-[#64748B] hover:text-[#0F172A] hover:bg-white/70"
             )}
           >
             <Icon className={cn("w-3.5 h-3.5", isActive ? "text-[#FF5733]" : "text-[#64748B]")} />
             <span>{item.label}</span>
             {hasBadge && (
-              <span className="ml-0.5 px-1.5 py-0.5 text-[10px] font-bold bg-[#FF5733] text-white rounded-full leading-none shadow-xs">
+              <span className="ml-0.5 px-1.5 py-0.5 text-[10px] font-bold bg-[#FF5733] text-white rounded-md leading-none shadow-xs">
                 {incomingLikes.length}
               </span>
             )}

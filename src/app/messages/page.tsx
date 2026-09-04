@@ -438,7 +438,7 @@ function MessagesContent() {
 
                           {/* Project Tag Pill */}
                           <div className="flex items-center justify-between pt-0.5">
-                            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#64748B] text-[10px] font-medium max-w-[170px] truncate">
+                            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#F1F5F9] text-[#64748B] text-[10px] font-medium max-w-[170px] truncate">
                               <FolderKanban className="w-2.5 h-2.5 text-[#64748B] shrink-0" />
                               <span className="truncate">{conv.projectTitle}</span>
                             </div>
@@ -457,7 +457,7 @@ function MessagesContent() {
                   <div className="p-6 text-center text-xs text-[#64748B] space-y-3">
                     <p>Belum ada obrolan aktif.</p>
                     <Link href="/find-partner">
-                      <Button size="sm" className="text-xs bg-[#FF5733] text-white font-bold rounded-full">
+                      <Button size="sm" className="text-xs bg-[#FF5733] hover:bg-[#D9411E] text-white font-bold rounded-xl">
                         Cari Partner Sekarang
                       </Button>
                     </Link>
@@ -483,7 +483,7 @@ function MessagesContent() {
                           setMobileView("ROSTER");
                           router.replace("/messages", { scroll: false });
                         }}
-                        className="md:hidden p-1.5 -ml-1 text-[#0F172A] hover:bg-[#F1F5F9] rounded-full transition-colors shrink-0"
+                        className="md:hidden p-1.5 -ml-1 text-[#0F172A] hover:bg-[#F1F5F9] rounded-xl transition-colors shrink-0"
                         title="Kembali ke Daftar Obrolan"
                       >
                         <ArrowLeft className="w-5 h-5" />
@@ -528,7 +528,7 @@ function MessagesContent() {
                         <button
                           type="button"
                           title="Lihat Profil Lengkap"
-                          className="px-2.5 py-1 text-xs font-bold rounded-full border border-[#E2E8F0] hover:border-[#FF5733] text-[#0F172A] hover:text-[#FF5733] transition-colors"
+                          className="px-2.5 py-1 text-xs font-bold rounded-lg border border-[#E2E8F0] hover:border-[#FF5733] text-[#0F172A] hover:text-[#FF5733] transition-colors"
                         >
                           Profil
                         </button>
@@ -537,7 +537,7 @@ function MessagesContent() {
                         <button
                           type="button"
                           title="Cari Partner Serupa"
-                          className="w-8 h-8 rounded-full border border-[#E2E8F0] flex items-center justify-center hover:bg-slate-50 hover:text-[#0F172A] transition-colors"
+                          className="w-8 h-8 rounded-lg border border-[#E2E8F0] flex items-center justify-center hover:bg-slate-50 hover:text-[#0F172A] transition-colors"
                         >
                           <Users className="w-4 h-4" />
                         </button>
@@ -651,7 +651,7 @@ function MessagesContent() {
                       })
                     ) : (
                       <div className="py-16 text-center space-y-2 text-xs text-[#64748B]">
-                        <div className="w-12 h-12 rounded-full bg-[#FFF1EE] text-[#FF5733] flex items-center justify-center mx-auto shadow-xs">
+                        <div className="w-12 h-12 rounded-2xl bg-[#FFF1EE] text-[#FF5733] flex items-center justify-center mx-auto shadow-xs">
                           <MessageSquare className="w-6 h-6" />
                         </div>
                         <h4 className="font-bold text-[#0F172A] text-sm">
@@ -696,7 +696,7 @@ function MessagesContent() {
               ) : (
                 /* No conversation selected / Empty State */
                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-[#FFF1EE] text-[#FF5733] flex items-center justify-center shadow-sm">
+                  <div className="w-16 h-16 rounded-2xl bg-[#FFF1EE] text-[#FF5733] flex items-center justify-center shadow-sm">
                     <MessageSquare className="w-8 h-8" />
                   </div>
                   <div className="space-y-1 max-w-sm">
@@ -708,7 +708,7 @@ function MessagesContent() {
                     </p>
                   </div>
                   <Link href="/find-partner">
-                    <Button size="sm" className="bg-[#FF5733] hover:bg-[#D9411E] text-white font-bold text-xs rounded-full gap-1.5">
+                    <Button size="sm" className="bg-[#FF5733] hover:bg-[#D9411E] text-white font-bold text-xs rounded-xl gap-1.5">
                       <Flame className="w-3.5 h-3.5 fill-white" />
                       <span>Cari Partner Baru</span>
                     </Button>

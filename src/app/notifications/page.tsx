@@ -126,7 +126,7 @@ export default function NotificationsPage() {
         <div className="bg-white border border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-5 sm:p-6 shadow-xs space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFF1EE] border border-[#FF5733]/20">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFF1EE] border border-[#FF5733]/20">
                 <Radio className="w-3.5 h-3.5 text-[#FF5733] animate-pulse" />
                 <span className="text-[10px] sm:text-xs font-bold font-mono uppercase tracking-wider text-[#FF5733]">
                   Pusat Notifikasi Komunitas
@@ -162,7 +162,7 @@ export default function NotificationsPage() {
               type="button"
               onClick={() => setActiveFilter("ALL")}
               className={cn(
-                "px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all",
+                "px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all",
                 activeFilter === "ALL"
                   ? "bg-[#0F172A] text-white shadow-xs"
                   : "bg-slate-100 text-[#64748B] hover:bg-slate-200 hover:text-[#0F172A]"
@@ -175,7 +175,7 @@ export default function NotificationsPage() {
               type="button"
               onClick={() => setActiveFilter("FOLLOW")}
               className={cn(
-                "px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5",
+                "px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5",
                 activeFilter === "FOLLOW"
                   ? "bg-[#0F172A] text-white shadow-xs"
                   : "bg-slate-100 text-[#64748B] hover:bg-slate-200 hover:text-[#0F172A]"
@@ -189,7 +189,7 @@ export default function NotificationsPage() {
               type="button"
               onClick={() => setActiveFilter("FEED")}
               className={cn(
-                "px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5",
+                "px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5",
                 activeFilter === "FEED"
                   ? "bg-[#0F172A] text-white shadow-xs"
                   : "bg-slate-100 text-[#64748B] hover:bg-slate-200 hover:text-[#0F172A]"
@@ -203,7 +203,7 @@ export default function NotificationsPage() {
               type="button"
               onClick={() => setActiveFilter("CHAT_MATCH")}
               className={cn(
-                "px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5",
+                "px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5",
                 activeFilter === "CHAT_MATCH"
                   ? "bg-[#0F172A] text-white shadow-xs"
                   : "bg-slate-100 text-[#64748B] hover:bg-slate-200 hover:text-[#0F172A]"
@@ -217,7 +217,7 @@ export default function NotificationsPage() {
               type="button"
               onClick={() => setActiveFilter("PROJECT")}
               className={cn(
-                "px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5",
+                "px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5",
                 activeFilter === "PROJECT"
                   ? "bg-[#0F172A] text-white shadow-xs"
                   : "bg-slate-100 text-[#64748B] hover:bg-slate-200 hover:text-[#0F172A]"

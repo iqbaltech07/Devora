@@ -25,72 +25,7 @@ export interface TechEndorsementItem {
   endorsers: Endorser[];
 }
 
-const DEFAULT_ENDORSEMENTS: TechEndorsementItem[] = [
-  {
-    id: "end-ts",
-    techName: "TypeScript",
-    category: "Language",
-    count: 14,
-    hasEndorsed: true,
-    endorsers: [
-      { id: "e-1", name: "Alex Rivera", avatarFallback: "AR", role: "Staff Backend Engineer" },
-      { id: "e-2", name: "Sarah Chen", avatarFallback: "SC", role: "Audio Engineer" },
-      { id: "e-3", name: "Marcus Vance", avatarFallback: "MV", role: "Distributed Systems" },
-    ],
-  },
-  {
-    id: "end-next",
-    techName: "Next.js 16",
-    category: "Framework",
-    count: 12,
-    hasEndorsed: false,
-    endorsers: [
-      { id: "e-2", name: "Sarah Chen", avatarFallback: "SC", role: "Audio Engineer" },
-      { id: "e-3", name: "Marcus Vance", avatarFallback: "MV", role: "Distributed Systems" },
-    ],
-  },
-  {
-    id: "end-pg",
-    techName: "PostgreSQL",
-    category: "Database",
-    count: 9,
-    hasEndorsed: false,
-    endorsers: [
-      { id: "e-1", name: "Alex Rivera", avatarFallback: "AR", role: "Staff Backend Engineer" },
-    ],
-  },
-  {
-    id: "end-redis",
-    techName: "Redis Streams",
-    category: "Queue & Cache",
-    count: 8,
-    hasEndorsed: true,
-    endorsers: [
-      { id: "e-1", name: "Alex Rivera", avatarFallback: "AR", role: "Staff Backend Engineer" },
-      { id: "e-3", name: "Marcus Vance", avatarFallback: "MV", role: "Distributed Systems" },
-    ],
-  },
-  {
-    id: "end-prisma",
-    techName: "Prisma ORM",
-    category: "Data Layer",
-    count: 7,
-    hasEndorsed: false,
-    endorsers: [
-      { id: "e-2", name: "Sarah Chen", avatarFallback: "SC", role: "Audio Engineer" },
-    ],
-  },
-  {
-    id: "end-docker",
-    techName: "Docker",
-    category: "DevOps",
-    count: 6,
-    hasEndorsed: false,
-    endorsers: [
-      { id: "e-3", name: "Marcus Vance", avatarFallback: "MV", role: "Distributed Systems" },
-    ],
-  },
-];
+const DEFAULT_ENDORSEMENTS: TechEndorsementItem[] = [];
 
 interface TechStackEndorsementWidgetProps {
   userName?: string;
@@ -172,75 +107,81 @@ export function TechStackEndorsementWidget({
       </div>
 
       {/* Endorsements Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {endorsements.map((item) => {
-          return (
-            <div
-              key={item.id}
-              onMouseEnter={() => setHoveredItem(item)}
-              onMouseLeave={() => setHoveredItem(null)}
-              className={cn(
-                "p-3.5 rounded-card border transition-all duration-150 flex items-center justify-between gap-2 relative select-none",
-                item.hasEndorsed
-                  ? "bg-devora-surface border-devora-brand/60 shadow-subtle"
-                  : "bg-devora-surface-strong/60 border-devora-border hover:border-devora-border-strong"
-              )}
-            >
-              <div className="space-y-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-semibold text-xs text-devora-ink font-mono truncate">
-                    {item.techName}
-                  </span>
-                  <span className="text-[9px] font-mono text-devora-muted bg-devora-surface px-1.5 py-0.5 rounded-button border border-devora-border">
-                    {item.category}
-                  </span>
-                </div>
-
-                {/* Overlapping Avatars Stack */}
-                <div className="flex items-center -space-x-1.5 pt-0.5">
-                  {item.endorsers.slice(0, 3).map((endorser, idx) => (
-                    <div
-                      key={idx}
-                      className="w-5 h-5 rounded-full bg-devora-surface border border-devora-border flex items-center justify-center text-[9px] font-mono text-devora-muted font-bold"
-                      title={endorser.name}
-                    >
-                      {endorser.avatarFallback}
-                    </div>
-                  ))}
-                  {item.endorsers.length > 3 && (
-                    <div className="w-5 h-5 rounded-full bg-devora-surface-strong border border-devora-border flex items-center justify-center text-[8px] font-mono text-devora-muted">
-                      +{item.endorsers.length - 3}
-                    </div>
-                  )}
-                  <span className="text-[10px] font-mono text-devora-muted ml-2">
-                    {item.endorsers.length} peers
-                  </span>
-                </div>
-              </div>
-
-              {/* Instant Counter Action Pill */}
-              <button
-                type="button"
-                onClick={() => handleToggleEndorsement(item)}
+      {endorsements.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {endorsements.map((item) => {
+            return (
+              <div
+                key={item.id}
+                onMouseEnter={() => setHoveredItem(item)}
+                onMouseLeave={() => setHoveredItem(null)}
                 className={cn(
-                  "px-3 py-1.5 rounded-pill text-xs font-mono font-semibold border flex items-center gap-1.5 transition-all duration-150 active:scale-95 shadow-subtle shrink-0",
+                  "p-3.5 rounded-card border transition-all duration-150 flex items-center justify-between gap-2 relative select-none",
                   item.hasEndorsed
-                    ? "bg-devora-brand text-white border-devora-brand hover:bg-devora-brand-dark"
-                    : "bg-devora-surface text-devora-ink border-devora-border hover:border-devora-brand/40 hover:text-devora-brand"
+                    ? "bg-devora-surface border-devora-brand/60 shadow-subtle"
+                    : "bg-devora-surface-strong/60 border-devora-border hover:border-devora-border-strong"
                 )}
-                title={item.hasEndorsed ? "Click to withdraw endorsement" : "Click to endorse"}
               >
-                {item.hasEndorsed ? (
-                  <Check className="w-3 h-3 stroke-[2.5]" />
-                ) : (
-                  <Plus className="w-3 h-3" />
-                )}
-                <span>{item.count}</span>
-              </button>
-            </div>
-          );
-        })}
-      </div>
+                <div className="space-y-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-semibold text-xs text-devora-ink font-mono truncate">
+                      {item.techName}
+                    </span>
+                    <span className="text-[9px] font-mono text-devora-muted bg-devora-surface px-1.5 py-0.5 rounded-button border border-devora-border">
+                      {item.category}
+                    </span>
+                  </div>
+
+                  {/* Overlapping Avatars Stack */}
+                  <div className="flex items-center -space-x-1.5 pt-0.5">
+                    {item.endorsers.slice(0, 3).map((endorser, idx) => (
+                      <div
+                        key={idx}
+                        className="w-5 h-5 rounded-full bg-devora-surface border border-devora-border flex items-center justify-center text-[9px] font-mono text-devora-muted font-bold"
+                        title={endorser.name}
+                      >
+                        {endorser.avatarFallback}
+                      </div>
+                    ))}
+                    {item.endorsers.length > 3 && (
+                      <div className="w-5 h-5 rounded-full bg-devora-surface-strong border border-devora-border flex items-center justify-center text-[8px] font-mono text-devora-muted">
+                        +{item.endorsers.length - 3}
+                      </div>
+                    )}
+                    <span className="text-[10px] font-mono text-devora-muted ml-2">
+                      {item.endorsers.length} peers
+                    </span>
+                  </div>
+                </div>
+
+                {/* Instant Counter Action Pill */}
+                <button
+                  type="button"
+                  onClick={() => handleToggleEndorsement(item)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-pill text-xs font-mono font-semibold border flex items-center gap-1.5 transition-all duration-150 active:scale-95 shadow-subtle shrink-0",
+                    item.hasEndorsed
+                      ? "bg-devora-brand text-white border-devora-brand hover:bg-devora-brand-dark"
+                      : "bg-devora-surface text-devora-ink border-devora-border hover:border-devora-brand/40 hover:text-devora-brand"
+                  )}
+                  title={item.hasEndorsed ? "Click to withdraw endorsement" : "Click to endorse"}
+                >
+                  {item.hasEndorsed ? (
+                    <Check className="w-3 h-3 stroke-[2.5]" />
+                  ) : (
+                    <Plus className="w-3 h-3" />
+                  )}
+                  <span>{item.count}</span>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="p-6 text-center text-xs font-mono text-devora-muted border border-dashed border-devora-border rounded-xl">
+          Belum ada verifikasi endorsement keahlian untuk pengembang ini.
+        </div>
+      )}
 
       {/* Endorser Roster Detail Banner */}
       {hoveredItem && (

@@ -234,7 +234,7 @@ export function StoryViewerModal() {
               <button
                 type="button"
                 onClick={() => setShowViewersModal(true)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-bold backdrop-blur-md transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold backdrop-blur-md transition-all active:scale-95"
               >
                 <Eye className="w-3.5 h-3.5 text-[#FF5733]" />
                 <span>{viewsCount} Dilihat</span>
@@ -253,12 +253,12 @@ export function StoryViewerModal() {
                 placeholder={`Balas cerita ${currentGroup.author.name}...`}
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                className="flex-1 px-3.5 py-2 text-xs rounded-full bg-white/10 border border-white/20 text-white placeholder:text-slate-400 focus:outline-none focus:border-[#FF5733] backdrop-blur-md"
+                className="flex-1 px-3.5 py-2 text-xs rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 focus:outline-none focus:border-[#FF5733] backdrop-blur-md"
               />
               <button
                 type="submit"
                 disabled={!replyText.trim() || isSendingReply}
-                className="p-2 rounded-full bg-[#FF5733] hover:bg-[#D9411E] text-white disabled:opacity-40 transition-all active:scale-95 shrink-0"
+                className="p-2 rounded-xl bg-[#FF5733] hover:bg-[#D9411E] text-white disabled:opacity-40 transition-all active:scale-95 shrink-0"
                 title="Kirim ke Chat"
               >
                 <Send className="w-3.5 h-3.5" />

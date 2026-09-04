@@ -79,7 +79,7 @@ export function RightSidebarWidget() {
                 <Link href={`/profile/${builder.id}`}>
                   <button
                     type="button"
-                    className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-[#FF5733] hover:text-white text-[#0F172A] text-[11px] font-bold transition-all shrink-0"
+                    className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-[#0F172A] hover:text-white text-[#0F172A] text-xs font-bold transition-all shrink-0"
                   >
                     Lihat
                   </button>

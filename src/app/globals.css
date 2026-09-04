@@ -189,3 +189,47 @@
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+@keyframes softFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-soft-float {
+  animation: softFloat 4s ease-in-out infinite;
+}
+
+.highlight-badge-blue {
+  background: linear-gradient(135deg, rgba(186, 230, 253, 0.6) 0%, rgba(224, 242, 254, 0.8) 100%);
+  border: 1px solid rgba(125, 211, 252, 0.5);
+}
+
+.card-pastel-green {
+  background: linear-gradient(180deg, #ECFDF5 0%, #FFFFFF 100%);
+  border-color: #D1FAE5;
+}
+
+.card-pastel-blue {
+  background: linear-gradient(180deg, #F0F9FF 0%, #FFFFFF 100%);
+  border-color: #E0F2FE;
+}
+
+.card-pastel-amber {
+  background: linear-gradient(180deg, #FFFBEB 0%, #FFFFFF 100%);
+  border-color: #FEF3C7;
+}
+
+.card-pastel-purple {
+  background: linear-gradient(180deg, #FAF5FF 0%, #FFFFFF 100%);
+  border-color: #F3E8FF;
+}
+
+.card-pastel-pink {
+  background: linear-gradient(180deg, #FDF2F8 0%, #FFFFFF 100%);
+  border-color: #FCE7F3;
+}
+

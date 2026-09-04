@@ -366,7 +366,7 @@ export function CreatePostBox() {
         </div>
       )}
 
-      {/* Categories & Tags Bar */}
+      {/* Categories & Tags Bar (Rectangular rounded-lg buttons) */}
       <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-[#E2E8F0]">
         {POST_CATEGORIES.map((cat) => {
           const Icon = cat.icon;
@@ -381,13 +381,13 @@ export function CreatePostBox() {
                   setTags([...tags, `#${cat.label.replace(/\s+/g, "")}`]);
                 }
               }}
-              className={`px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1 transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
                 isActive
                   ? "bg-[#0F172A] text-white shadow-xs"
-                  : "bg-slate-100 text-[#64748B] hover:text-[#0F172A] hover:bg-slate-200"
+                  : "bg-slate-100 border border-slate-200 text-[#64748B] hover:text-[#0F172A] hover:bg-slate-200"
               }`}
             >
-              <Icon className="w-3 h-3 text-[#FF5733]" />
+              <Icon className="w-3.5 h-3.5 text-[#FF5733]" />
               <span>{cat.label}</span>
             </button>
           );
@@ -395,11 +395,11 @@ export function CreatePostBox() {
       </div>
 
       {/* Tags List */}
-      <div className="flex flex-wrap items-center gap-1 text-[11px]">
+      <div className="flex flex-wrap items-center gap-1.5 text-xs">
         {tags.map((t) => (
           <span
             key={t}
-            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FFF1EE] text-[#FF5733] font-bold"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#FFF1EE] text-[#FF5733] font-bold border border-[#FF5733]/20"
           >
             <span>{t}</span>
             <button type="button" onClick={() => handleRemoveTag(t)}>
@@ -408,7 +408,7 @@ export function CreatePostBox() {
           </span>
         ))}
 
-        <div className="inline-flex items-center gap-1 bg-slate-50 border border-[#E2E8F0] rounded-md px-2 py-0.5">
+        <div className="inline-flex items-center gap-1.5 bg-slate-50 border border-[#CBD5E1] rounded-md px-2.5 py-1">
           <Tag className="w-3 h-3 text-slate-400" />
           <input
             type="text"
@@ -421,7 +421,7 @@ export function CreatePostBox() {
                 handleAddTag();
               }
             }}
-            className="w-20 text-[11px] bg-transparent border-0 focus:outline-none text-[#0F172A] placeholder:text-slate-400"
+            className="w-24 text-xs bg-transparent border-0 focus:outline-none text-[#0F172A] placeholder:text-slate-400"
           />
           <button type="button" onClick={handleAddTag} className="text-slate-400 hover:text-[#FF5733]">
             <Plus className="w-3 h-3" />
@@ -479,12 +479,12 @@ export function CreatePostBox() {
           </button>
         </div>
 
-        {/* Publish Button */}
+        {/* Publish Button (Rounded-xl rectangular) */}
         <button
           type="button"
           onClick={handleSubmit}
           disabled={isSubmitting || (!content.trim() && mediaUrls.length === 0 && !codeSnippet.trim())}
-          className="px-5 py-2 rounded-full bg-[#FF5733] hover:bg-[#D9411E] text-white text-xs font-bold shadow-sm shadow-[#FF5733]/30 disabled:opacity-50 transition-all active:scale-95 flex items-center gap-1.5"
+          className="px-5 py-2.5 rounded-xl bg-[#FF5733] hover:bg-[#D9411E] text-white text-xs font-bold shadow-sm shadow-[#FF5733]/30 disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2"
         >
           <Rocket className="w-3.5 h-3.5" />
           <span>{isSubmitting ? "Membagikan..." : "Posting Karya"}</span>

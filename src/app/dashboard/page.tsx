@@ -49,8 +49,8 @@ export default function DashboardPage() {
             {/* Create Post Composer */}
             <CreatePostBox />
 
-            {/* Category Filter Pills Bar */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+            {/* Category Filter Tabs Bar (Modern Rectangular Segmented Tabs) */}
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
               {FEED_CATEGORIES.map((cat) => {
                 const Icon = cat.icon;
                 const isActive = activeCategory === cat.key;
@@ -60,10 +60,10 @@ export default function DashboardPage() {
                     type="button"
                     onClick={() => setActiveCategory(cat.key)}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0",
+                      "px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 shrink-0",
                       isActive
                         ? "bg-[#0F172A] text-white shadow-xs font-bold"
-                        : "bg-white border border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
+                        : "bg-white border border-[#CBD5E1] text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
                     )}
                   >
                     <Icon className={cn("w-3.5 h-3.5", isActive ? "text-[#FF5733]" : "text-[#64748B]")} />
@@ -75,7 +75,7 @@ export default function DashboardPage() {
 
             {/* Feed Stream */}
             {isLoading && posts.length === 0 ? (
-              <div className="bg-white border border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-12 text-center flex flex-col items-center justify-center space-y-3 shadow-xs">
+              <div className="bg-white border border-[#E2E8F0] rounded-2xl p-12 text-center flex flex-col items-center justify-center space-y-3 shadow-xs">
                 <Loader2 className="w-8 h-8 text-[#FF5733] animate-spin" />
                 <p className="text-xs font-bold text-[#64748B]">
                   Memuat timeline karya komunitas...
@@ -88,8 +88,8 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="bg-white border-2 border-dashed border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-10 sm:p-14 text-center space-y-4 shadow-xs">
-                <div className="w-14 h-14 rounded-full bg-[#FFF1EE] text-[#FF5733] flex items-center justify-center mx-auto shadow-xs">
+              <div className="bg-white border-2 border-dashed border-[#E2E8F0] rounded-2xl p-10 sm:p-14 text-center space-y-4 shadow-xs">
+                <div className="w-14 h-14 rounded-2xl bg-[#FFF1EE] text-[#FF5733] flex items-center justify-center mx-auto shadow-xs">
                   <Rss className="w-7 h-7" />
                 </div>
                 <div className="space-y-1.5 max-w-sm mx-auto">

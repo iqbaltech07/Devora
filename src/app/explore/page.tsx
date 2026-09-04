@@ -98,23 +98,23 @@ export default function ExplorePage() {
     <Shell>
       <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
         {/* ─── 1. EXPLORE HEADER & SEARCH ─── */}
-        <div className="bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] rounded-2xl sm:rounded-[24px] p-6 sm:p-8 text-white space-y-4 shadow-sm relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] rounded-2xl p-6 sm:p-8 text-white space-y-4 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF5733]/15 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16" />
 
           <div className="relative z-10 space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-white">
-              <Compass className="w-3.5 h-3.5 text-[#FF5733]" />
+            <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#FF5733] flex items-center gap-1.5">
+              <Compass className="w-3.5 h-3.5" />
               <span>Eksplorasi Karya Komunitas</span>
             </div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight">
-              Inspirasi & Portofolio Teman Sejawat
+              Inspirasi &amp; Portofolio Teman Sejawat
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
               Jelajahi karya UI/UX, arsitektur kode, update build in public, dan temukan builder dengan keahlian yang saling melengkapi.
             </p>
           </div>
 
-          {/* Search Bar */}
+          {/* Search Bar (Rounded-xl) */}
           <div className="relative max-w-2xl pt-2">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 mt-1" />
             <input
@@ -122,20 +122,20 @@ export default function ExplorePage() {
               placeholder="Cari postingan, UI screenshot, atau tagar (misal: #Nextjs, #AI, #Tailwind)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white/10 border border-white/20 rounded-full focus:outline-none focus:border-[#FF5733] text-white placeholder:text-slate-400 backdrop-blur-md"
+              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:border-[#FF5733] text-white placeholder:text-slate-400 backdrop-blur-md"
             />
           </div>
         </div>
 
-        {/* ─── 2. TRENDING TAGS BAR ─── */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+        {/* ─── 2. TRENDING TAGS BAR (Rectangular Rounded-xl Tabs) ─── */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
           <button
             onClick={() => setSelectedTag(null)}
             className={cn(
-              "px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all shrink-0",
+              "px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0",
               selectedTag === null
                 ? "bg-[#0F172A] text-white shadow-xs"
-                : "bg-white border border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A]"
+                : "bg-white border border-[#CBD5E1] text-[#64748B] hover:text-[#0F172A]"
             )}
           >
             Semua Trending
@@ -145,10 +145,10 @@ export default function ExplorePage() {
               key={t}
               onClick={() => setSelectedTag(selectedTag === t ? null : t)}
               className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all shrink-0",
+                "px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0",
                 selectedTag === t
                   ? "bg-[#FF5733] text-white shadow-xs font-bold"
-                  : "bg-white border border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
+                  : "bg-white border border-[#CBD5E1] text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
               )}
             >
               {t}
@@ -232,7 +232,7 @@ export default function ExplorePage() {
                           alt="Showcase"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
-                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold">
+                        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold">
                           {post.category}
                         </div>
                       </div>
@@ -332,7 +332,7 @@ export default function ExplorePage() {
 
               <button
                 onClick={() => setInspectingPost(null)}
-                className="p-1.5 text-slate-400 hover:text-[#0F172A] rounded-full hover:bg-slate-200"
+                className="p-1.5 text-slate-400 hover:text-[#0F172A] rounded-lg hover:bg-slate-200"
               >
                 <X className="w-4 h-4" />
               </button>

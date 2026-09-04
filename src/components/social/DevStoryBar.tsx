@@ -60,53 +60,75 @@ export function DevStoryBar() {
 
   return (
     <>
-      <div className="w-full bg-white border border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-3 sm:p-4 shadow-xs overflow-hidden">
-        <div className="flex items-center gap-3.5 sm:gap-4 overflow-x-auto no-scrollbar py-1">
-          {/* 1. Add My Story Button */}
+      <div className="w-full bg-white border border-[#CBD5E1] rounded-2xl p-3.5 sm:p-4 shadow-xs overflow-hidden">
+        <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[#F1F5F9]">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#0F172A]">
+              Daily Sprint Updates
+            </span>
+          </div>
+          <span className="text-[11px] text-[#64748B] font-medium hidden sm:inline">
+            Status &amp; progres coding 24 jam terakhir
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
+          {/* 1. Add My Sprint Story Card */}
           <div
-            className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group"
+            className="flex items-center gap-2.5 p-2 pr-3.5 rounded-xl bg-slate-50 hover:bg-[#FFF8F6] border border-[#E2E8F0] hover:border-[#FF5733] shrink-0 cursor-pointer group transition-all"
             onClick={() => setIsCreateModalOpen(true)}
           >
-            <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center shrink-0">
+            <div className="relative w-10 h-10 flex items-center justify-center shrink-0">
               <Avatar
                 src={myAvatar}
                 fallback={currentUser?.name ? currentUser.name.slice(0, 2).toUpperCase() : "ME"}
-                shape="circle"
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-slate-200 group-hover:border-[#FF5733] transition-colors shadow-xs"
+                className="w-10 h-10 rounded-xl border border-slate-300 group-hover:border-[#FF5733] transition-colors shadow-xs"
               />
-              <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-[#FF5733] text-white flex items-center justify-center border-2 border-white shadow-xs group-hover:scale-110 transition-transform z-10">
-                <Plus className="w-3 h-3 stroke-[3]" />
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-md bg-[#FF5733] text-white flex items-center justify-center border border-white shadow-xs group-hover:scale-110 transition-transform z-10">
+                <Plus className="w-2.5 h-2.5 stroke-[3]" />
               </div>
             </div>
-            <span className="text-[11px] font-bold text-[#0F172A] truncate max-w-[64px] text-center">
-              Cerita Anda
-            </span>
+            <div className="text-left">
+              <p className="text-xs font-bold text-[#0F172A] group-hover:text-[#FF5733] transition-colors">
+                + Update Cerita
+              </p>
+              <span className="text-[10px] text-[#64748B] block font-mono">
+                Bagikan sprint
+              </span>
+            </div>
           </div>
 
-          {/* 2. Community Stories Avatars with Gradient Ring */}
-          {storyGroups.map((group, groupIdx) => {
-            return (
+          {/* 2. Community Active Stories */}
+          {storyGroups.length > 0 ? (
+            storyGroups.map((group, groupIdx) => (
               <div
                 key={group.author.id}
-                className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group"
+                className="flex items-center gap-2.5 p-2 pr-3.5 rounded-xl bg-white hover:bg-slate-50 border border-[#E2E8F0] hover:border-[#FF5733] shrink-0 cursor-pointer group transition-all"
                 onClick={() => openStoryModal(groupIdx, 0)}
               >
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-[#FF5733] via-amber-500 to-[#FF5733] group-hover:scale-105 transition-transform shadow-xs shrink-0 flex items-center justify-center">
-                  <div className="w-full h-full rounded-full bg-white p-[2px] flex items-center justify-center overflow-hidden">
-                    <Avatar
-                      src={group.author.avatarUrl}
-                      fallback={group.author.name.slice(0, 2).toUpperCase()}
-                      shape="circle"
-                      className="w-full h-full rounded-full border-0 object-cover"
-                    />
-                  </div>
+                <div className="w-10 h-10 rounded-xl p-[2px] bg-gradient-to-tr from-[#FF5733] to-amber-400 shrink-0 flex items-center justify-center">
+                  <Avatar
+                    src={group.author.avatarUrl}
+                    fallback={group.author.name.slice(0, 2).toUpperCase()}
+                    className="w-full h-full rounded-[10px] border-0 object-cover"
+                  />
                 </div>
-                <span className="text-[11px] font-semibold text-[#475569] group-hover:text-[#0F172A] truncate max-w-[68px] text-center">
-                  {group.author.name.split(" ")[0]}
-                </span>
+                <div className="text-left min-w-0">
+                  <p className="text-xs font-bold text-[#0F172A] truncate max-w-[100px]">
+                    {group.author.name}
+                  </p>
+                  <span className="text-[10px] text-emerald-600 font-semibold block">
+                    Lihat sprint
+                  </span>
+                </div>
               </div>
-            );
-          })}
+            ))
+          ) : (
+            <div className="flex items-center gap-2 px-3 py-2 text-xs text-[#94A3B8] italic">
+              <span>Belum ada update sprint komunitas hari ini. Mulai bagikan cerita pertamamu!</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -179,7 +201,7 @@ export function DevStoryBar() {
                 <button
                   type="submit"
                   disabled={isSubmitting || (!caption.trim() && !mediaUrl)}
-                  className="px-4 py-2 rounded-full bg-[#FF5733] hover:bg-[#D9411E] text-white text-xs font-bold shadow-xs disabled:opacity-50 transition-all active:scale-95"
+                  className="px-4 py-2 rounded-xl bg-[#FF5733] hover:bg-[#D9411E] text-white text-xs font-bold shadow-xs disabled:opacity-50 transition-all active:scale-95"
                 >
                   {isSubmitting ? "Membagikan..." : "Posting Story"}
                 </button>

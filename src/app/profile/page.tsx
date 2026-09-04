@@ -874,11 +874,9 @@ export default function ProfilePage() {
         <div className="space-y-3 border-b border-devora-border pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-devora-surface border border-devora-border">
-                <Sliders className="w-3.5 h-3.5 text-[#FF5733]" />
-                <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-devora-ink">
-                  Pengaturan Profil Developer
-                </span>
+              <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#FF5733] flex items-center gap-1.5">
+                <Sliders className="w-3.5 h-3.5" />
+                <span>Pengaturan Profil Developer</span>
               </div>
               <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-devora-ink tracking-tight">
                 Profil Profesional Pengembang
@@ -1121,7 +1119,7 @@ export default function ProfilePage() {
                       {name || "Nama Belum Diisi"}
                     </h2>
                     {experienceLevel && (
-                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-devora-brand/10 text-devora-brand-dark border border-devora-brand/20">
+                      <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-devora-brand/10 text-devora-brand-dark border border-devora-brand/20">
                         {formatExperienceLabel(
                           experienceYears !== "" ? Number(experienceYears) : null,
                           experienceLevel
@@ -1133,17 +1131,17 @@ export default function ProfilePage() {
                     {title || "Web Developer & Builder"}
                   </p>
                   
-                  {/* Meta Chips */}
+                  {/* Meta Chips (Rounded-md) */}
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 sm:gap-2 pt-1 text-[11px] text-slate-600 font-medium">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200">
                       <MapPin className="w-3.5 h-3.5 text-devora-brand" />
                       <span>{location || "Indonesia"}</span>
                     </span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200">
                       <Clock className="w-3.5 h-3.5 text-devora-brand" />
                       <span>{availabilityHrs} jam/mgg ({flexibleHours ? "Fleksibel" : "Tetap"})</span>
                     </span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200">
                       <Globe className="w-3.5 h-3.5 text-devora-brand" />
                       <span>{formatWorkPreferenceLabel(workPreference)}</span>
                     </span>
@@ -1172,7 +1170,7 @@ export default function ProfilePage() {
                   {techStack.map((tech) => (
                     <span
                       key={tech}
-                      className="text-xs py-1 px-2.5 rounded-lg bg-slate-100 text-slate-800 font-bold border border-slate-200"
+                      className="text-xs py-1 px-2.5 rounded-md bg-slate-100 text-slate-800 font-bold border border-slate-200"
                     >
                       {tech}
                     </span>
@@ -1203,14 +1201,14 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Links & Socials */}
+              {/* Links & Socials (Rounded-xl) */}
               <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
                 {portfolioUrl && (
                   <a
                     href={portfolioUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-devora-brand/10 text-devora-brand-dark text-xs font-bold border border-devora-brand/20 hover:bg-devora-brand/20 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-devora-brand/10 text-devora-brand-dark text-xs font-bold border border-devora-brand/20 hover:bg-devora-brand/20 transition-colors"
                   >
                     <LinkIcon className="w-3.5 h-3.5" />
                     <span>Portofolio</span>
@@ -1222,7 +1220,7 @@ export default function ProfilePage() {
                     href={currentUser.githubUrl || `https://github.com/${currentUser.githubUsername}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200 hover:bg-slate-200 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200 hover:bg-slate-200 transition-colors"
                   >
                     <GitBranch className="w-3.5 h-3.5" />
                     <span>GitHub (@{currentUser.githubUsername})</span>
@@ -1234,7 +1232,7 @@ export default function ProfilePage() {
                     href={linkedinUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200 hover:bg-blue-100 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200 hover:bg-blue-100 transition-colors"
                   >
                     <Globe className="w-3.5 h-3.5" />
                     <span>LinkedIn</span>
@@ -1246,7 +1244,7 @@ export default function ProfilePage() {
                     href={websiteUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200 hover:bg-slate-200 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200 hover:bg-slate-200 transition-colors"
                   >
                     <Globe className="w-3.5 h-3.5" />
                     <span>Website</span>
@@ -1783,7 +1781,7 @@ export default function ProfilePage() {
                       Tech Stack & Keahlian Utama <span className="text-devora-brand">*</span>
                     </label>
                   </div>
-                  <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
                     {techStack.length} tools terpilih
                   </span>
                 </div>
@@ -1794,13 +1792,13 @@ export default function ProfilePage() {
                     techStack.map((tech) => (
                       <span
                         key={tech}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-devora-brand/10 text-devora-brand-dark border border-devora-brand/30 text-xs font-bold shadow-2xs"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-devora-brand/10 text-devora-brand-dark border border-devora-brand/30 text-xs font-bold shadow-2xs"
                       >
                         <span>{tech}</span>
                         <button
                           type="button"
                           onClick={() => handleRemoveTech(tech)}
-                          className="w-3.5 h-3.5 rounded-full hover:bg-devora-brand hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                          className="w-3.5 h-3.5 rounded-md hover:bg-devora-brand hover:text-white flex items-center justify-center transition-colors cursor-pointer"
                         >
                           <X className="w-2.5 h-2.5" />
                         </button>
@@ -2228,7 +2226,7 @@ export default function ProfilePage() {
                       <Award className="w-3.5 h-3.5 text-amber-700" />
                       <span>Upload Sertifikat Baru</span>
                     </h3>
-                    <span className="text-[10px] font-mono text-amber-700 font-bold bg-amber-100/80 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono text-amber-700 font-bold bg-amber-100/80 px-2 py-0.5 rounded-md">
                       Galeri HP & PC Didukung
                     </span>
                   </div>

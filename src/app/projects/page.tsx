@@ -488,7 +488,7 @@ export default function ProjectsPage() {
             <Layers className="w-4 h-4" />
             <span>Proyek Saya ({myProjects.length})</span>
             {pendingRequestsForMe.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-devora-brand text-white text-[10px] font-mono font-bold">
+              <span className="px-1.5 py-0.5 rounded-md bg-devora-brand text-white text-[10px] font-mono font-bold">
                 {pendingRequestsForMe.length} Pelamar
               </span>
             )}
@@ -506,7 +506,7 @@ export default function ProjectsPage() {
             <Inbox className="w-4 h-4" />
             <span>Lamaran Saya ({mySubmittedApplications.length})</span>
             {mySubmittedApplications.some((a) => a.status === "ACCEPTED") && (
-              <span className="px-1.5 py-0.2 rounded-full bg-emerald-500 text-white text-[10px] font-mono font-bold">
+              <span className="px-1.5 py-0.5 rounded-md bg-emerald-500 text-white text-[10px] font-mono font-bold">
                 Ada yang di-ACC
               </span>
             )}
@@ -540,7 +540,7 @@ export default function ProjectsPage() {
                     key={st.key}
                     onClick={() => setApplicationStatusFilter(st.key as any)}
                     className={cn(
-                      "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 border",
+                      "px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 border",
                       applicationStatusFilter === st.key
                         ? "bg-devora-ink text-white border-devora-ink"
                         : "bg-devora-surface text-devora-muted border-devora-border hover:text-devora-ink"
@@ -699,7 +699,7 @@ export default function ProjectsPage() {
               </div>
             ) : (
               <Card className="py-16 px-6 sm:py-24 sm:px-10 text-center bg-devora-surface border-2 border-dashed border-devora-border rounded-container flex flex-col items-center justify-center space-y-6 shadow-xs">
-                <div className="w-16 h-16 rounded-full bg-devora-surface-strong border border-devora-border flex items-center justify-center text-devora-brand shadow-xs">
+                <div className="w-16 h-16 rounded-2xl bg-devora-surface-strong border border-devora-border flex items-center justify-center text-devora-brand shadow-xs">
                   <Inbox className="w-8 h-8" />
                 </div>
                 <div className="space-y-2.5 max-w-md mx-auto">
@@ -781,7 +781,7 @@ export default function ProjectsPage() {
                         key={roleTag}
                         onClick={() => setSelectedRoleFilter(roleTag)}
                         className={cn(
-                          "px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap transition-all",
+                          "px-2.5 py-1.5 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all",
                           selectedRoleFilter === roleTag
                             ? "bg-devora-brand text-white shadow-xs font-bold"
                             : "bg-devora-background text-devora-muted border border-devora-border hover:border-devora-brand hover:text-devora-ink"
@@ -1261,7 +1261,7 @@ export default function ProjectsPage() {
               </div>
             ) : (
               <Card className="py-16 px-6 sm:py-24 sm:px-10 text-center bg-devora-surface border-2 border-dashed border-devora-border rounded-container flex flex-col items-center justify-center space-y-6 shadow-xs">
-                <div className="w-16 h-16 rounded-full bg-devora-surface-strong border border-devora-border flex items-center justify-center text-devora-brand shadow-xs">
+                <div className="w-16 h-16 rounded-2xl bg-devora-surface-strong border border-devora-border flex items-center justify-center text-devora-brand shadow-xs">
                   <FolderKanban className="w-8 h-8" />
                 </div>
                 <div className="space-y-2.5 max-w-md mx-auto">
@@ -1474,7 +1474,7 @@ export default function ProjectsPage() {
               className="relative w-full max-w-sm bg-devora-surface border-2 border-red-200 rounded-container shadow-2xl p-6 space-y-4 animate-in zoom-in-95 text-center"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center mx-auto">
                 <AlertCircle className="w-6 h-6" />
               </div>
 
@@ -1625,7 +1625,7 @@ export default function ProjectsPage() {
               className="relative w-full max-w-sm bg-devora-surface border-2 border-red-200 rounded-container shadow-2xl p-6 space-y-4 animate-in zoom-in-95 text-center"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center mx-auto">
                 <Trash2 className="w-6 h-6" />
               </div>
 

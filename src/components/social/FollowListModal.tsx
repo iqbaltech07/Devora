@@ -141,7 +141,7 @@ export function FollowListModal({
                     disabled={togglingId === u.id}
                     onClick={() => handleToggleFollow(u.id)}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 transition-all active:scale-95 shrink-0",
+                      "px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition-all active:scale-95 shrink-0",
                       u.isFollowing
                         ? "bg-slate-200 text-[#0F172A] hover:bg-red-50 hover:text-red-600 hover:border-red-200 border border-transparent"
                         : "bg-[#FF5733] text-white hover:bg-[#D9411E] shadow-xs"

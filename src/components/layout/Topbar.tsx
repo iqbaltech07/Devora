@@ -71,7 +71,7 @@ export function Topbar() {
             <div className="flex items-center gap-2 sm:gap-2.5">
               <Link
                 href="/profile"
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E2E8F0] bg-white text-xs font-bold text-[#0F172A] hover:border-[#FF5733] transition-colors shadow-xs"
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[#CBD5E1] bg-white text-xs font-bold text-[#0F172A] hover:border-[#FF5733] transition-colors shadow-xs"
                 title="Lihat & Edit Profil"
               >
                 <Avatar
@@ -88,7 +88,7 @@ export function Topbar() {
                       : "DV"
                   }
                   size="sm"
-                  className="w-5 h-5"
+                  className="w-5 h-5 rounded-lg"
                 />
                 <span>{currentUser.name || "Profil Saya"}</span>
               </Link>
@@ -98,7 +98,7 @@ export function Topbar() {
                 type="button"
                 onClick={handleLogout}
                 title="Keluar dari Akun (Log Out)"
-                className="inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-semibold text-[#64748B] hover:text-red-600 hover:bg-red-50 transition-all duration-150"
+                className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold text-[#64748B] hover:text-red-600 hover:bg-red-50 transition-all duration-150"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Keluar</span>
@@ -117,7 +117,7 @@ export function Topbar() {
               <Link href="/signup">
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#0F172A] text-white text-xs font-bold shadow-md hover:bg-[#1E293B] hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#0F172A] text-white text-xs font-bold shadow-md hover:bg-[#1E293B] hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   <span>Mulai Sekarang</span>
                 </button>
