@@ -76,21 +76,21 @@ export function DevStoryBar() {
         <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
           {/* 1. Add My Sprint Story Card */}
           <div
-            className="flex items-center gap-2.5 p-2 pr-3.5 rounded-xl bg-slate-50 hover:bg-[#FFF8F6] border border-[#E2E8F0] hover:border-[#FF5733] shrink-0 cursor-pointer group transition-all"
+            className="flex items-center gap-2.5 p-2 pr-3.5 rounded-xl bg-slate-50 hover:bg-[#F2FAF6] border border-[#E2E8F0] hover:border-[#317B67] shrink-0 cursor-pointer group transition-all"
             onClick={() => setIsCreateModalOpen(true)}
           >
             <div className="relative w-10 h-10 flex items-center justify-center shrink-0">
               <Avatar
                 src={myAvatar}
                 fallback={currentUser?.name ? currentUser.name.slice(0, 2).toUpperCase() : "ME"}
-                className="w-10 h-10 rounded-xl border border-slate-300 group-hover:border-[#FF5733] transition-colors shadow-xs"
+                className="w-10 h-10 rounded-xl border border-slate-300 group-hover:border-[#317B67] transition-colors shadow-xs"
               />
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-md bg-[#FF5733] text-white flex items-center justify-center border border-white shadow-xs group-hover:scale-110 transition-transform z-10">
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-md bg-[#317B67] text-white flex items-center justify-center border border-white shadow-xs group-hover:scale-110 transition-transform z-10">
                 <Plus className="w-2.5 h-2.5 stroke-[3]" />
               </div>
             </div>
             <div className="text-left">
-              <p className="text-xs font-bold text-[#0F172A] group-hover:text-[#FF5733] transition-colors">
+              <p className="text-xs font-bold text-[#0F172A] group-hover:text-[#317B67] transition-colors">
                 + Update Cerita
               </p>
               <span className="text-[10px] text-[#64748B] block font-mono">
@@ -104,10 +104,10 @@ export function DevStoryBar() {
             storyGroups.map((group, groupIdx) => (
               <div
                 key={group.author.id}
-                className="flex items-center gap-2.5 p-2 pr-3.5 rounded-xl bg-white hover:bg-slate-50 border border-[#E2E8F0] hover:border-[#FF5733] shrink-0 cursor-pointer group transition-all"
+                className="flex items-center gap-2.5 p-2 pr-3.5 rounded-xl bg-white hover:bg-slate-50 border border-[#E2E8F0] hover:border-[#317B67] shrink-0 cursor-pointer group transition-all"
                 onClick={() => openStoryModal(groupIdx, 0)}
               >
-                <div className="w-10 h-10 rounded-xl p-[2px] bg-gradient-to-tr from-[#FF5733] to-amber-400 shrink-0 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl p-[2px] bg-gradient-to-tr from-[#317B67] to-emerald-400 shrink-0 flex items-center justify-center">
                   <Avatar
                     src={group.author.avatarUrl}
                     fallback={group.author.name.slice(0, 2).toUpperCase()}
@@ -147,7 +147,7 @@ export function DevStoryBar() {
           >
             <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#FF5733]" />
+                <Clock className="w-4 h-4 text-[#317B67]" />
                 <h3 className="text-sm font-bold text-[#0F172A]">Bagikan Daily Sprint (24 Jam)</h3>
               </div>
               <button
@@ -164,7 +164,7 @@ export function DevStoryBar() {
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
                 rows={3}
-                className="w-full p-3 text-xs bg-slate-50 border border-[#E2E8F0] rounded-xl focus:outline-none focus:border-[#FF5733] text-[#0F172A] placeholder:text-slate-400 resize-none"
+                className="w-full p-3 text-xs bg-slate-50 border border-[#E2E8F0] rounded-xl focus:outline-none focus:border-[#317B67] text-[#0F172A] placeholder:text-slate-400 resize-none"
               />
 
               {mediaUrl && (
@@ -192,16 +192,16 @@ export function DevStoryBar() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
-                  className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] hover:border-[#FF5733] text-xs font-semibold text-[#475569] flex items-center gap-1.5 transition-colors"
+                  className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] hover:border-[#317B67] text-xs font-semibold text-[#475569] flex items-center gap-1.5 transition-colors"
                 >
-                  <ImageIcon className="w-3.5 h-3.5 text-[#FF5733]" />
+                  <ImageIcon className="w-3.5 h-3.5 text-[#317B67]" />
                   <span>{isUploading ? "Mengunggah..." : "Foto / Screenshot UI"}</span>
                 </button>
 
                 <button
                   type="submit"
                   disabled={isSubmitting || (!caption.trim() && !mediaUrl)}
-                  className="px-4 py-2 rounded-xl bg-[#FF5733] hover:bg-[#D9411E] text-white text-xs font-bold shadow-xs disabled:opacity-50 transition-all active:scale-95"
+                  className="px-4 py-2 rounded-xl bg-[#317B67] hover:bg-[#245E4E] text-white text-xs font-bold shadow-xs disabled:opacity-50 transition-all active:scale-95"
                 >
                   {isSubmitting ? "Membagikan..." : "Posting Story"}
                 </button>

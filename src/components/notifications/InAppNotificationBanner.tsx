@@ -136,10 +136,10 @@ export function InAppNotificationBanner() {
           {/* Type Badge Icon */}
           <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#0F172A] border border-white/30 flex items-center justify-center">
             {(activePopup.type === "FOLLOW" || activePopup.type === "FOLLOW_BACK") && (
-              <Users className="w-2.5 h-2.5 text-[#FF5733]" />
+              <Users className="w-2.5 h-2.5 text-[#317B67]" />
             )}
             {activePopup.type === "LIKE" && (
-              <Heart className="w-2.5 h-2.5 text-[#FF5733] fill-[#FF5733]" />
+              <Heart className="w-2.5 h-2.5 text-[#317B67] fill-[#317B67]" />
             )}
             {activePopup.type === "MATCH" && (
               <Flame className="w-2.5 h-2.5 text-emerald-400 fill-emerald-400" />
@@ -167,7 +167,7 @@ export function InAppNotificationBanner() {
             </span>
           </div>
 
-          <p className="text-xs font-medium text-[#FF5733]">
+          <p className="text-xs font-medium text-[#317B67]">
             {activePopup.title}
           </p>
 

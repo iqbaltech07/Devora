@@ -41,7 +41,7 @@ export function BottomNav() {
               <div className="relative">
                 <Icon className="w-4 h-4" />
                 {hasBadge && (
-                  <span className="absolute -top-1 -right-2 px-1.5 py-0.5 text-[9px] font-bold bg-[#FF5733] text-white rounded-md leading-none shadow-xs">
+                  <span className="absolute -top-1 -right-2 px-1.5 py-0.5 text-[9px] font-bold bg-[#317B67] text-white rounded-md leading-none shadow-xs">
                     {incomingLikes.length}
                   </span>
                 )}

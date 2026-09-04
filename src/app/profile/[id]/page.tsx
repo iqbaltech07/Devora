@@ -354,9 +354,9 @@ export default function PublicProfilePage() {
                   <button
                     type="button"
                     onClick={() => setFollowModalType("followers")}
-                    className="flex items-center gap-1.5 text-xs font-bold text-[#0F172A] hover:text-[#FF5733] transition-colors p-1 rounded-lg hover:bg-slate-100"
+                    className="flex items-center gap-1.5 text-xs font-bold text-[#0F172A] hover:text-[#317B67] transition-colors p-1 rounded-lg hover:bg-slate-100"
                   >
-                    <span className="text-sm font-extrabold text-[#FF5733]">{followStats.followersCount}</span>
+                    <span className="text-sm font-extrabold text-[#317B67]">{followStats.followersCount}</span>
                     <span className="text-slate-500 font-medium">Pengikut</span>
                   </button>
 
@@ -365,7 +365,7 @@ export default function PublicProfilePage() {
                   <button
                     type="button"
                     onClick={() => setFollowModalType("following")}
-                    className="flex items-center gap-1.5 text-xs font-bold text-[#0F172A] hover:text-[#FF5733] transition-colors p-1 rounded-lg hover:bg-slate-100"
+                    className="flex items-center gap-1.5 text-xs font-bold text-[#0F172A] hover:text-[#317B67] transition-colors p-1 rounded-lg hover:bg-slate-100"
                   >
                     <span className="text-sm font-extrabold text-[#0F172A]">{followStats.followingCount}</span>
                     <span className="text-slate-500 font-medium">Mengikuti</span>
@@ -385,7 +385,7 @@ export default function PublicProfilePage() {
                     "w-full gap-2 font-bold text-xs shadow-sm transition-all",
                     followStats.isFollowing
                       ? "bg-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-[#0F172A] border border-slate-300"
-                      : "bg-[#FF5733] hover:bg-[#D9411E] text-white shadow-sm shadow-[#FF5733]/25"
+                      : "bg-[#317B67] hover:bg-[#245E4E] text-white shadow-sm shadow-[#317B67]/25"
                   )}
                 >
                   {followStats.isFollowing ? (
@@ -417,7 +417,7 @@ export default function PublicProfilePage() {
                   onClick={handleLikePartner}
                   className="w-full gap-2 bg-slate-100 hover:bg-slate-200 text-[#0F172A] font-bold text-xs border border-slate-200"
                 >
-                  <Flame className="w-4 h-4 text-[#FF5733]" />
+                  <Flame className="w-4 h-4 text-[#317B67]" />
                   <span>Sukai Partner</span>
                 </Button>
 

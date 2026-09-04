@@ -364,7 +364,7 @@ function MessagesContent() {
                     placeholder="Cari pesan atau partner..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 text-xs bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#FF5733] transition-colors"
+                    className="w-full pl-9 pr-3 py-2 text-xs bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#317B67] transition-colors"
                   />
                 </div>
 
@@ -376,7 +376,7 @@ function MessagesContent() {
                     className={cn(
                       "pb-2 font-bold transition-all relative",
                       activeTab === "CHATS"
-                        ? "text-[#0F172A] border-b-2 border-[#FF5733]"
+                        ? "text-[#0F172A] border-b-2 border-[#317B67]"
                         : "text-[#64748B] hover:text-[#0F172A]"
                     )}
                   >
@@ -404,7 +404,7 @@ function MessagesContent() {
                         className={cn(
                           "p-3 rounded-2xl cursor-pointer transition-all flex items-start gap-3 text-left relative",
                           isSelected
-                            ? "bg-[#FFF1EE] border border-[#FF5733]/30 shadow-xs"
+                            ? "bg-[#E8F7F0] border border-[#317B67]/30 shadow-xs"
                             : "hover:bg-[#F8FAFC] border border-transparent"
                         )}
                       >
@@ -444,7 +444,7 @@ function MessagesContent() {
                             </div>
 
                             {conv.unreadCount > 0 && (
-                              <span className="w-4 h-4 rounded-full bg-[#FF5733] text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
+                              <span className="w-4 h-4 rounded-full bg-[#317B67] text-white text-[10px] font-bold flex items-center justify-center shadow-xs">
                                 {conv.unreadCount}
                               </span>
                             )}
@@ -457,7 +457,7 @@ function MessagesContent() {
                   <div className="p-6 text-center text-xs text-[#64748B] space-y-3">
                     <p>Belum ada obrolan aktif.</p>
                     <Link href="/find-partner">
-                      <Button size="sm" className="text-xs bg-[#FF5733] hover:bg-[#D9411E] text-white font-bold rounded-xl">
+                      <Button size="sm" className="text-xs bg-[#317B67] hover:bg-[#245E4E] text-white font-bold rounded-xl">
                         Cari Partner Sekarang
                       </Button>
                     </Link>
@@ -507,7 +507,7 @@ function MessagesContent() {
                         </h3>
                         <div className="flex items-center gap-1.5 text-[11px] truncate">
                           {activePartnerPresence.isTyping ? (
-                            <span className="font-semibold text-[#FF5733] animate-pulse">Sedang mengetik...</span>
+                            <span className="font-semibold text-[#317B67] animate-pulse">Sedang mengetik...</span>
                           ) : isPartnerOnline ? (
                             <>
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
@@ -528,7 +528,7 @@ function MessagesContent() {
                         <button
                           type="button"
                           title="Lihat Profil Lengkap"
-                          className="px-2.5 py-1 text-xs font-bold rounded-lg border border-[#E2E8F0] hover:border-[#FF5733] text-[#0F172A] hover:text-[#FF5733] transition-colors"
+                          className="px-2.5 py-1 text-xs font-bold rounded-lg border border-[#E2E8F0] hover:border-[#317B67] text-[#0F172A] hover:text-[#317B67] transition-colors"
                         >
                           Profil
                         </button>
@@ -583,17 +583,17 @@ function MessagesContent() {
                                 />
                               )}
                               <div className="space-y-1 w-full">
-                                <div className="bg-white border-2 border-[#FF5733]/50 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 relative overflow-hidden text-left">
-                                  <div className="absolute top-0 left-0 right-0 h-1 bg-[#FF5733]" />
+                                <div className="bg-white border-2 border-[#317B67]/50 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 relative overflow-hidden text-left">
+                                  <div className="absolute top-0 left-0 right-0 h-1 bg-[#317B67]" />
                                   <div className="flex items-start gap-3">
-                                    <div className="w-9 h-9 rounded-xl bg-[#FFF1EE] text-[#FF5733] flex items-center justify-center shrink-0">
+                                    <div className="w-9 h-9 rounded-xl bg-[#E8F7F0] text-[#317B67] flex items-center justify-center shrink-0">
                                       <Rocket className="w-5 h-5" />
                                     </div>
                                     <div className="space-y-0.5">
                                       <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
                                         UNDANGAN KOLABORASI PROYEK
                                       </span>
-                                      <p className="text-xs sm:text-sm font-extrabold text-[#FF5733]">
+                                      <p className="text-xs sm:text-sm font-extrabold text-[#317B67]">
                                         {msg.content}
                                       </p>
                                     </div>
@@ -603,7 +603,7 @@ function MessagesContent() {
                                     <Link href="/projects">
                                       <Button
                                         size="sm"
-                                        className="text-xs bg-[#FF5733] hover:bg-[#D9411E] text-white font-bold gap-1 rounded-xl"
+                                        className="text-xs bg-[#317B67] hover:bg-[#245E4E] text-white font-bold gap-1 rounded-xl"
                                       >
                                         <FolderKanban className="w-3.5 h-3.5" />
                                         <span>Buka Halaman Proyek</span>
@@ -636,7 +636,7 @@ function MessagesContent() {
                               className={cn(
                                 "p-3.5 text-xs leading-relaxed shadow-xs text-left",
                                 isMe
-                                  ? "bg-[#FF5733] text-white rounded-2xl rounded-tr-xs"
+                                  ? "bg-[#317B67] text-white rounded-2xl rounded-tr-xs"
                                   : "bg-white border border-[#E2E8F0] text-[#0F172A] rounded-2xl rounded-tl-xs"
                               )}
                             >
@@ -651,7 +651,7 @@ function MessagesContent() {
                       })
                     ) : (
                       <div className="py-16 text-center space-y-2 text-xs text-[#64748B]">
-                        <div className="w-12 h-12 rounded-2xl bg-[#FFF1EE] text-[#FF5733] flex items-center justify-center mx-auto shadow-xs">
+                        <div className="w-12 h-12 rounded-2xl bg-[#E8F7F0] text-[#317B67] flex items-center justify-center mx-auto shadow-xs">
                           <MessageSquare className="w-6 h-6" />
                         </div>
                         <h4 className="font-bold text-[#0F172A] text-sm">
@@ -682,7 +682,7 @@ function MessagesContent() {
                       <button
                         type="submit"
                         disabled={!inputText.trim()}
-                        className="w-8 h-8 rounded-xl bg-[#FF5733] hover:bg-[#D9411E] text-white flex items-center justify-center shadow-xs transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none shrink-0"
+                        className="w-8 h-8 rounded-xl bg-[#317B67] hover:bg-[#245E4E] text-white flex items-center justify-center shadow-xs transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none shrink-0"
                       >
                         <Send className="w-3.5 h-3.5" />
                       </button>
@@ -696,7 +696,7 @@ function MessagesContent() {
               ) : (
                 /* No conversation selected / Empty State */
                 <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-                  <div className="w-16 h-16 rounded-2xl bg-[#FFF1EE] text-[#FF5733] flex items-center justify-center shadow-sm">
+                  <div className="w-16 h-16 rounded-2xl bg-[#E8F7F0] text-[#317B67] flex items-center justify-center shadow-sm">
                     <MessageSquare className="w-8 h-8" />
                   </div>
                   <div className="space-y-1 max-w-sm">
@@ -708,7 +708,7 @@ function MessagesContent() {
                     </p>
                   </div>
                   <Link href="/find-partner">
-                    <Button size="sm" className="bg-[#FF5733] hover:bg-[#D9411E] text-white font-bold text-xs rounded-xl gap-1.5">
+                    <Button size="sm" className="bg-[#317B67] hover:bg-[#245E4E] text-white font-bold text-xs rounded-xl gap-1.5">
                       <Flame className="w-3.5 h-3.5 fill-white" />
                       <span>Cari Partner Baru</span>
                     </Button>

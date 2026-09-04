@@ -37,7 +37,7 @@ function renderFormattedContent(text: string) {
       return (
         <span
           key={idx}
-          className="text-[#FF5733] font-bold hover:underline cursor-pointer"
+          className="text-[#317B67] font-bold hover:underline cursor-pointer"
         >
           {part}
         </span>
@@ -47,7 +47,7 @@ function renderFormattedContent(text: string) {
       return (
         <span
           key={idx}
-          className="text-[#FF5733] font-semibold hover:underline cursor-pointer"
+          className="text-[#317B67] font-semibold hover:underline cursor-pointer"
         >
           {part}
         </span>
@@ -131,7 +131,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
       className={cn(
         "bg-white border rounded-2xl sm:rounded-[24px] p-4 sm:p-5 shadow-xs transition-all space-y-3.5",
         isTargetPost
-          ? "border-2 border-[#FF5733] ring-4 ring-[#FF5733]/15 shadow-md"
+          ? "border-2 border-[#317B67] ring-4 ring-[#317B67]/15 shadow-md"
           : "border-[#E2E8F0] hover:border-slate-300"
       )}
     >
@@ -143,7 +143,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
               src={post.author.avatarUrl}
               fallback={post.author.name.slice(0, 2).toUpperCase()}
               size="md"
-              className="w-10 h-10 sm:w-11 sm:h-11 border border-[#E2E8F0] hover:border-[#FF5733] transition-colors shrink-0"
+              className="w-10 h-10 sm:w-11 sm:h-11 border border-[#E2E8F0] hover:border-[#317B67] transition-colors shrink-0"
             />
           </Link>
 
@@ -151,14 +151,14 @@ export function DevPostCard({ post }: DevPostCardProps) {
             <div className="flex items-center gap-1.5 flex-wrap">
               <Link
                 href={`/profile/${post.author.id}`}
-                className="text-xs sm:text-sm font-bold text-[#0F172A] hover:text-[#FF5733] transition-colors truncate"
+                className="text-xs sm:text-sm font-bold text-[#0F172A] hover:text-[#317B67] transition-colors truncate"
               >
                 {post.author.name}
               </Link>
               <span className="text-[10px] text-[#94A3B8]">•</span>
               <Link
                 href={`/posts/${post.id}`}
-                className="text-[10px] text-[#64748B] hover:text-[#FF5733] font-medium transition-colors"
+                className="text-[10px] text-[#64748B] hover:text-[#317B67] font-medium transition-colors"
               >
                 {formatTimeAgo(post.createdAt)}
               </Link>
@@ -227,7 +227,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
           {post.tags.map((tag) => (
             <span
               key={tag}
-              className="text-[11px] font-semibold text-[#FF5733] hover:underline cursor-pointer"
+              className="text-[11px] font-semibold text-[#317B67] hover:underline cursor-pointer"
             >
               {tag.startsWith("#") ? tag : `#${tag}`}
             </span>
@@ -287,10 +287,10 @@ export function DevPostCard({ post }: DevPostCardProps) {
       {/* Attached Project Badge */}
       {post.project && (
         <Link href="/projects">
-          <div className="p-2.5 rounded-xl bg-slate-50 border border-[#E2E8F0] hover:border-[#FF5733] flex items-center justify-between text-xs transition-colors group">
+          <div className="p-2.5 rounded-xl bg-slate-50 border border-[#E2E8F0] hover:border-[#317B67] flex items-center justify-between text-xs transition-colors group">
             <div className="flex items-center gap-2">
-              <FolderKanban className="w-4 h-4 text-[#FF5733]" />
-              <span className="font-bold text-[#0F172A] group-hover:text-[#FF5733]">
+              <FolderKanban className="w-4 h-4 text-[#317B67]" />
+              <span className="font-bold text-[#0F172A] group-hover:text-[#317B67]">
                 Proyek: {post.project.title}
               </span>
             </div>
@@ -311,14 +311,14 @@ export function DevPostCard({ post }: DevPostCardProps) {
             className={cn(
               "px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-90",
               post.isLiked
-                ? "bg-[#FFF1EE] text-[#FF5733]"
+                ? "bg-[#E8F7F0] text-[#317B67]"
                 : "text-[#64748B] hover:bg-slate-100 hover:text-[#0F172A]"
             )}
           >
             <Flame
               className={cn(
                 "w-4 h-4 transition-transform",
-                post.isLiked ? "fill-[#FF5733] text-[#FF5733] scale-110" : "text-[#64748B]"
+                post.isLiked ? "fill-[#317B67] text-[#317B67] scale-110" : "text-[#64748B]"
               )}
             />
             <span>{post.likeCount}</span>
@@ -357,12 +357,12 @@ export function DevPostCard({ post }: DevPostCardProps) {
             className={cn(
               "p-2 rounded-xl transition-colors",
               post.isBookmarked
-                ? "text-[#FF5733] bg-[#FFF1EE]"
+                ? "text-[#317B67] bg-[#E8F7F0]"
                 : "text-slate-400 hover:text-[#0F172A] hover:bg-slate-100"
             )}
             title="Simpan Postingan"
           >
-            <Bookmark className={cn("w-4 h-4", post.isBookmarked && "fill-[#FF5733]")} />
+            <Bookmark className={cn("w-4 h-4", post.isBookmarked && "fill-[#317B67]")} />
           </button>
 
           {/* Ajak Kolaborasi CTA */}
@@ -372,7 +372,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
                 type="button"
                 className="px-3 py-1.5 rounded-xl bg-[#0F172A] hover:bg-[#1E293B] text-white text-[11px] font-bold flex items-center gap-1 shadow-xs transition-all active:scale-95"
               >
-                <Rocket className="w-3 h-3 text-[#FF5733]" />
+                <Rocket className="w-3 h-3 text-[#317B67]" />
                 <span>Ajak Kolaborasi</span>
               </button>
             </Link>
@@ -412,12 +412,12 @@ export function DevPostCard({ post }: DevPostCardProps) {
                           className={cn(
                             "flex items-center gap-1 text-[11px] font-bold p-1 rounded-md transition-colors",
                             c.isLiked
-                              ? "text-[#FF5733]"
+                              ? "text-[#317B67]"
                               : "text-slate-400 hover:text-[#0F172A]"
                           )}
                           title="Sukai Komentar"
                         >
-                          <Heart className={cn("w-3.5 h-3.5", c.isLiked && "fill-[#FF5733]")} />
+                          <Heart className={cn("w-3.5 h-3.5", c.isLiked && "fill-[#317B67]")} />
                           {c.likeCount > 0 && <span>{c.likeCount}</span>}
                         </button>
                       </div>
@@ -428,7 +428,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
                       <button
                         type="button"
                         onClick={() => setReplyingTo({ id: c.id, name: c.author.name })}
-                        className="text-[10px] font-bold text-slate-500 hover:text-[#FF5733] transition-colors flex items-center gap-1 pt-0.5"
+                        className="text-[10px] font-bold text-slate-500 hover:text-[#317B67] transition-colors flex items-center gap-1 pt-0.5"
                       >
                         <CornerDownRight className="w-3 h-3" />
                         <span>Balas</span>
@@ -464,10 +464,10 @@ export function DevPostCard({ post }: DevPostCardProps) {
                                 onClick={() => toggleCommentLike(post.id, reply.id)}
                                 className={cn(
                                   "flex items-center gap-1 text-[10px] font-bold p-0.5 rounded transition-colors",
-                                  reply.isLiked ? "text-[#FF5733]" : "text-slate-400 hover:text-[#0F172A]"
+                                  reply.isLiked ? "text-[#317B67]" : "text-slate-400 hover:text-[#0F172A]"
                                 )}
                               >
-                                <Heart className={cn("w-3 h-3", reply.isLiked && "fill-[#FF5733]")} />
+                                <Heart className={cn("w-3 h-3", reply.isLiked && "fill-[#317B67]")} />
                                 {reply.likeCount > 0 && <span>{reply.likeCount}</span>}
                               </button>
                             </div>
@@ -489,7 +489,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
 
           {/* Active Reply Banner */}
           {replyingTo && (
-            <div className="flex items-center justify-between px-3 py-1.5 bg-[#FFF1EE] text-[#FF5733] rounded-lg text-xs font-semibold animate-in fade-in">
+            <div className="flex items-center justify-between px-3 py-1.5 bg-[#E8F7F0] text-[#317B67] rounded-lg text-xs font-semibold animate-in fade-in">
               <span className="flex items-center gap-1.5 truncate">
                 <CornerDownRight className="w-3.5 h-3.5 shrink-0" />
                 <span>Membalas @{replyingTo.name}</span>
@@ -497,7 +497,7 @@ export function DevPostCard({ post }: DevPostCardProps) {
               <button
                 type="button"
                 onClick={() => setReplyingTo(null)}
-                className="p-1 hover:bg-[#FF5733]/15 rounded-md"
+                className="p-1 hover:bg-[#317B67]/15 rounded-md"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -515,12 +515,12 @@ export function DevPostCard({ post }: DevPostCardProps) {
               }
               value={commentInput}
               onChange={(e) => setCommentInput(e.target.value)}
-              className="flex-1 px-3.5 py-2 text-xs bg-slate-50 border border-[#E2E8F0] rounded-xl focus:outline-none focus:border-[#FF5733] text-[#0F172A] placeholder:text-slate-400"
+              className="flex-1 px-3.5 py-2 text-xs bg-slate-50 border border-[#E2E8F0] rounded-xl focus:outline-none focus:border-[#317B67] text-[#0F172A] placeholder:text-slate-400"
             />
             <button
               type="submit"
               disabled={isSubmittingComment || !commentInput.trim()}
-              className="p-2 rounded-xl bg-[#FF5733] text-white hover:bg-[#D9411E] disabled:opacity-50 transition-colors shadow-xs"
+              className="p-2 rounded-xl bg-[#317B67] text-white hover:bg-[#245E4E] disabled:opacity-50 transition-colors shadow-xs"
               title="Kirim Komentar"
             >
               <Send className="w-3.5 h-3.5" />

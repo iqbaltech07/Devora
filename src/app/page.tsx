@@ -178,7 +178,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] text-[#0F172A] selection:bg-[#FF5733] selection:text-white flex flex-col font-sans antialiased overflow-x-hidden">
+    <div className="min-h-screen bg-[#FAF9F5] text-[#0F172A] selection:bg-[#317B67] selection:text-white flex flex-col font-sans antialiased overflow-x-hidden">
       {/* ─────────────────────────────────────────────────────────────────────────────
           1. HEADER / NAVIGATION BAR (Clean, Non-Pill, Rectangular Buttons)
       ───────────────────────────────────────────────────────────────────────────── */}
@@ -186,7 +186,7 @@ export default function LandingPage() {
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-[#FF5733] flex items-center justify-center text-white shadow-md shadow-[#FF5733]/25 group-hover:scale-105 transition-transform duration-200">
+            <div className="w-9 h-9 rounded-xl bg-[#317B67] flex items-center justify-center text-white shadow-md shadow-[#317B67]/25 group-hover:scale-105 transition-transform duration-200">
               <Flame className="w-5 h-5 fill-white" />
             </div>
             <span className="text-2xl font-black tracking-tight text-[#0F172A]">
@@ -219,9 +219,9 @@ export default function LandingPage() {
               <div className="flex items-center gap-3">
                 <Link
                   href="/profile"
-                  className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl border border-[#E2E8F0] bg-white text-xs font-bold text-[#0F172A] hover:border-[#FF5733] transition-colors shadow-xs"
+                  className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl border border-[#E2E8F0] bg-white text-xs font-bold text-[#0F172A] hover:border-[#317B67] transition-colors shadow-xs"
                 >
-                  <User className="w-3.5 h-3.5 text-[#FF5733]" />
+                  <User className="w-3.5 h-3.5 text-[#317B67]" />
                   <span>{currentUser.name || "Profil Saya"}</span>
                 </Link>
                 <Link href="/find-partner">
@@ -239,7 +239,7 @@ export default function LandingPage() {
                 <Link href="/signin">
                   <button
                     type="button"
-                    className="px-4 py-2 text-xs sm:text-sm font-bold text-[#0F172A] hover:text-[#FF5733] transition-colors"
+                    className="px-4 py-2 text-xs sm:text-sm font-bold text-[#0F172A] hover:text-[#317B67] transition-colors"
                   >
                     Login
                   </button>
@@ -393,7 +393,7 @@ export default function LandingPage() {
       <section id="about" className="py-20 md:py-28 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
         <div className="space-y-10">
           {/* Eyebrow Label (Clean typography, no pill wrapper) */}
-          <div className="text-left text-xs font-mono font-bold tracking-widest uppercase text-[#FF5733]">
+          <div className="text-left text-xs font-mono font-bold tracking-widest uppercase text-[#317B67]">
             ABOUT DEVORA
           </div>
 
@@ -407,7 +407,7 @@ export default function LandingPage() {
             helps ambitious{" "}
             <FontAwesomeIcon
               icon={faRocket}
-              className="text-[#FF5733] inline-block w-8 h-8 sm:w-10 sm:h-10 mx-1.5 align-middle"
+              className="text-[#317B67] inline-block w-8 h-8 sm:w-10 sm:h-10 mx-1.5 align-middle"
             />{" "}
             builders match faster, write code, and ship{" "}
             <FontAwesomeIcon
@@ -453,7 +453,7 @@ export default function LandingPage() {
                   />
                 </div>
                 <div className="space-y-2 text-left">
-                  <span className="text-[10px] font-mono font-bold uppercase text-[#FF5733] tracking-wide block">
+                  <span className="text-[10px] font-mono font-bold uppercase text-[#317B67] tracking-wide block">
                     Fast Onboarding
                   </span>
                   <p className="text-xs font-bold text-[#0F172A] leading-snug">
@@ -462,7 +462,7 @@ export default function LandingPage() {
                   <Link href="/find-partner">
                     <button
                       type="button"
-                      className="inline-flex items-center gap-1.5 text-[11px] font-extrabold text-[#0F172A] hover:text-[#FF5733] transition-colors"
+                      className="inline-flex items-center gap-1.5 text-[11px] font-extrabold text-[#0F172A] hover:text-[#317B67] transition-colors"
                     >
                       <span>Explore Matches</span>
                       <ArrowRight className="w-3 h-3" />
@@ -486,7 +486,7 @@ export default function LandingPage() {
               FEATURED DOMAINS
             </span>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-[#0F172A] tracking-tight">
-              Collaboration Built for <span className="text-[#FF5733]">Real Builders</span>
+              Collaboration Built for <span className="text-[#317B67]">Real Builders</span>
             </h2>
             <p className="text-xs sm:text-sm text-[#64748B]">
               Pilih domain teknologi yang ingin kamu eksplorasi dan bangun bersama rekan baru.
@@ -537,7 +537,7 @@ export default function LandingPage() {
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-extrabold text-[#0F172A] group-hover:text-[#FF5733] transition-colors">
+                    <h3 className="text-lg font-extrabold text-[#0F172A] group-hover:text-[#317B67] transition-colors">
                       {proj.title}
                     </h3>
                     <p className="text-xs text-[#64748B] leading-relaxed pt-1">
@@ -612,7 +612,7 @@ export default function LandingPage() {
               CURATED PICKS
             </span>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-[#0F172A] tracking-tight">
-              Explore Top Projects In <span className="text-[#FF5733]">Any Discipline</span>
+              Explore Top Projects In <span className="text-[#317B67]">Any Discipline</span>
             </h2>
             <p className="text-xs sm:text-sm text-[#64748B]">
               Temukan proyek aktif yang membutuhkan spesifikasi keahlianmu sekarang juga.
@@ -1010,7 +1010,7 @@ export default function LandingPage() {
                     &ldquo;Menemukan partner dalam 48 jam. Kami berhasil meluncurkan MVP storyboard kami ke Product Hunt hanya dalam 3 minggu sprint kolaborasi!&rdquo;
                   </p>
                   <div className="pt-2 flex items-center gap-3 border-t border-[#F1F5F9]">
-                    <div className="w-9 h-9 rounded-full bg-[#FF5733] text-white text-xs font-bold flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-full bg-[#317B67] text-white text-xs font-bold flex items-center justify-center">
                       AR
                     </div>
                     <div>
@@ -1085,14 +1085,14 @@ export default function LandingPage() {
           </span>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-[#0F172A] tracking-tight">
             Transforming How Builders <br />
-            <span className="text-[#FF5733]">Collaborate Every Single Day</span>
+            <span className="text-[#317B67]">Collaborate Every Single Day</span>
           </h2>
         </div>
 
         {/* Row 1: Text Left + Tactile 3D Lightning Right */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
           <div className="md:col-span-6 space-y-5 text-left">
-            <span className="text-xs font-mono font-bold text-[#FF5733] uppercase tracking-wider">
+            <span className="text-xs font-mono font-bold text-[#317B67] uppercase tracking-wider">
               Compatibility Engine
             </span>
             <h3 className="text-2xl sm:text-4xl font-extrabold text-[#0F172A] leading-tight">
@@ -1174,7 +1174,7 @@ export default function LandingPage() {
           </span>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-[#0F172A] tracking-tight">
             Unlock Collaboration: <br />
-            <span className="text-[#FF5733]">A Smarter Way to Ship</span>
+            <span className="text-[#317B67]">A Smarter Way to Ship</span>
           </h2>
           <p className="text-xs sm:text-sm text-[#64748B]">
             Tentukan bagaimana kamu ingin memulai kolaborasi pertamamu.
@@ -1230,7 +1230,7 @@ export default function LandingPage() {
             <Link href="/find-partner" className="w-full">
               <button
                 type="button"
-                className="w-full py-3.5 rounded-xl bg-[#FF5733] text-white text-xs font-bold hover:bg-[#D9411E] shadow-md shadow-[#FF5733]/20 transition-all"
+                className="w-full py-3.5 rounded-xl bg-[#317B67] text-white text-xs font-bold hover:bg-[#245E4E] shadow-md shadow-[#317B67]/20 transition-all"
               >
                 Find Teammates
               </button>

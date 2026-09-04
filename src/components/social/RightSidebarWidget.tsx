@@ -30,14 +30,14 @@ export function RightSidebarWidget() {
       <div className="bg-white border border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-4 sm:p-5 shadow-xs space-y-4">
         <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-[#FF5733]" />
+            <Users className="w-4 h-4 text-[#317B67]" />
             <h3 className="text-xs font-bold uppercase tracking-wider text-[#0F172A]">
               Teman Sejawat
             </h3>
           </div>
           <Link
             href="/find-partner"
-            className="text-[11px] font-bold text-[#FF5733] hover:underline flex items-center gap-1"
+            className="text-[11px] font-bold text-[#317B67] hover:underline flex items-center gap-1"
           >
             <span>Swipe Semua</span>
             <ArrowRight className="w-3 h-3" />
@@ -59,14 +59,14 @@ export function RightSidebarWidget() {
                     src={builder.avatarUrl}
                     fallback={builder.name.slice(0, 2).toUpperCase()}
                     size="sm"
-                    className="w-9 h-9 border border-[#E2E8F0] group-hover:border-[#FF5733] transition-colors shrink-0"
+                    className="w-9 h-9 border border-[#E2E8F0] group-hover:border-[#317B67] transition-colors shrink-0"
                   />
                   <div className="space-y-0.5 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <h4 className="text-xs font-bold text-[#0F172A] group-hover:text-[#FF5733] transition-colors truncate">
+                      <h4 className="text-xs font-bold text-[#0F172A] group-hover:text-[#317B67] transition-colors truncate">
                         {builder.name}
                       </h4>
-                      <span className="text-[10px] text-[#FF5733] font-bold">
+                      <span className="text-[10px] text-[#317B67] font-bold">
                         {builder.matchScore}%
                       </span>
                     </div>
@@ -144,7 +144,7 @@ export function RightSidebarWidget() {
       {/* ─── 3. TOP TAGAR KOMUNITAS ─── */}
       <div className="bg-white border border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-4 sm:p-5 shadow-xs space-y-3">
         <div className="flex items-center gap-2 border-b border-[#E2E8F0] pb-2.5">
-          <Tag className="w-4 h-4 text-[#FF5733]" />
+          <Tag className="w-4 h-4 text-[#317B67]" />
           <h3 className="text-xs font-bold uppercase tracking-wider text-[#0F172A]">
             Top Tagar Builder
           </h3>
@@ -166,7 +166,7 @@ export function RightSidebarWidget() {
             <Link
               key={tag}
               href={`/explore?tag=${tag.replace("#", "")}`}
-              className="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-[#FFF1EE] hover:text-[#FF5733] text-[11px] font-semibold text-[#475569] transition-colors"
+              className="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-[#E8F7F0] hover:text-[#317B67] text-[11px] font-semibold text-[#475569] transition-colors"
             >
               {tag}
             </Link>

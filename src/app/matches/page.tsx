@@ -208,7 +208,7 @@ export default function MatchesPage() {
             <Heart className={cn("w-4 h-4", activeMainTab === "LIKES_RECEIVED" ? "text-rose-500 fill-rose-500" : "text-rose-400")} />
             <span>Apresiasi Masuk</span>
             {uniqueIncomingLikes.length > 0 ? (
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-[#FF5733] text-white font-bold shadow-xs">
+              <span className="px-2 py-0.5 rounded-full text-[11px] font-mono bg-[#317B67] text-white font-bold shadow-xs">
                 {uniqueIncomingLikes.length}
               </span>
             ) : (

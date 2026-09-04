@@ -43,7 +43,7 @@ export function Topbar() {
         {/* Brand Logo */}
         <div className="flex items-center gap-6 md:gap-8">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-2xl bg-[#FF5733] flex items-center justify-center text-white shadow-md shadow-[#FF5733]/25 group-hover:scale-105 transition-transform duration-200">
+            <div className="w-9 h-9 rounded-2xl bg-[#317B67] flex items-center justify-center text-white shadow-md shadow-[#317B67]/25 group-hover:scale-105 transition-transform duration-200">
               <Flame className="w-5 h-5 fill-white" />
             </div>
             <div className="flex flex-col">
@@ -71,7 +71,7 @@ export function Topbar() {
             <div className="flex items-center gap-2 sm:gap-2.5">
               <Link
                 href="/profile"
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[#CBD5E1] bg-white text-xs font-bold text-[#0F172A] hover:border-[#FF5733] transition-colors shadow-xs"
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[#CBD5E1] bg-white text-xs font-bold text-[#0F172A] hover:border-[#317B67] transition-colors shadow-xs"
                 title="Lihat & Edit Profil"
               >
                 <Avatar
@@ -109,7 +109,7 @@ export function Topbar() {
               <Link href="/signin">
                 <button
                   type="button"
-                  className="px-3 sm:px-4 py-2 text-xs font-bold text-[#0F172A] hover:text-[#FF5733] transition-colors"
+                  className="px-3 sm:px-4 py-2 text-xs font-bold text-[#0F172A] hover:text-[#317B67] transition-colors"
                 >
                   Masuk
                 </button>

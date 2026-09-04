@@ -43,7 +43,7 @@ function renderFormattedContent(text: string) {
       return (
         <span
           key={idx}
-          className="text-[#FF5733] font-bold hover:underline cursor-pointer"
+          className="text-[#317B67] font-bold hover:underline cursor-pointer"
         >
           {part}
         </span>
@@ -53,7 +53,7 @@ function renderFormattedContent(text: string) {
       return (
         <span
           key={idx}
-          className="text-[#FF5733] font-semibold hover:underline cursor-pointer"
+          className="text-[#317B67] font-semibold hover:underline cursor-pointer"
         >
           {part}
         </span>
@@ -263,7 +263,7 @@ export default function PostDetailPage({
     return (
       <Shell>
         <div className="max-w-4xl mx-auto py-16 text-center space-y-4">
-          <Loader2 className="w-8 h-8 text-[#FF5733] animate-spin mx-auto" />
+          <Loader2 className="w-8 h-8 text-[#317B67] animate-spin mx-auto" />
           <p className="text-sm font-semibold text-slate-500">Memuat detail karya postingan...</p>
         </div>
       </Shell>
@@ -299,7 +299,7 @@ export default function PostDetailPage({
             onClick={() => router.back()}
             className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#0F172A] transition-colors p-2 rounded-lg hover:bg-slate-100"
           >
-            <ArrowLeft className="w-4 h-4 text-[#FF5733]" />
+            <ArrowLeft className="w-4 h-4 text-[#317B67]" />
             <span>Kembali</span>
           </button>
 
@@ -343,7 +343,7 @@ export default function PostDetailPage({
               </div>
             ) : (
               <div className="p-8 text-center text-white space-y-4 max-w-md">
-                <div className="w-12 h-12 rounded-full bg-[#FF5733]/20 text-[#FF5733] flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 rounded-full bg-[#317B67]/20 text-[#317B67] flex items-center justify-center mx-auto">
                   <Quote className="w-6 h-6" />
                 </div>
                 <p className="text-base sm:text-lg font-medium italic leading-relaxed text-slate-200">
@@ -366,7 +366,7 @@ export default function PostDetailPage({
                     src={post.author.avatarUrl}
                     fallback={post.author.name.slice(0, 2).toUpperCase()}
                     size="md"
-                    className="w-10 h-10 border border-[#E2E8F0] hover:border-[#FF5733] transition-colors shrink-0"
+                    className="w-10 h-10 border border-[#E2E8F0] hover:border-[#317B67] transition-colors shrink-0"
                   />
                 </Link>
 
@@ -374,7 +374,7 @@ export default function PostDetailPage({
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/profile/${post.author.id}`}
-                      className="text-xs sm:text-sm font-bold text-[#0F172A] hover:text-[#FF5733] transition-colors truncate"
+                      className="text-xs sm:text-sm font-bold text-[#0F172A] hover:text-[#317B67] transition-colors truncate"
                     >
                       {post.author.name}
                     </Link>
@@ -394,7 +394,7 @@ export default function PostDetailPage({
                     disabled={isFollowLoading}
                     className={cn(
                       "text-[11px] h-8 px-3 rounded-xl font-bold",
-                      !isFollowingAuthor && "bg-[#FF5733] hover:bg-[#D9411E] text-white"
+                      !isFollowingAuthor && "bg-[#317B67] hover:bg-[#245E4E] text-white"
                     )}
                   >
                     {isFollowingAuthor ? (
@@ -473,7 +473,7 @@ export default function PostDetailPage({
                   {post.tags && post.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {post.tags.map((tag) => (
-                        <span key={tag} className="text-[11px] font-semibold text-[#FF5733] hover:underline cursor-pointer">
+                        <span key={tag} className="text-[11px] font-semibold text-[#317B67] hover:underline cursor-pointer">
                           {tag.startsWith("#") ? tag : `#${tag}`}
                         </span>
                       ))}
@@ -514,7 +514,7 @@ export default function PostDetailPage({
                               {comment.likeCount > 0 && <span>{comment.likeCount} suka</span>}
                               <button
                                 onClick={() => setReplyingTo({ id: comment.id, name: comment.author.name })}
-                                className="text-slate-600 hover:text-[#FF5733]"
+                                className="text-slate-600 hover:text-[#317B67]"
                               >
                                 Balas
                               </button>
@@ -556,7 +556,7 @@ export default function PostDetailPage({
                                     {reply.likeCount > 0 && <span>{reply.likeCount} suka</span>}
                                     <button
                                       onClick={() => setReplyingTo({ id: comment.id, name: reply.author.name })}
-                                      className="text-slate-600 hover:text-[#FF5733]"
+                                      className="text-slate-600 hover:text-[#317B67]"
                                     >
                                       Balas
                                     </button>
@@ -611,9 +611,9 @@ export default function PostDetailPage({
 
                 <button
                   onClick={handleToggleBookmark}
-                  className="p-1 text-slate-600 hover:text-[#FF5733] transition-colors"
+                  className="p-1 text-slate-600 hover:text-[#317B67] transition-colors"
                 >
-                  <Bookmark className={cn("w-5 h-5", post.isBookmarked ? "text-[#FF5733] fill-[#FF5733]" : "text-slate-600")} />
+                  <Bookmark className={cn("w-5 h-5", post.isBookmarked ? "text-[#317B67] fill-[#317B67]" : "text-slate-600")} />
                 </button>
               </div>
 
@@ -627,7 +627,7 @@ export default function PostDetailPage({
                     </button>
                   </div>
                 )}
-                <div className="flex items-center gap-2 bg-white border border-[#E2E8F0] rounded-xl p-1.5 focus-within:border-[#FF5733]">
+                <div className="flex items-center gap-2 bg-white border border-[#E2E8F0] rounded-xl p-1.5 focus-within:border-[#317B67]">
                   <input
                     type="text"
                     placeholder={replyingTo ? `Tulis balasan untuk @${replyingTo.name}...` : "Tulis komentar..."}
@@ -639,7 +639,7 @@ export default function PostDetailPage({
                     type="submit"
                     size="sm"
                     disabled={!commentInput.trim() || isSubmittingComment}
-                    className="h-7 px-3 text-xs bg-[#FF5733] hover:bg-[#D9411E] text-white font-bold rounded-lg shrink-0"
+                    className="h-7 px-3 text-xs bg-[#317B67] hover:bg-[#245E4E] text-white font-bold rounded-lg shrink-0"
                   >
                     <Send className="w-3.5 h-3.5" />
                   </Button>

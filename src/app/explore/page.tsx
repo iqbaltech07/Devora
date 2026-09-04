@@ -99,10 +99,10 @@ export default function ExplorePage() {
       <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
         {/* ─── 1. EXPLORE HEADER & SEARCH ─── */}
         <div className="bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] rounded-2xl p-6 sm:p-8 text-white space-y-4 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF5733]/15 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#317B67]/15 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16" />
 
           <div className="relative z-10 space-y-2">
-            <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#FF5733] flex items-center gap-1.5">
+            <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#317B67] flex items-center gap-1.5">
               <Compass className="w-3.5 h-3.5" />
               <span>Eksplorasi Karya Komunitas</span>
             </div>
@@ -122,7 +122,7 @@ export default function ExplorePage() {
               placeholder="Cari postingan, UI screenshot, atau tagar (misal: #Nextjs, #AI, #Tailwind)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:border-[#FF5733] text-white placeholder:text-slate-400 backdrop-blur-md"
+              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white/10 border border-white/20 rounded-xl focus:outline-none focus:border-[#317B67] text-white placeholder:text-slate-400 backdrop-blur-md"
             />
           </div>
         </div>
@@ -147,7 +147,7 @@ export default function ExplorePage() {
               className={cn(
                 "px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0",
                 selectedTag === t
-                  ? "bg-[#FF5733] text-white shadow-xs font-bold"
+                  ? "bg-[#317B67] text-white shadow-xs font-bold"
                   : "bg-white border border-[#CBD5E1] text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
               )}
             >
@@ -161,12 +161,12 @@ export default function ExplorePage() {
           <div className="bg-white border border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-4 sm:p-5 shadow-xs space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-[#FF5733]" />
+                <Users className="w-4 h-4 text-[#317B67]" />
                 <h2 className="text-xs font-bold uppercase tracking-wider text-[#0F172A]">
                   Developer Aktif Minggu Ini
                 </h2>
               </div>
-              <Link href="/find-partner" className="text-xs font-bold text-[#FF5733] hover:underline flex items-center gap-1">
+              <Link href="/find-partner" className="text-xs font-bold text-[#317B67] hover:underline flex items-center gap-1">
                 <span>Cari Match</span>
               </Link>
             </div>
@@ -176,15 +176,15 @@ export default function ExplorePage() {
                 <Link
                   key={b.id}
                   href={`/profile/${b.id}`}
-                  className="p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-[#FF5733] transition-all text-center flex flex-col items-center space-y-1.5 group"
+                  className="p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-[#317B67] transition-all text-center flex flex-col items-center space-y-1.5 group"
                 >
                   <Avatar
                     src={b.avatarUrl}
                     fallback={b.name.slice(0, 2).toUpperCase()}
                     size="md"
-                    className="w-11 h-11 border border-slate-200 group-hover:border-[#FF5733] transition-colors"
+                    className="w-11 h-11 border border-slate-200 group-hover:border-[#317B67] transition-colors"
                   />
-                  <h3 className="text-xs font-bold text-[#0F172A] group-hover:text-[#FF5733] truncate w-full">
+                  <h3 className="text-xs font-bold text-[#0F172A] group-hover:text-[#317B67] truncate w-full">
                     {b.name}
                   </h3>
                   <p className="text-[10px] text-[#64748B] truncate w-full">
@@ -200,7 +200,7 @@ export default function ExplorePage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-[#0F172A] flex items-center gap-2">
-              <Compass className="w-4 h-4 text-[#FF5733]" />
+              <Compass className="w-4 h-4 text-[#317B67]" />
               <span>Showcase Karya</span>
             </h2>
             <span className="text-xs text-[#64748B]">{posts.length} Postingan Ditemukan</span>
@@ -222,7 +222,7 @@ export default function ExplorePage() {
                   <Link
                     key={post.id}
                     href={`/posts/${post.id}`}
-                    className="group relative rounded-2xl overflow-hidden border border-[#E2E8F0] bg-white shadow-xs hover:shadow-md hover:border-[#FF5733] transition-all cursor-pointer flex flex-col justify-between"
+                    className="group relative rounded-2xl overflow-hidden border border-[#E2E8F0] bg-white shadow-xs hover:shadow-md hover:border-[#317B67] transition-all cursor-pointer flex flex-col justify-between"
                   >
                     {/* Visual Media Header or Code Preview */}
                     {hasImage ? (
@@ -240,7 +240,7 @@ export default function ExplorePage() {
                       <div className="p-3 bg-[#0F172A] text-emerald-400 font-mono text-[11px] h-36 overflow-hidden relative">
                         <div className="flex items-center justify-between border-b border-slate-800 pb-1 mb-2 text-slate-400 text-[10px]">
                           <span>{post.codeLanguage || "code"}</span>
-                          <Code2 className="w-3.5 h-3.5 text-[#FF5733]" />
+                          <Code2 className="w-3.5 h-3.5 text-[#317B67]" />
                         </div>
                         <pre className="line-clamp-4 leading-relaxed">{post.codeSnippet}</pre>
                         <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#0F172A] to-transparent" />
@@ -274,7 +274,7 @@ export default function ExplorePage() {
 
                         <div className="flex items-center gap-2.5 text-[11px] text-[#64748B] shrink-0 font-semibold">
                           <span className="flex items-center gap-1">
-                            <Flame className="w-3.5 h-3.5 text-[#FF5733] fill-[#FF5733]" />
+                            <Flame className="w-3.5 h-3.5 text-[#317B67] fill-[#317B67]" />
                             {post.likeCount}
                           </span>
                           <span className="flex items-center gap-1">
@@ -378,7 +378,7 @@ export default function ExplorePage() {
               {inspectingPost.tags && (
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {inspectingPost.tags.map((t) => (
-                    <span key={t} className="text-xs font-bold text-[#FF5733]">
+                    <span key={t} className="text-xs font-bold text-[#317B67]">
                       {t}
                     </span>
                   ))}
@@ -390,7 +390,7 @@ export default function ExplorePage() {
             <div className="p-4 border-t border-[#E2E8F0] bg-slate-50 flex items-center justify-between">
               <div className="flex items-center gap-3 text-xs font-bold text-[#64748B]">
                 <span className="flex items-center gap-1">
-                  <Flame className="w-4 h-4 text-[#FF5733] fill-[#FF5733]" />
+                  <Flame className="w-4 h-4 text-[#317B67] fill-[#317B67]" />
                   {inspectingPost.likeCount} Reaksi
                 </span>
                 <span className="flex items-center gap-1">
@@ -405,7 +405,7 @@ export default function ExplorePage() {
               >
                 <button
                   type="button"
-                  className="px-4 py-2 rounded-full bg-[#FF5733] hover:bg-[#D9411E] text-white text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all"
+                  className="px-4 py-2 rounded-full bg-[#317B67] hover:bg-[#245E4E] text-white text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all"
                 >
                   <Rocket className="w-3.5 h-3.5" />
                   <span>Ajak Kolaborasi</span>

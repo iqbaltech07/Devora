@@ -874,7 +874,7 @@ export default function ProfilePage() {
         <div className="space-y-3 border-b border-devora-border pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1">
-              <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#FF5733] flex items-center gap-1.5">
+              <div className="text-xs font-mono font-bold uppercase tracking-wider text-[#317B67] flex items-center gap-1.5">
                 <Sliders className="w-3.5 h-3.5" />
                 <span>Pengaturan Profil Developer</span>
               </div>
@@ -939,8 +939,8 @@ export default function ProfilePage() {
                 onClick={() => setFollowModalType("followers")}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 border border-devora-border rounded-xl text-xs font-bold text-[#0F172A] shadow-xs transition-colors"
               >
-                <Users className="w-3.5 h-3.5 text-[#FF5733]" />
-                <span className="font-extrabold text-[#FF5733]">{followStats.followersCount}</span>
+                <Users className="w-3.5 h-3.5 text-[#317B67]" />
+                <span className="font-extrabold text-[#317B67]">{followStats.followersCount}</span>
                 <span className="text-slate-500 font-medium">Pengikut</span>
               </button>
 
@@ -1454,13 +1454,13 @@ export default function ProfilePage() {
                   {/* Uploading Spinner Overlay */}
                   {isUploadingAvatar && (
                     <div className="absolute inset-0 rounded-full bg-black/70 text-white flex flex-col items-center justify-center gap-1">
-                      <Loader2 className="w-6 h-6 animate-spin text-[#FF5733]" />
+                      <Loader2 className="w-6 h-6 animate-spin text-[#317B67]" />
                       <span className="text-[9px] font-bold">Mengunggah...</span>
                     </div>
                   )}
 
                   {/* Badge Camera Icon Indicator */}
-                  <span className="absolute bottom-0 right-0 p-1.5 rounded-full bg-[#FF5733] text-white shadow-md border-2 border-white">
+                  <span className="absolute bottom-0 right-0 p-1.5 rounded-full bg-[#317B67] text-white shadow-md border-2 border-white">
                     <Camera className="w-3.5 h-3.5" />
                   </span>
                 </div>

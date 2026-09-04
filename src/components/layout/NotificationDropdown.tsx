@@ -76,7 +76,7 @@ export function NotificationDropdown() {
         className={cn(
           "relative p-2 rounded-full border transition-all duration-150 flex items-center justify-center",
           isOpen
-            ? "bg-white border-[#FF5733] text-[#FF5733] shadow-sm"
+            ? "bg-white border-[#317B67] text-[#317B67] shadow-sm"
             : "border-[#E2E8F0] bg-white text-[#64748B] hover:text-[#0F172A] hover:border-[#CBD5E1]"
         )}
         title="Notifikasi Real-time"
@@ -86,7 +86,7 @@ export function NotificationDropdown() {
 
         {/* Unread Counter Badge */}
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 px-1 bg-[#FF5733] text-white text-[10px] font-bold font-mono rounded-full flex items-center justify-center shadow-md">
+          <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 px-1 bg-[#317B67] text-white text-[10px] font-bold font-mono rounded-full flex items-center justify-center shadow-md">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -103,7 +103,7 @@ export function NotificationDropdown() {
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-2 hover:opacity-80 transition-opacity"
               >
-                <div className="w-6 h-6 rounded-lg bg-[#FF5733]/15 text-[#FF5733] flex items-center justify-center">
+                <div className="w-6 h-6 rounded-lg bg-[#317B67]/15 text-[#317B67] flex items-center justify-center">
                   <Bell className="w-3.5 h-3.5" />
                 </div>
                 <h3 className="text-xs font-bold text-[#0F172A]">Notifikasi</h3>
@@ -176,7 +176,7 @@ export function NotificationDropdown() {
                   onClick={() => handleNotificationClick(notif)}
                   className={cn(
                     "p-3.5 flex items-start gap-3 cursor-pointer transition-all hover:bg-slate-50 text-left relative",
-                    !notif.read && "bg-[#FFF8F6]/70"
+                    !notif.read && "bg-[#F2FAF6]/70"
                   )}
                 >
                   {/* Actor Avatar or Icon */}
@@ -189,15 +189,15 @@ export function NotificationDropdown() {
                         className="border border-[#E2E8F0]"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-[#FF5733]/10 text-[#FF5733] flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-[#317B67]/10 text-[#317B67] flex items-center justify-center">
                         <Flame className="w-5 h-5" />
                       </div>
                     )}
 
                     {/* Floating Type Badge */}
                     <span className="absolute -bottom-1 -right-1 w-4.5 h-4.5 rounded-full bg-white shadow-xs border border-[#E2E8F0] flex items-center justify-center">
-                      {(notif.type === "FOLLOW" || notif.type === "FOLLOW_BACK") && <Users className="w-2.5 h-2.5 text-[#FF5733]" />}
-                      {notif.type === "LIKE" && <Heart className="w-2.5 h-2.5 text-[#FF5733] fill-[#FF5733]" />}
+                      {(notif.type === "FOLLOW" || notif.type === "FOLLOW_BACK") && <Users className="w-2.5 h-2.5 text-[#317B67]" />}
+                      {notif.type === "LIKE" && <Heart className="w-2.5 h-2.5 text-[#317B67] fill-[#317B67]" />}
                       {notif.type === "MATCH" && <Flame className="w-2.5 h-2.5 text-emerald-500 fill-emerald-500" />}
                       {notif.type === "PROJECT_INVITE" && <FolderKanban className="w-2.5 h-2.5 text-blue-500" />}
                       {notif.type === "MESSAGE" && <MessageSquare className="w-2.5 h-2.5 text-violet-500" />}
@@ -213,7 +213,7 @@ export function NotificationDropdown() {
                         <span className="font-semibold text-[#64748B]">{notif.title}</span>
                       </h4>
                       {!notif.read && (
-                        <span className="w-2 h-2 rounded-full bg-[#FF5733] shrink-0" />
+                        <span className="w-2 h-2 rounded-full bg-[#317B67] shrink-0" />
                       )}
                     </div>
 
@@ -223,7 +223,7 @@ export function NotificationDropdown() {
 
                     <div className="flex items-center justify-between pt-1 text-[10px] text-[#94A3B8]">
                       <span>{notif.createdAt}</span>
-                      <span className="text-[#FF5733] font-bold flex items-center gap-0.5 hover:underline">
+                      <span className="text-[#317B67] font-bold flex items-center gap-0.5 hover:underline">
                         Lihat <ArrowRight className="w-2.5 h-2.5" />
                       </span>
                     </div>
@@ -246,7 +246,7 @@ export function NotificationDropdown() {
             <Link
               href="/notifications"
               onClick={() => setIsOpen(false)}
-              className="text-xs font-bold text-[#FF5733] hover:underline flex items-center gap-1 mx-auto"
+              className="text-xs font-bold text-[#317B67] hover:underline flex items-center gap-1 mx-auto"
             >
               <span>Buka Halaman Notifikasi Selengkapnya</span>
               <ArrowRight className="w-3.5 h-3.5" />

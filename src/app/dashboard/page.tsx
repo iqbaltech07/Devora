@@ -66,7 +66,7 @@ export default function DashboardPage() {
                         : "bg-white border border-[#CBD5E1] text-[#64748B] hover:text-[#0F172A] hover:bg-slate-50"
                     )}
                   >
-                    <Icon className={cn("w-3.5 h-3.5", isActive ? "text-[#FF5733]" : "text-[#64748B]")} />
+                    <Icon className={cn("w-3.5 h-3.5", isActive ? "text-[#317B67]" : "text-[#64748B]")} />
                     <span>{cat.label}</span>
                   </button>
                 );
@@ -76,7 +76,7 @@ export default function DashboardPage() {
             {/* Feed Stream */}
             {isLoading && posts.length === 0 ? (
               <div className="bg-white border border-[#E2E8F0] rounded-2xl p-12 text-center flex flex-col items-center justify-center space-y-3 shadow-xs">
-                <Loader2 className="w-8 h-8 text-[#FF5733] animate-spin" />
+                <Loader2 className="w-8 h-8 text-[#317B67] animate-spin" />
                 <p className="text-xs font-bold text-[#64748B]">
                   Memuat timeline karya komunitas...
                 </p>
@@ -89,7 +89,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="bg-white border-2 border-dashed border-[#E2E8F0] rounded-2xl p-10 sm:p-14 text-center space-y-4 shadow-xs">
-                <div className="w-14 h-14 rounded-2xl bg-[#FFF1EE] text-[#FF5733] flex items-center justify-center mx-auto shadow-xs">
+                <div className="w-14 h-14 rounded-2xl bg-[#E8F7F0] text-[#317B67] flex items-center justify-center mx-auto shadow-xs">
                   <Rss className="w-7 h-7" />
                 </div>
                 <div className="space-y-1.5 max-w-sm mx-auto">

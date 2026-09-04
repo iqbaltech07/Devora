@@ -47,7 +47,7 @@ export function MatchScoreBadge({
   const getScoreTheme = (s: number) => {
     if (s >= 85) {
       return {
-        color: "#FF5733", // Devora Brand Electric Coral
+        color: "#317B67", // Devora Brand Emerald Green
         tier: "High Synergy",
         tierVariant: "brand" as const,
       };

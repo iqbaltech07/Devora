@@ -13,7 +13,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", children, ...props }, ref) => {
     const variantStyles = {
       primary:
-        "bg-[#FF5733] text-white hover:bg-[#D9411E] shadow-sm focus-visible:ring-[#FF5733] active:scale-[0.98]",
+        "bg-[#317B67] text-white hover:bg-[#245E4E] shadow-sm focus-visible:ring-[#317B67] active:scale-[0.98]",
       secondary:
         "bg-white border border-[#E2E8F0] text-[#0F172A] hover:bg-slate-50 hover:border-[#CBD5E1] shadow-2xs focus-visible:ring-slate-400 active:scale-[0.98]",
       ghost:

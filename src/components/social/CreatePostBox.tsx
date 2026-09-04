@@ -265,7 +265,7 @@ export function CreatePostBox() {
             >
               <div className="px-3 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-500">
                 <span className="flex items-center gap-1">
-                  <AtSign className="w-3 h-3 text-[#FF5733]" />
+                  <AtSign className="w-3 h-3 text-[#317B67]" />
                   <span>Sebut Teman Developer</span>
                 </span>
                 <span className="text-[10px] text-slate-400 font-mono">Pilih untuk tag</span>
@@ -277,7 +277,7 @@ export function CreatePostBox() {
                     key={c.id}
                     type="button"
                     onClick={() => handleSelectMention(c)}
-                    className="w-full p-2.5 flex items-center gap-2.5 hover:bg-[#FFF8F6] text-left transition-colors group"
+                    className="w-full p-2.5 flex items-center gap-2.5 hover:bg-[#F2FAF6] text-left transition-colors group"
                   >
                     <Avatar
                       src={c.image}
@@ -286,7 +286,7 @@ export function CreatePostBox() {
                       className="border border-[#E2E8F0]"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-[#0F172A] group-hover:text-[#FF5733] truncate">
+                      <p className="text-xs font-bold text-[#0F172A] group-hover:text-[#317B67] truncate">
                         {c.name}
                       </p>
                       <p className="text-[10px] font-mono text-slate-400 truncate">
@@ -306,7 +306,7 @@ export function CreatePostBox() {
         <div className="rounded-xl border border-slate-700 bg-[#0F172A] p-3 space-y-2.5 animate-in fade-in">
           <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
             <div className="flex items-center gap-2">
-              <Code2 className="w-4 h-4 text-[#FF5733]" />
+              <Code2 className="w-4 h-4 text-[#317B67]" />
               <span className="text-[11px] font-mono uppercase font-bold text-slate-200">
                 Cuplikan Kode
               </span>
@@ -343,7 +343,7 @@ export function CreatePostBox() {
             value={codeSnippet}
             onChange={(e) => setCodeSnippet(e.target.value)}
             rows={4}
-            className="w-full p-2 text-xs font-mono bg-slate-900/80 text-emerald-400 border border-slate-800 rounded-lg focus:outline-none focus:border-[#FF5733] resize-none leading-relaxed"
+            className="w-full p-2 text-xs font-mono bg-slate-900/80 text-emerald-400 border border-slate-800 rounded-lg focus:outline-none focus:border-[#317B67] resize-none leading-relaxed"
           />
         </div>
       )}
@@ -387,7 +387,7 @@ export function CreatePostBox() {
                   : "bg-slate-100 border border-slate-200 text-[#64748B] hover:text-[#0F172A] hover:bg-slate-200"
               }`}
             >
-              <Icon className="w-3.5 h-3.5 text-[#FF5733]" />
+              <Icon className="w-3.5 h-3.5 text-[#317B67]" />
               <span>{cat.label}</span>
             </button>
           );
@@ -399,7 +399,7 @@ export function CreatePostBox() {
         {tags.map((t) => (
           <span
             key={t}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#FFF1EE] text-[#FF5733] font-bold border border-[#FF5733]/20"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#E8F7F0] text-[#317B67] font-bold border border-[#317B67]/20"
           >
             <span>{t}</span>
             <button type="button" onClick={() => handleRemoveTag(t)}>
@@ -423,7 +423,7 @@ export function CreatePostBox() {
             }}
             className="w-24 text-xs bg-transparent border-0 focus:outline-none text-[#0F172A] placeholder:text-slate-400"
           />
-          <button type="button" onClick={handleAddTag} className="text-slate-400 hover:text-[#FF5733]">
+          <button type="button" onClick={handleAddTag} className="text-slate-400 hover:text-[#317B67]">
             <Plus className="w-3 h-3" />
           </button>
         </div>
@@ -445,9 +445,9 @@ export function CreatePostBox() {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] hover:border-[#FF5733] text-xs font-semibold text-[#475569] hover:text-[#0F172A] flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] hover:border-[#317B67] text-xs font-semibold text-[#475569] hover:text-[#0F172A] flex items-center gap-1.5 transition-colors"
           >
-            <ImageIcon className="w-3.5 h-3.5 text-[#FF5733]" />
+            <ImageIcon className="w-3.5 h-3.5 text-[#317B67]" />
             <span className="hidden sm:inline">
               {isUploading ? "Mengunggah..." : "Gambar"}
             </span>
@@ -457,10 +457,10 @@ export function CreatePostBox() {
           <button
             type="button"
             onClick={handleOpenMentionPicker}
-            className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] hover:border-[#FF5733] text-xs font-semibold text-[#475569] hover:text-[#0F172A] flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-lg border border-[#E2E8F0] hover:border-[#317B67] text-xs font-semibold text-[#475569] hover:text-[#0F172A] flex items-center gap-1.5 transition-colors"
             title="Tag atau sebut teman developer (@)"
           >
-            <AtSign className="w-3.5 h-3.5 text-[#FF5733]" />
+            <AtSign className="w-3.5 h-3.5 text-[#317B67]" />
             <span className="hidden sm:inline">Tag Teman</span>
           </button>
 
@@ -471,10 +471,10 @@ export function CreatePostBox() {
             className={`px-3 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition-colors ${
               showCodeInput
                 ? "bg-[#0F172A] text-white border-[#0F172A]"
-                : "border-[#E2E8F0] text-[#475569] hover:border-[#FF5733] hover:text-[#0F172A]"
+                : "border-[#E2E8F0] text-[#475569] hover:border-[#317B67] hover:text-[#0F172A]"
             }`}
           >
-            <Code2 className="w-3.5 h-3.5 text-[#FF5733]" />
+            <Code2 className="w-3.5 h-3.5 text-[#317B67]" />
             <span className="hidden sm:inline">Snippet Kode</span>
           </button>
         </div>
@@ -484,7 +484,7 @@ export function CreatePostBox() {
           type="button"
           onClick={handleSubmit}
           disabled={isSubmitting || (!content.trim() && mediaUrls.length === 0 && !codeSnippet.trim())}
-          className="px-5 py-2.5 rounded-xl bg-[#FF5733] hover:bg-[#D9411E] text-white text-xs font-bold shadow-sm shadow-[#FF5733]/30 disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2"
+          className="px-5 py-2.5 rounded-xl bg-[#317B67] hover:bg-[#245E4E] text-white text-xs font-bold shadow-sm shadow-[#317B67]/30 disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2"
         >
           <Rocket className="w-3.5 h-3.5" />
           <span>{isSubmitting ? "Membagikan..." : "Posting Karya"}</span>

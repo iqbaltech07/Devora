@@ -126,9 +126,9 @@ export default function NotificationsPage() {
         <div className="bg-white border border-[#E2E8F0] rounded-2xl sm:rounded-[24px] p-5 sm:p-6 shadow-xs space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFF1EE] border border-[#FF5733]/20">
-                <Radio className="w-3.5 h-3.5 text-[#FF5733] animate-pulse" />
-                <span className="text-[10px] sm:text-xs font-bold font-mono uppercase tracking-wider text-[#FF5733]">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#E8F7F0] border border-[#317B67]/20">
+                <Radio className="w-3.5 h-3.5 text-[#317B67] animate-pulse" />
+                <span className="text-[10px] sm:text-xs font-bold font-mono uppercase tracking-wider text-[#317B67]">
                   Pusat Notifikasi Komunitas
                 </span>
               </div>
@@ -148,7 +148,7 @@ export default function NotificationsPage() {
                 size="sm"
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                className="gap-1.5 text-xs font-bold bg-white border-[#E2E8F0] hover:border-[#FF5733] shadow-xs"
+                className="gap-1.5 text-xs font-bold bg-white border-[#E2E8F0] hover:border-[#317B67] shadow-xs"
               >
                 <RefreshCw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} />
                 <span>Segarkan</span>
@@ -181,7 +181,7 @@ export default function NotificationsPage() {
                   : "bg-slate-100 text-[#64748B] hover:bg-slate-200 hover:text-[#0F172A]"
               )}
             >
-              <Users className="w-3.5 h-3.5 text-[#FF5733]" />
+              <Users className="w-3.5 h-3.5 text-[#317B67]" />
               <span>Pengikut ({followCount})</span>
             </button>
 
@@ -245,7 +245,7 @@ export default function NotificationsPage() {
                   className={cn(
                     "bg-white border rounded-2xl sm:rounded-[24px] p-4 sm:p-5 transition-all cursor-pointer relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-left shadow-xs hover:border-[#CBD5E1] hover:shadow-md",
                     !notif.read
-                      ? "border-[#FF5733]/30 bg-[#FFF8F6]/80"
+                      ? "border-[#317B67]/30 bg-[#F2FAF6]/80"
                       : "border-[#E2E8F0]"
                   )}
                 >
@@ -260,15 +260,15 @@ export default function NotificationsPage() {
                           className="w-11 h-11 border-2 border-white shadow-xs"
                         />
                       ) : (
-                        <div className="w-11 h-11 rounded-full bg-[#FF5733]/15 text-[#FF5733] flex items-center justify-center font-bold text-sm">
+                        <div className="w-11 h-11 rounded-full bg-[#317B67]/15 text-[#317B67] flex items-center justify-center font-bold text-sm">
                           {notif.actorName ? notif.actorName.slice(0, 2).toUpperCase() : "DV"}
                         </div>
                       )}
 
                       {/* Notification Type Icon Pill */}
                       <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white shadow-xs border border-[#E2E8F0] flex items-center justify-center">
-                        {isFollowType && <Users className="w-3 h-3 text-[#FF5733]" />}
-                        {isLikeType && <Heart className="w-3 h-3 text-[#FF5733] fill-[#FF5733]" />}
+                        {isFollowType && <Users className="w-3 h-3 text-[#317B67]" />}
+                        {isLikeType && <Heart className="w-3 h-3 text-[#317B67] fill-[#317B67]" />}
                         {isProjectType && <FolderKanban className="w-3 h-3 text-blue-500" />}
                         {isChatType && <MessageSquare className="w-3 h-3 text-emerald-500" />}
                         {!isFollowType && !isLikeType && !isProjectType && !isChatType && (
@@ -304,7 +304,7 @@ export default function NotificationsPage() {
                   {/* Right Action CTA */}
                   <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#E2E8F0]/60">
                     {!notif.read && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#FF5733] shrink-0 mr-1 hidden sm:inline-block" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#317B67] shrink-0 mr-1 hidden sm:inline-block" />
                     )}
 
                     <Button
@@ -317,7 +317,7 @@ export default function NotificationsPage() {
                       className={cn(
                         "gap-1.5 text-xs font-bold rounded-full px-4 py-1.5 shadow-xs transition-all active:scale-95",
                         isFollowType
-                          ? "bg-[#FF5733] hover:bg-[#D9411E] text-white"
+                          ? "bg-[#317B67] hover:bg-[#245E4E] text-white"
                           : "bg-[#0F172A] hover:bg-[#1E293B] text-white"
                       )}
                     >
@@ -328,12 +328,12 @@ export default function NotificationsPage() {
                         </>
                       ) : isProjectType ? (
                         <>
-                          <FolderKanban className="w-3.5 h-3.5 text-[#FF5733]" />
+                          <FolderKanban className="w-3.5 h-3.5 text-[#317B67]" />
                           <span>Buka Proyek</span>
                         </>
                       ) : isChatType ? (
                         <>
-                          <MessageSquare className="w-3.5 h-3.5 text-[#FF5733]" />
+                          <MessageSquare className="w-3.5 h-3.5 text-[#317B67]" />
                           <span>Balas Pesan</span>
                         </>
                       ) : (

@@ -160,7 +160,7 @@ export function StoryViewerModal() {
               src={currentGroup.author.avatarUrl}
               fallback={currentGroup.author.name.slice(0, 2).toUpperCase()}
               size="sm"
-              className="border-2 border-[#FF5733]"
+              className="border-2 border-[#317B67]"
             />
             <div className="text-left">
               <div className="flex items-center gap-1.5">
@@ -236,12 +236,12 @@ export function StoryViewerModal() {
                 onClick={() => setShowViewersModal(true)}
                 className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold backdrop-blur-md transition-all active:scale-95"
               >
-                <Eye className="w-3.5 h-3.5 text-[#FF5733]" />
+                <Eye className="w-3.5 h-3.5 text-[#317B67]" />
                 <span>{viewsCount} Dilihat</span>
               </button>
 
               <span className="text-[11px] text-slate-400 flex items-center gap-1">
-                <Clock className="w-3 h-3 text-[#FF5733]" />
+                <Clock className="w-3 h-3 text-[#317B67]" />
                 <span>24 Jam</span>
               </span>
             </div>
@@ -253,12 +253,12 @@ export function StoryViewerModal() {
                 placeholder={`Balas cerita ${currentGroup.author.name}...`}
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                className="flex-1 px-3.5 py-2 text-xs rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 focus:outline-none focus:border-[#FF5733] backdrop-blur-md"
+                className="flex-1 px-3.5 py-2 text-xs rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 focus:outline-none focus:border-[#317B67] backdrop-blur-md"
               />
               <button
                 type="submit"
                 disabled={!replyText.trim() || isSendingReply}
-                className="p-2 rounded-xl bg-[#FF5733] hover:bg-[#D9411E] text-white disabled:opacity-40 transition-all active:scale-95 shrink-0"
+                className="p-2 rounded-xl bg-[#317B67] hover:bg-[#245E4E] text-white disabled:opacity-40 transition-all active:scale-95 shrink-0"
                 title="Kirim ke Chat"
               >
                 <Send className="w-3.5 h-3.5" />
@@ -279,7 +279,7 @@ export function StoryViewerModal() {
             >
               <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-[#FF5733]" />
+                  <Users className="w-4 h-4 text-[#317B67]" />
                   <h4 className="text-xs font-bold text-white uppercase tracking-wider">
                     Dilihat Oleh ({viewers.length})
                   </h4>

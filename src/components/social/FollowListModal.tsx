@@ -88,7 +88,7 @@ export function FollowListModal({
       >
         <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3 shrink-0">
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-[#FF5733]" />
+            <Users className="w-4 h-4 text-[#317B67]" />
             <div>
               <h3 className="text-sm font-bold text-[#0F172A]">{title}</h3>
               <p className="text-[11px] text-[#64748B]">@{userName}</p>
@@ -105,7 +105,7 @@ export function FollowListModal({
         <div className="overflow-y-auto space-y-2.5 flex-1 pr-1">
           {isLoading ? (
             <div className="py-8 flex flex-col items-center justify-center space-y-2 text-slate-400">
-              <Loader2 className="w-6 h-6 animate-spin text-[#FF5733]" />
+              <Loader2 className="w-6 h-6 animate-spin text-[#317B67]" />
               <span className="text-xs font-medium">Memuat data...</span>
             </div>
           ) : users.length > 0 ? (
@@ -123,10 +123,10 @@ export function FollowListModal({
                     src={u.avatarUrl}
                     fallback={u.name.slice(0, 2).toUpperCase()}
                     size="sm"
-                    className="w-9 h-9 border border-[#E2E8F0] group-hover:border-[#FF5733] transition-colors shrink-0"
+                    className="w-9 h-9 border border-[#E2E8F0] group-hover:border-[#317B67] transition-colors shrink-0"
                   />
                   <div className="space-y-0.5 min-w-0">
-                    <h4 className="text-xs font-bold text-[#0F172A] group-hover:text-[#FF5733] transition-colors truncate">
+                    <h4 className="text-xs font-bold text-[#0F172A] group-hover:text-[#317B67] transition-colors truncate">
                       {u.name}
                     </h4>
                     <p className="text-[10px] text-[#64748B] truncate">
@@ -144,7 +144,7 @@ export function FollowListModal({
                       "px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition-all active:scale-95 shrink-0",
                       u.isFollowing
                         ? "bg-slate-200 text-[#0F172A] hover:bg-red-50 hover:text-red-600 hover:border-red-200 border border-transparent"
-                        : "bg-[#FF5733] text-white hover:bg-[#D9411E] shadow-xs"
+                        : "bg-[#317B67] text-white hover:bg-[#245E4E] shadow-xs"
                     )}
                   >
                     {u.isFollowing ? (

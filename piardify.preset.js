@@ -15,9 +15,9 @@ module.exports = {
             strong: "#F3EFEA",
           },
           brand: {
-            DEFAULT: "#FF5733",
-            dark: "#D9411E",
-            soft: "#FFF1EE",
+            DEFAULT: "#317B67",
+            dark: "#245E4E",
+            soft: "#E8F7F0",
           },
           border: {
             DEFAULT: "#E8E2D8",
@@ -38,7 +38,7 @@ module.exports = {
           surface: "#FFFFFF",
           elevated: "#F3EFEA",
           border: "#E8E2D8",
-          accent: "#FF5733",
+          accent: "#317B67",
           text: {
             primary: "#0D1110",
             muted: "#646A66",
@@ -66,7 +66,7 @@ module.exports = {
       },
       borderRadius: {
         input: "12px",
-        button: "9999px",
+        button: "12px",
         card: "24px",
         container: "24px",
         modal: "24px",
